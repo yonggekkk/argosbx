@@ -86,7 +86,7 @@ wpv6=$(echo "$warpurl" | awk -F'：' '/IPV6/{print $2}' | xargs)
 res=$(echo "$warpurl" | awk -F'：' '/reserved/{print $2}' | xargs)
 else
 wpv6='2606:4700:110:8d8d:1845:c39f:2dd5:a03a'
-pvk='52cuYFgCJXp0LAq7+nWJIbCXXgU9eGggOc+Hlfz5u6A'
+pvk='52cuYFgCJXp0LAq7+nWJIbCXXgU9eGggOc+Hlfz5u6A='
 res='[215, 69, 233]'
 fi
 if [ -n "$name" ]; then
