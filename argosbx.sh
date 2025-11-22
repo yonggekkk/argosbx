@@ -81,7 +81,7 @@ v6dq=$( (command -v curl >/dev/null 2>&1 && curl -s6m5 -k https://ip.fm | sed -E
 warpsx(){
 warpurl=$( (command -v curl >/dev/null 2>&1 && curl -s4m5 -k https://ygkkk-warp.renky.eu.org 2>/dev/null) || (command -v wget >/dev/null 2>&1 && timeout 3 wget -4 --tries=2 -qO- https://ygkkk-warp.renky.eu.org 2>/dev/null) )
 if echo "$warpurl" | grep -q ygkkk; then
-pvk=$(echo "$warpurl" | awk -F'：' '/Private_key/{print $2}' | xargs)
+pvk=$(echo "$warpurl" | awk -F'：' '/Private_key/{print $2}' | xargs | sed 's/[^=]$/&=/')
 wpv6=$(echo "$warpurl" | awk -F'：' '/IPV6/{print $2}' | xargs)
 res=$(echo "$warpurl" | awk -F'：' '/reserved/{print $2}' | xargs)
 else
