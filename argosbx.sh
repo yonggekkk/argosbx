@@ -1411,11 +1411,11 @@ elif [ "$1" = "list" ]; then
 cip
 exit
 elif [ "$1" = "upx" ]; then
-cleandel && upxray && "$0" res
+cleandel && upxray && bash "$0" res
 echo "Xray内核更新完成"
 exit
 elif [ "$1" = "ups" ]; then
-cleandel && upsingbox && "$0" res
+cleandel && upsingbox && bash "$0" res
 echo "Sing-box内核更新完成"
 exit
 elif [ "$1" = "res" ]; then
