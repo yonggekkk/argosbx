@@ -1431,7 +1431,7 @@ exit
 elif [ "$1" = "rep" ]; then
 cleandel
 rm -rf "$HOME/agsbx"/{sb.json,xr.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name}
-echo "Argosbx重置协议完成，开始更新相关协议变量……" && sleep 3
+echo "Argosbx重置协议完成，开始更新相关协议变量……" && sleep 2
 echo
 elif [ "$1" = "list" ]; then
 cip
@@ -1445,7 +1445,7 @@ killargosbx && upsingbox && sbxrestart
 echo "Sing-box内核更新完成"
 exit
 elif [ "$1" = "res" ]; then
-sbxrestart
+killargosbx && sbxrestart
 exit
 fi
 if ! find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsbx/(s|x)' && ! pgrep -f 'agsbx/(s|x)' >/dev/null 2>&1; then
