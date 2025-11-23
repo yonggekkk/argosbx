@@ -1367,9 +1367,12 @@ echo "========================================================="
 echo "相关快捷方式如下：(首次安装成功后需重连SSH，agsbx快捷方式才可生效)"
 showmode
 }
-cleandel(){
-for P in /proc/[0-9]*; do if [ -L "$P/exe" ]; then TARGET=$(readlink -f "$P/exe" 2>/dev/null); if echo "$TARGET" | grep -qE '/agsbx/c|/agsbx/s|/agsbx/x'; then PID=$(basename "$P"); kill "$PID" 2>/dev/null && echo "Killed $PID ($TARGET)" || echo "Could not kill $PID ($TARGET)"; fi; fi; done
+killargosbx(){
+for P in /proc/[0-9]*; do if [ -L "$P/exe" ]; then TARGET=$(readlink -f "$P/exe" 2>/dev/null); if echo "$TARGET" | grep -qE '/agsbx/c|/agsbx/s|/agsbx/x'; then PID=$(basename "$P"); kill "$PID" 2>/dev/null; fi; fi; done
 kill -15 $(pgrep -f 'agsbx/s' 2>/dev/null) $(pgrep -f 'agsbx/c' 2>/dev/null) $(pgrep -f 'agsbx/x' 2>/dev/null) >/dev/null 2>&1
+}
+cleandel(){
+killargosbx
 sed -i '/agsbx/d' ~/.bashrc
 sed -i '/export PATH="\$HOME\/bin:\$PATH"/d' ~/.bashrc
 . ~/.bashrc 2>/dev/null
@@ -1395,8 +1398,6 @@ rm -rf /etc/init.d/{sing-box,xray,argo}
 fi
 }
 sbxrestart(){
-for P in /proc/[0-9]*; do if [ -L "$P/exe" ]; then TARGET=$(readlink -f "$P/exe" 2>/dev/null); if echo "$TARGET" | grep -qE '/agsbx/c|/agsbx/s|/agsbx/x'; then PID=$(basename "$P"); kill "$PID" 2>/dev/null; fi; fi; done
-kill -15 $(pgrep -f 'agsbx/s' 2>/dev/null) $(pgrep -f 'agsbx/c' 2>/dev/null) $(pgrep -f 'agsbx/x' 2>/dev/null) >/dev/null 2>&1
 if pidof systemd >/dev/null 2>&1; then
 for svc in sb xr argo; do
 systemctl restart "$svc" >/dev/null 2>&1
@@ -1436,11 +1437,11 @@ elif [ "$1" = "list" ]; then
 cip
 exit
 elif [ "$1" = "upx" ]; then
-cleandel && upxray && sbxrestart
+killargosbx && upxray && sbxrestart
 echo "Xray内核更新完成"
 exit
 elif [ "$1" = "ups" ]; then
-cleandel && upsingbox && sbxrestart
+killargosbx && upsingbox && sbxrestart
 echo "Sing-box内核更新完成"
 exit
 elif [ "$1" = "res" ]; then
