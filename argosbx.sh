@@ -1394,31 +1394,7 @@ done
 rm -rf /etc/init.d/{sing-box,xray,argo}
 fi
 }
-if [ "$1" = "del" ]; then
-cleandel
-rm -rf "$HOME/agsbx" "$HOME/agsb"
-echo "卸载完成"
-echo "欢迎继续使用甬哥侃侃侃ygkkk的Argosbx一键无交互小钢炮脚本💣" && sleep 2
-echo
-showmode
-exit
-elif [ "$1" = "rep" ]; then
-cleandel
-rm -rf "$HOME/agsbx"/{sb.json,xr.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name}
-echo "Argosbx重置协议完成，开始更新相关协议变量……" && sleep 3
-echo
-elif [ "$1" = "list" ]; then
-cip
-exit
-elif [ "$1" = "upx" ]; then
-cleandel && upxray && bash "$0" res
-echo "Xray内核更新完成"
-exit
-elif [ "$1" = "ups" ]; then
-cleandel && upsingbox && bash "$0" res
-echo "Sing-box内核更新完成"
-exit
-elif [ "$1" = "res" ]; then
+sbxrestart(){
 for P in /proc/[0-9]*; do if [ -L "$P/exe" ]; then TARGET=$(readlink -f "$P/exe" 2>/dev/null); if echo "$TARGET" | grep -qE '/agsbx/c|/agsbx/s|/agsbx/x'; then PID=$(basename "$P"); kill "$PID" 2>/dev/null; fi; fi; done
 kill -15 $(pgrep -f 'agsbx/s' 2>/dev/null) $(pgrep -f 'agsbx/c' 2>/dev/null) $(pgrep -f 'agsbx/x' 2>/dev/null) >/dev/null 2>&1
 if pidof systemd >/dev/null 2>&1; then
@@ -1442,6 +1418,33 @@ nohup $HOME/agsbx/cloudflared tunnel --url http://localhost:$(cat $HOME/agsbx/ar
 fi
 sleep 8
 echo "重启完成"
+}
+if [ "$1" = "del" ]; then
+cleandel
+rm -rf "$HOME/agsbx" "$HOME/agsb"
+echo "卸载完成"
+echo "欢迎继续使用甬哥侃侃侃ygkkk的Argosbx一键无交互小钢炮脚本💣" && sleep 2
+echo
+showmode
+exit
+elif [ "$1" = "rep" ]; then
+cleandel
+rm -rf "$HOME/agsbx"/{sb.json,xr.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name}
+echo "Argosbx重置协议完成，开始更新相关协议变量……" && sleep 3
+echo
+elif [ "$1" = "list" ]; then
+cip
+exit
+elif [ "$1" = "upx" ]; then
+cleandel && upxray && sbxrestart
+echo "Xray内核更新完成"
+exit
+elif [ "$1" = "ups" ]; then
+cleandel && upsingbox && sbxrestart
+echo "Sing-box内核更新完成"
+exit
+elif [ "$1" = "res" ]; then
+sbxrestart
 exit
 fi
 if ! find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsbx/(s|x)' && ! pgrep -f 'agsbx/(s|x)' >/dev/null 2>&1; then
