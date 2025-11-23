@@ -1437,15 +1437,15 @@ elif [ "$1" = "list" ]; then
 cip
 exit
 elif [ "$1" = "upx" ]; then
-killargosbx && upxray && sbxrestart
+killargosbx ; upxray ; sbxrestart
 echo "Xray内核更新完成"
 exit
 elif [ "$1" = "ups" ]; then
-killargosbx && upsingbox && sbxrestart
+killargosbx ; upsingbox ; sbxrestart
 echo "Sing-box内核更新完成"
 exit
 elif [ "$1" = "res" ]; then
-killargosbx && sbxrestart
+killargosbx ; sbxrestart
 exit
 fi
 if ! find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsbx/(s|x)' && ! pgrep -f 'agsbx/(s|x)' >/dev/null 2>&1; then
