@@ -123,18 +123,19 @@ esac
 fi
 fi
 case "$warp" in *x4*) wxryx='ForceIPv4' ;; *x6*) wxryx='ForceIPv6' ;; *) wxryx='ForceIPv4v6' ;; esac
-if (command -v curl >/dev/null 2>&1 && curl -s6m5 -k "$v46url" >/dev/null 2>&1) || (command -v wget >/dev/null 2>&1 && timeout 3 wget -6 --tries=2 -qO- "$v46url" >/dev/null 2>&1); then
-xryx='ForceIPv6v4';
-case "$warp" in *s4*) sbyx='prefer_ipv4' ;; esac
-case "$warp" in *s6*) sbyx='prefer_ipv6' ;; esac
-else
-case "$warp" in *x4*) xryx='ForceIPv4' ;; esac
-case "$warp" in *x6*) xryx='ForceIPv6v4' ;; esac
-case "$warp" in *s4*) sbyx='prefer_ipv4' ;; esac
-case "$warp" in *s6*) sbyx='prefer_ipv6' ;; esac
-fi
-[ -z "$xryx" ] && xryx='ForceIPv4v6'
-[ -z "$sbyx" ] && sbyx='prefer_ipv4'
+#if (command -v curl >/dev/null 2>&1 && curl -s6m5 -k "$v46url" >/dev/null 2>&1) || (command -v wget >/dev/null 2>&1 && timeout 3 wget -6 --tries=2 -qO- "$v46url" >/dev/null 2>&1); then
+#xryx='ForceIPv6v4';
+#else
+#case "$warp" in *x4*) xryx='ForceIPv4' ;; esac
+#case "$warp" in *x6*) xryx='ForceIPv6v4' ;; esac
+#fi
+#case "$warp" in *s4*) sbyx='prefer_ipv4' ;; esac
+#case "$warp" in *s6*) sbyx='prefer_ipv6' ;; esac
+#[ -z "$xryx" ] && xryx='ForceIPv4v6'
+#[ -z "$sbyx" ] && sbyx='prefer_ipv4'
+
+sbyx='prefer_ipv4'
+xryx='ForceIPv4v6'
 }
 upxray(){
 url="https://github.com/yonggekkk/argosbx/releases/download/argosbx/xray-$cpu"; out="$HOME/agsbx/xray"; (command -v curl >/dev/null 2>&1 && curl -Lo "$out" -# --retry 2 "$url") || (command -v wget>/dev/null 2>&1 && timeout 3 wget -O "$out" --tries=2 "$url")
