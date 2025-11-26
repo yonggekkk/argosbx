@@ -130,7 +130,7 @@ else
 #case "$warp" in *x6*) xryx='ForceIPv6v4' ;; esac
 case "$warp" in *x4*) xryx='ForceIPv4' ;; *) xryx='ForceIPv6v4' ;; esac
 fi
-
+    
 #case "$warp" in *s4*) sbyx='prefer_ipv4' ;; esac
 #case "$warp" in *s6*) sbyx='prefer_ipv6' ;; esac
 #[ -z "$xryx" ] && xryx='ForceIPv4v6'
