@@ -1375,7 +1375,7 @@ showmode
 }
 cleandel(){
 for P in /proc/[0-9]*; do if [ -L "$P/exe" ]; then TARGET=$(readlink -f "$P/exe" 2>/dev/null); if echo "$TARGET" | grep -qE '/agsbx/c|/agsbx/s|/agsbx/x'; then PID=$(basename "$P"); kill "$PID" 2>/dev/null; fi; fi; done
-kill -15 $(pgrep -f 'agsbx/s' 2>/dev/null) $(pgrep -f 'agsbx/c' 2>/dev/null) $(pgrep -f 'agsbx/x' 2>/dev/null) >/dev/null 2>&1
+kill -15 $(pgrep -f 'agsbx/s' 2>/dev/null) $(pgrep -f 'agsbx/c' 2>/dev/null) $(pgrep -f 'agsbx/x' 2>/dev/null) $(cat $HOME/agsbx/subcmsbidsbx.log 2>/dev/null) >/dev/null 2>&1
 sed -i '/agsbx/d' ~/.bashrc
 sed -i '/export PATH="\$HOME\/bin:\$PATH"/d' ~/.bashrc
 . ~/.bashrc 2>/dev/null
@@ -1383,6 +1383,7 @@ crontab -l > /tmp/crontab.tmp 2>/dev/null
 sed -i '/agsbx\/sing-box/d' /tmp/crontab.tmp
 sed -i '/agsbx\/xray/d' /tmp/crontab.tmp
 sed -i '/agsbx\/cloudflared/d' /tmp/crontab.tmp
+sed -i '/subcmsbidsbx/d' /tmp/crontab.tmp
 crontab /tmp/crontab.tmp >/dev/null 2>&1
 rm /tmp/crontab.tmp
 rm -rf  "$HOME/bin/agsbx"
@@ -1423,7 +1424,7 @@ fi
 
 if [ "$1" = "del" ]; then
 cleandel
-rm -rf sbx_update "$HOME/agsbx" "$HOME/agsb"
+rm -rf sbx_update "$HOME/agsbx" "$HOME/websbx"
 echo "卸载完成"
 echo "欢迎继续使用甬哥侃侃侃ygkkk的Argosbx一键无交互小钢炮脚本💣" && sleep 2
 echo
@@ -1431,7 +1432,7 @@ showmode
 exit
 elif [ "$1" = "rep" ]; then
 cleandel
-rm -rf "$HOME/agsbx"/{sb.json,xr.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name}
+rm -rf "$HOME/agsbx"/{sb.json,xr.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name,subcmsbidsbx.log}
 echo "Argosbx重置协议完成，开始更新相关协议变量……" && sleep 2
 echo
 elif [ "$1" = "list" ]; then
@@ -1509,6 +1510,41 @@ echo
 echo "iptables执行开放所有端口"
 fi
 ins
+if [ -n "$subsbx" ]; then
+subtokenipsub(){
+if [ -z "$subid" ]; then
+subtoken="$(cat "$HOME/agsbx/uuid")"
+else
+subtoken="$subid"
+fi
+rm -rf $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"
+echo $subtoken > $HOME/agsbx/subtoken.log
+}
+subportipsub(){
+if [ -z "$subpt" ]; then
+subport=$(shuf -i 10000-65535 -n 1)
+else
+subport="$subpt"
+fi
+echo $subport > $HOME/agsbx/subport.log
+}
+subtokenipsub && subportipsub
+echo "请稍后…………"
+kill -15 $(cat $HOME/agsbx/subcmsbidsbx.log 2>/dev/null) >/dev/null 2>&1
+mkdir -p $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"
+ln -sf $HOME/agsbx/clmi.yaml $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"/clmi.yaml
+ln -sf $HOME/agsbx/sbox.json $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"/sbox.json
+ln -sf $HOME/agsbx/jhsub.txt $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"/jhsub.txt
+busybox httpd -f -p "$(cat $HOME/agsbx/subport.log 2>/dev/null)" -h $HOME/websbx > /dev/null 2>&1 &
+echo "$!" > $HOME/agsbx/subcmsbidsbx.log
+sleep 5
+crontab -l 2>/dev/null > /tmp/crontab.tmp
+sed -i '/subcmsbidsbx/d' /tmp/crontab.tmp
+echo '@reboot sleep 10 && /bin/bash -c "busybox httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h $HOME/websbx > /dev/null 2>&1 & pid=\$! && echo \$pid > $HOME/agsbx/subcmsbidsbx.log"' >> /tmp/crontab.tmp
+crontab /tmp/crontab.tmp >/dev/null 2>&1
+rm /tmp/crontab.tmp
+echo "本地IP订阅链接已更新完成"
+fi
 cip
 echo
 else
