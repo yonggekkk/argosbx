@@ -1398,7 +1398,7 @@ local f=$1
 if type "$f" >/dev/null 2>&1; then
 local out
 out=$($f)
-[[ -n "$out" ]] && printf "%s\n" "$out"
+[ -n "$out" ] && printf "%s\n" "$out"
 fi
 }
 blockxy="$(
@@ -1565,7 +1565,7 @@ cat > $HOME/agsbx/sbox.json <<EOF
         }
     },
   "outbounds": [
-$(blockxy)
+$blockxy
 $(sbsspt)
 $(sbanpt)
 $(sbarpt)
@@ -1578,7 +1578,7 @@ $(sbtupt)
             "default": "auto",
             "outbounds": [
         "auto",
-$(blockgz)
+$blockgz
 $(sbsspt1)
 $(sbanpt1)
 $(sbarpt1)
