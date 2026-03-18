@@ -1591,7 +1591,7 @@ $(sbtupt1)
             "tag": "auto",
             "type": "urltest",
             "outbounds": [
-$(blockgz)
+$blockgz
 $(sbsspt1)
 $(sbanpt1)
 $(sbarpt1)
