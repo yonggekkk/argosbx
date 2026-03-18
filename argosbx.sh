@@ -1403,13 +1403,21 @@ fi
 }
 blockxy="$(
 get_func sbvlpt
-
+get_func sbsspt
+get_func sbanpt
+get_func sbarpt
+get_func sbvmpt
+get_func sbhypt
+get_func sbtupt
 )"
-
-
 blockgz="$(
 get_func sbvlpt1
-
+get_func sbsspt1
+get_func sbanpt1
+get_func sbarpt1
+get_func sbvmpt1
+get_func sbhypt1
+get_func sbtupt1
 )"
 blockgz=$(printf "%s\n" "$blockgz" | sed '$ s/,$//')
 
@@ -1566,12 +1574,6 @@ cat > $HOME/agsbx/sbox.json <<EOF
     },
   "outbounds": [
 $blockxy
-$(sbsspt)
-$(sbanpt)
-$(sbarpt)
-$(sbvmpt)
-$(sbhypt)
-$(sbtupt)
         {
             "tag": "proxy",
             "type": "selector",
@@ -1579,12 +1581,6 @@ $(sbtupt)
             "outbounds": [
         "auto",
 $blockgz
-$(sbsspt1)
-$(sbanpt1)
-$(sbarpt1)
-$(sbvmpt1)
-$(sbhypt1)
-$(sbtupt1)
             ]
         },
         {
@@ -1592,12 +1588,6 @@ $(sbtupt1)
             "type": "urltest",
             "outbounds": [
 $blockgz
-$(sbsspt1)
-$(sbanpt1)
-$(sbarpt1)
-$(sbvmpt1)
-$(sbhypt1)
-$(sbtupt1)
             ],
             "url": "http://www.gstatic.com/generate_204",
             "interval": "10m",
