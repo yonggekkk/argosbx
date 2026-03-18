@@ -1243,6 +1243,34 @@ vl_link="vless://$uuid@$server_ip:$port_vl_re?encryption=none&flow=xtls-rprx-vis
 echo "$vl_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$vl_link"
 echo
+sbvlpt(){
+cat <<EOF
+    {
+      "type": "vless",
+      "tag": "vless-$hostname",
+      "server": "$server_ip",
+      "server_port": $port_vl_re,
+      "uuid": "$uuid",
+      "flow": "xtls-rprx-vision",
+      "tls": {
+        "enabled": true,
+        "server_name": "$ym_vl_re",
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+        },
+      "reality": {
+          "enabled": true,
+          "public_key": "$public_key_x",
+          "short_id": "$short_id_x"
+        }
+      }
+    },
+EOF
+}
+sbvlpt1(){
+echo "\"vless-$hostname\","
+}
 fi
 if grep ss-2022 "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 Shadowsocks-2022 】节点信息如下："
@@ -1364,8 +1392,238 @@ ${vma_link7}${vwa_link2}
 "
 )
 fi
+
+get_func() {
+local f=$1
+if type "$f" >/dev/null 2>&1; then
+local out
+out=$($f)
+[[ -n "$out" ]] && printf "%s\n" "$out"
+fi
+}
+blockxy="$(
+get_func sbvlpt
+
+)"
+
+
+blockgz="$(
+get_func sbvlpt1
+
+)"
+blockgz=$(printf "%s\n" "$blockgz" | sed '$ s/,$//')
+
+cat > $HOME/agsbx/sbox.json <<EOF
+{
+    "log": {
+        "disabled": false,
+        "level": "info",
+        "timestamp": true
+    },
+    "experimental": {
+        "cache_file": {
+            "enabled": true,
+            "path": "./cache.db",
+            "store_fakeip": true
+        },
+        "clash_api": {
+            "external_controller": "127.0.0.1:9090",
+            "external_ui": "ui",
+            "default_mode": "Rule"
+        }
+    },
+    "dns": {
+        "servers": [
+            {
+                "tag": "aliDns",
+                "type": "https",
+                "server": "dns.alidns.com",
+                "path": "/dns-query",
+                "domain_resolver": "local"
+            },
+            {
+                "tag": "local",
+                "type": "udp",
+                "server": "223.5.5.5"
+            },
+            {
+                "tag": "proxyDns",
+                "type": "https",
+                "server": "dns.google",
+                "path": "/dns-query",
+	              "domain_resolver": "aliDns",
+                "detour": "proxy"
+            },
+           {
+        "type": "fakeip",
+        "tag": "fakeip",
+        "inet4_range": "198.18.0.0/15",
+        "inet6_range": "fc00::/18"
+      }
+        ],
+        "rules": [
+            {
+                "rule_set": "geosite-cn",
+                "clash_mode": "Rule",
+                "server": "aliDns"
+            },
+            {
+                "clash_mode": "Direct",
+                "server": "local"
+            },
+            {
+                "clash_mode": "Global",
+                "server": "proxyDns"
+            },
+            {
+        "query_type": [
+          "A",
+          "AAAA"
+        ],
+        "server": "fakeip"
+      }
+        ],
+        "final": "proxyDns",
+        "strategy": "prefer_ipv4",
+        "independent_cache": true
+    },
+    "inbounds": [
+        {
+            "type": "tun",
+            "tag": "tun-in",
+            "address": [
+                "172.19.0.1/30",
+                "fd00::1/126"
+            ],
+            "auto_route": true,
+            "strict_route": true
+        }
+    ],
+    "route": {
+        "rules": [
+            {
+	 "inbound": "tun-in",
+                "action": "sniff"
+            },
+            {
+                "type": "logical",
+                "mode": "or",
+                "rules": [
+                    {
+                        "port": 53
+                    },
+                    {
+                        "protocol": "dns"
+                    }
+                ],
+                "action": "hijack-dns"
+            },
+         {
+          "clash_mode": "Global",
+          "outbound": "proxy"
+         },
+        {
+        "rule_set": "geosite-cn",
+        "clash_mode": "Rule",
+        "outbound": "direct"
+       },
+     {
+    "rule_set": "geoip-cn",
+    "clash_mode": "Rule",
+    "outbound": "direct"
+      },
+     {
+    "ip_is_private": true,
+    "clash_mode": "Rule",
+    "outbound": "direct"
+    },
+     {
+      "clash_mode": "Direct",
+      "outbound": "direct"
+     }		
+        ],
+        "rule_set": [
+            {
+                "tag": "geosite-cn",
+                "type": "remote",
+                "format": "binary",
+                "url": "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geosite/geolocation-cn.srs",
+                "download_detour": "direct"
+            },
+            {
+                "tag": "geoip-cn",
+                "type": "remote",
+                "format": "binary",
+                "url": "https://cdn.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@sing/geo/geoip/cn.srs",
+                "download_detour": "direct"
+            }
+        ],
+        "final": "proxy",
+        "auto_detect_interface": true,
+        "default_domain_resolver": {
+        "server": "aliDns"
+        }
+    },
+  "outbounds": [
+$(blockxy)
+$(sbsspt)
+$(sbanpt)
+$(sbarpt)
+$(sbvmpt)
+$(sbhypt)
+$(sbtupt)
+        {
+            "tag": "proxy",
+            "type": "selector",
+            "default": "auto",
+            "outbounds": [
+        "auto",
+$(blockgz)
+$(sbsspt1)
+$(sbanpt1)
+$(sbarpt1)
+$(sbvmpt1)
+$(sbhypt1)
+$(sbtupt1)
+            ]
+        },
+        {
+            "tag": "auto",
+            "type": "urltest",
+            "outbounds": [
+$(blockgz)
+$(sbsspt1)
+$(sbanpt1)
+$(sbarpt1)
+$(sbvmpt1)
+$(sbhypt1)
+$(sbtupt1)
+            ],
+            "url": "http://www.gstatic.com/generate_204",
+            "interval": "10m",
+            "tolerance": 50
+        },
+        {
+            "type": "direct",
+            "tag": "direct"
+        }
+    ]
+}
+EOF
+
+
 echo "---------------------------------------------------------"
 echo "$argoshow"
+echo
+if [ -n "$(cat $HOME/agsbx/subcmsbid.log 2>/dev/null)" ]; then
+showsubtoken=$(cat $HOME/agsbx/subtoken.log 2>/dev/null)
+showsubport=$(cat $HOME/agsbx/subport.log 2>/dev/null)
+subip=$(cat $HOME/agsbx/server_ip.log)
+suburl="$subip:$showsubport/$showsubtoken"
+echo "Clash/Mihomo本地IP订阅地址：http://$suburl/clmi.yaml"
+echo "Sing-box本地IP订阅地址：http://$suburl/sbox.json"
+echo "聚合协议本地IP订阅地址：http://$suburl/jhsub.txt"
+fi
 echo
 echo "---------------------------------------------------------"
 echo "聚合节点信息，请进入 $HOME/agsbx/jhsub.txt 文件目录查看或者运行 cat $HOME/agsbx/jhsub.txt 查看"
