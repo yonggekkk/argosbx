@@ -1605,7 +1605,7 @@ EOF
 echo "---------------------------------------------------------"
 echo "$argoshow"
 echo
-if [ -n "$(cat $HOME/agsbx/subcmsbid.log 2>/dev/null)" ]; then
+if [ -n "$(cat $HOME/agsbx/subcmsbidsbx.log 2>/dev/null)" ]; then
 showsubtoken=$(cat $HOME/agsbx/subtoken.log 2>/dev/null)
 showsubport=$(cat $HOME/agsbx/subport.log 2>/dev/null)
 subip=$(cat $HOME/agsbx/server_ip.log)
