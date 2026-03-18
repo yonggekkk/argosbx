@@ -1271,6 +1271,27 @@ EOF
 sbvlpt1(){
 echo "\"vless-$hostname\","
 }
+clvlpt(){
+cat <<EOF
+- name: vless-reality-vision-$hostname               
+  type: vless
+  server: $server_ipcl                           
+  port: $vl_port                                
+  uuid: $uuid   
+  network: tcp
+  udp: true
+  tls: true
+  flow: xtls-rprx-vision
+  servername: $vl_name                 
+  reality-opts: 
+    public-key: $public_key    
+    short-id: $short_id                      
+  client-fingerprint: chrome
+EOF
+}
+clvlpt1(){
+echo "- vless-reality-vision-$hostname"
+}
 fi
 if grep ss-2022 "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 Shadowsocks-2022 】节点信息如下："
@@ -1401,7 +1422,7 @@ out=$($f)
 [ -n "$out" ] && printf "%s\n" "$out"
 fi
 }
-blockxy="$(
+sbxy="$(
 get_func sbvlpt
 get_func sbsspt
 get_func sbanpt
@@ -1410,7 +1431,16 @@ get_func sbvmpt
 get_func sbhypt
 get_func sbtupt
 )"
-blockgz="$(
+clxy="$(
+get_func clvlpt
+get_func clsspt
+get_func clanpt
+get_func clarpt
+get_func clvmpt
+get_func clhypt
+get_func cltupt
+)"
+sbgz="$(
 get_func sbvlpt1
 get_func sbsspt1
 get_func sbanpt1
@@ -1418,6 +1448,15 @@ get_func sbarpt1
 get_func sbvmpt1
 get_func sbhypt1
 get_func sbtupt1
+)"
+clgz="$(
+get_func clvlpt1
+get_func clsspt1
+get_func clanpt1
+get_func clarpt1
+get_func clvmpt1
+get_func clhypt1
+get_func cltupt1
 )"
 blockgz=$(printf "%s\n" "$blockgz" | sed '$ s/,$//')
 
@@ -1573,21 +1612,21 @@ cat > $HOME/agsbx/sbox.json <<EOF
         }
     },
   "outbounds": [
-   $blockxy
+   $sbxy
         {
             "tag": "proxy",
             "type": "selector",
             "default": "auto",
             "outbounds": [
         "auto",
-        $blockgz
+        $sbgz
             ]
         },
         {
             "tag": "auto",
             "type": "urltest",
             "outbounds": [
-            $blockgz
+            $sbgz
             ],
             "url": "http://www.gstatic.com/generate_204",
             "interval": "10m",
@@ -1600,6 +1639,85 @@ cat > $HOME/agsbx/sbox.json <<EOF
     ]
 }
 EOF
+
+cat > $HOME/agsbx/clmi.yaml <<EOF
+cat <<EOF
+port: 7890
+allow-lan: true
+mode: rule
+log-level: info
+unified-delay: true
+dns:
+  enable: true 
+  listen: "0.0.0.0:1053"
+  ipv6: true
+  prefer-h3: false
+  respect-rules: true
+  use-system-hosts: false
+  cache-algorithm: "arc"
+  enhanced-mode: "fake-ip"
+  fake-ip-range: "198.18.0.1/16"
+  fake-ip-filter:
+    - "+.lan"
+    - "+.local"
+    - "+.msftconnecttest.com"
+    - "+.msftncsi.com"
+    - "localhost.ptlogin2.qq.com"
+    - "localhost.sec.qq.com"
+    - "+.in-addr.arpa"
+    - "+.ip6.arpa"
+    - "time.*.com"
+    - "time.*.gov"
+    - "pool.ntp.org"
+    - "localhost.work.weixin.qq.com"
+  default-nameserver: ["223.5.5.5", "1.2.4.8"]
+  nameserver:
+    - "https://208.67.222.222/dns-query"
+    - "https://1.1.1.1/dns-query"
+    - "https://8.8.4.4/dns-query"
+  proxy-server-nameserver:
+    - "https://223.5.5.5/dns-query"
+    - "https://doh.pub/dns-query"
+  nameserver-policy:
+    "geosite:private,cn":
+      - "https://223.5.5.5/dns-query"
+      - "https://doh.pub/dns-query"
+
+proxies:
+              
+
+proxy-groups:
+- name: 负载均衡
+  type: load-balance
+  url: https://www.gstatic.com/generate_204
+  interval: 300
+  strategy: round-robin
+  proxies:
+    - vless-reality-vision-$hostname                              
+
+
+- name: 自动选择
+  type: url-test
+  url: https://www.gstatic.com/generate_204
+  interval: 300
+  tolerance: 50
+  proxies:
+    - vless-reality-vision-$hostname                              
+
+    
+- name: 🌍选择代理节点
+  type: select
+  proxies:
+    - 负载均衡                                         
+    - 自动选择
+    - DIRECT
+
+rules:
+  - GEOIP,LAN,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,🌍选择代理节点
+EOF
+
 
 
 echo "---------------------------------------------------------"
