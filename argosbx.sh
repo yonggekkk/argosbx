@@ -1781,7 +1781,7 @@ echo $subtoken > $HOME/agsbx/subtoken.log
 subportipsub(){
 if [ -z "$subpt" ]; then
 if [ -n "$(cat "$HOME/agsbx/subport.log" 2>/dev/null)" ]; then
-subport=$($HOME/agsbx/subport.log)
+subport=$(cat $HOME/agsbx/subport.log)
 else
 subport=$(shuf -i 10000-65535 -n 1)
 fi
