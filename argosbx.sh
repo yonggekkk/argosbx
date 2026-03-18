@@ -1573,21 +1573,21 @@ cat > $HOME/agsbx/sbox.json <<EOF
         }
     },
   "outbounds": [
-$blockxy
+   $blockxy
         {
             "tag": "proxy",
             "type": "selector",
             "default": "auto",
             "outbounds": [
         "auto",
-$blockgz
+        $blockgz
             ]
         },
         {
             "tag": "auto",
             "type": "urltest",
             "outbounds": [
-$blockgz
+            $blockgz
             ],
             "url": "http://www.gstatic.com/generate_204",
             "interval": "10m",
