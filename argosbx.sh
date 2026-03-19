@@ -1829,7 +1829,7 @@ get_func clvmpt1
 get_func clhypt1
 get_func cltupt1
 get_func clvmargopt1
-)"
+)" | sed 's/^/    /'
 sbgz=$(printf "%s\n" "$sbgz" | sed '$ s/,$//')
 
 cat > $HOME/agsbx/sbox.json <<EOF
