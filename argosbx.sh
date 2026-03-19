@@ -1388,6 +1388,54 @@ tuic5_link="tuic://$uuid:$uuid@$server_ip:$port_tu?congestion_control=bbr&udp_re
 echo "$tuic5_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$tuic5_link"
 echo
+sbtupt(){
+cat <<EOF
+        {
+            "type":"tuic",
+            "tag": "tuic5-$hostname",
+            "server": "$server_ip",
+            "server_port": $port_tu,
+            "uuid": "$uuid",
+            "password": "$uuid",
+            "congestion_control": "bbr",
+            "udp_relay_mode": "native",
+            "udp_over_stream": false,
+            "zero_rtt_handshake": false,
+            "heartbeat": "10s",
+            "tls":{
+                "enabled": true,
+                "server_name": "www.bing.com",
+                "insecure": true,
+                "alpn": [
+                    "h3"
+                ]
+            }
+        },
+EOF
+}
+sbtupt1(){
+echo "\"tuic5-$hostname\","
+}
+cltupt(){
+cat <<EOF
+- name: tuic5-$hostname                            
+  server: $server_ip                      
+  port: $port_tu                                    
+  type: tuic
+  uuid: $uuid       
+  password: $uuid   
+  alpn: [h3]
+  disable-sni: true
+  reduce-rtt: true
+  udp-relay-mode: native
+  congestion-controller: bbr
+  sni: www.bing.com                                
+  skip-cert-verify: true
+EOF
+}
+cltupt1(){
+echo "- tuic5-$hostname"
+}
 fi
 if grep socks5-xr "$HOME/agsbx/xr.json" >/dev/null 2>&1 || grep socks5-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 Socks5 】客户端信息如下："
