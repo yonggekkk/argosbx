@@ -1574,6 +1574,105 @@ vma_link12="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${sxname}vmess-ws-argo-$ho
 echo "$vma_link12" >> "$HOME/agsbx/jhsub.txt"
 vma_link13="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${sxname}vmess-ws-argo-$hostname-2095\", \"add\": \"[2400:cb00:2049::0]\", \"port\": \"2095\", \"id\": \"$uuid\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$uuid-vm\", \"tls\": \"\"}" | base64 -w0)"
 echo "$vma_link13" >> "$HOME/agsbx/jhsub.txt"
+sbvmargopt(){
+cat <<EOF
+{
+            "server": "yg1.ygkkk.dpdns.org",
+            "server_port": 443,
+            "tag": "${sxname}vmess-ws-tls-argo-$hostname-443",
+            "tls": {
+                "enabled": true,
+                "server_name": "$argodomain",
+                "insecure": false,
+                "utls": {
+                    "enabled": true,
+                    "fingerprint": "chrome"
+                }
+            },
+            "packet_encoding": "packetaddr",
+            "transport": {
+                "headers": {
+                    "Host": [
+                        "$argodomain"
+                    ]
+                },
+                "path": "$uuid-vm",
+                "type": "ws"
+            },
+            "type": "vmess",
+            "security": "auto",
+            "uuid": "$uuid"
+        },
+            "server": "yg6.ygkkk.dpdns.org",
+            "server_port": 80,
+            "tag": "${sxname}vmess-ws-argo-$hostname-80",
+            "tls": {
+                "enabled": false,
+                "server_name": "$argodomain",
+                "insecure": false,
+                "utls": {
+                    "enabled": true,
+                    "fingerprint": "chrome"
+                }
+            },
+            "packet_encoding": "packetaddr",
+            "transport": {
+                "headers": {
+                    "Host": [
+                        "$argodomain"
+                    ]
+                },
+                "path": "$uuid-vm",
+                "type": "ws"
+            },
+            "type": "vmess",
+            "security": "auto",
+            "uuid": "$uuid"
+        },
+EOF
+}
+sbvmarogpt1(){
+echo "\"${sxname}vmess-ws-tls-argo-$hostname-443\","
+echo "\"${sxname}vmess-ws-argo-$hostname-80\","
+}
+clvmargopt(){
+cat <<EOF
+- name: ${sxname}vmess-ws-tls-argo-$hostname-443                         
+  type: vmess
+  server: yg1.ygkkk.dpdns.org                        
+  port: 443                                     
+  uuid: $uuid       
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: true
+  network: ws
+  servername: $argodomain                    
+  ws-opts:
+    path: "$uuid-vm"                             
+    headers:
+      Host: $argodomain
+- name: ${sxname}vmess-ws-argo-$hostname-80                         
+  type: vmess
+  server: yg6.ygkkk.dpdns.org                        
+  port: 80                                     
+  uuid: $uuid       
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  network: ws
+  servername: $argodomain                    
+  ws-opts:
+    path: "$uuid-vm"                             
+    headers:
+      Host: $argodomain
+EOF
+}
+clvmargopt1(){
+echo "- ${sxname}vmess-ws-tls-argo-$hostname-443"
+echo "- ${sxname}vmess-ws-argo-$hostname-80"
+}
 elif [ "$vlvm" = "Vless" ]; then
 vwatls_link1="vless://$uuid@yg$(cfip).ygkkk.dpdns.org:443?encryption=$enkey&flow=xtls-rprx-vision&type=ws&host=$argodomain&path=$uuid-vw&security=tls&sni=$argodomain&fp=chrome&insecure=0&allowInsecure=0#${sxname}vless-ws-tls-argo-enc-vision-$hostname"
 echo "$vwatls_link1" >> "$HOME/agsbx/jhsub.txt"
@@ -1614,6 +1713,7 @@ get_func sbarpt
 get_func sbvmpt
 get_func sbhypt
 get_func sbtupt
+get_func sbvmargopt
 )"
 clxy="$(
 get_func clvlpt
@@ -1623,6 +1723,7 @@ get_func clarpt
 get_func clvmpt
 get_func clhypt
 get_func cltupt
+get_func clvmargopt
 )"
 sbgz="$(
 get_func sbvlpt1
@@ -1632,6 +1733,7 @@ get_func sbarpt1
 get_func sbvmpt1
 get_func sbhypt1
 get_func sbtupt1
+get_func sbvmargopt1
 )"
 clgz="$(
 get_func clvlpt1
@@ -1641,6 +1743,7 @@ get_func clarpt1
 get_func clvmpt1
 get_func clhypt1
 get_func cltupt1
+get_func clvmargopt1
 )"
 sbgz=$(printf "%s\n" "$sbgz" | sed '$ s/,$//')
 
