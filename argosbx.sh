@@ -1458,7 +1458,7 @@ get_func clvmpt1
 get_func clhypt1
 get_func cltupt1
 )"
-blockgz=$(printf "%s\n" "$blockgz" | sed '$ s/,$//')
+sbgz=$(printf "%s\n" "$sbgz" | sed '$ s/,$//')
 
 cat > $HOME/agsbx/sbox.json <<EOF
 {
@@ -1684,7 +1684,7 @@ dns:
       - "https://doh.pub/dns-query"
 
 proxies:
-              
+$clxy              
 
 proxy-groups:
 - name: 负载均衡
@@ -1693,25 +1693,21 @@ proxy-groups:
   interval: 300
   strategy: round-robin
   proxies:
-    - vless-reality-vision-$hostname                              
-
-
+    $clgz
 - name: 自动选择
   type: url-test
   url: https://www.gstatic.com/generate_204
   interval: 300
   tolerance: 50
   proxies:
-    - vless-reality-vision-$hostname                              
-
-    
+    $clgz 
 - name: 🌍选择代理节点
   type: select
   proxies:
     - 负载均衡                                         
     - 自动选择
     - DIRECT
-
+    $clgz
 rules:
   - GEOIP,LAN,DIRECT
   - GEOIP,CN,DIRECT
