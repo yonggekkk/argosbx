@@ -1493,26 +1493,6 @@ EOF
 sbarpt1(){
 echo "\"${sxname}any-reality-$hostname\","
 }
-clarpt(){
-cat <<EOF
-- name: ${sxname}any-reality-$hostname
-  type: anytls
-  server: $server_ip
-  port: $port_ar
-  password: $uuid
-  client-fingerprint: chrome
-  udp: true
-  idle-session-check-interval: 30
-  idle-session-timeout: 30
-  servername: $ym_vl_re                 
-  reality-opts: 
-    public-key: $public_key_s
-    short-id: $short_id_s
-EOF
-}
-clarpt1(){
-echo "- ${sxname}any-reality-$hostname"
-}
 fi
 if grep hy2-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 Hysteria2 】节点信息如下："
@@ -1791,9 +1771,9 @@ out=$($f)
 fi
 }
 sbxy="$(get_func sbvlpt; get_func sbsspt; get_func sbanpt; get_func sbarpt; get_func sbvmpt; get_func sbhypt; get_func sbtupt; get_func sbvmargopt)"
-clxy="$(get_func clvlpt; get_func clsspt; get_func clanpt; get_func clarpt; get_func clvmpt; get_func clhypt; get_func cltupt; get_func clvmargopt)"
+clxy="$(get_func clvlpt; get_func clsspt; get_func clanpt; get_func clvmpt; get_func clhypt; get_func cltupt; get_func clvmargopt)"
 sbgz="$(get_func sbvlpt1; get_func sbsspt1; get_func sbanpt1; get_func sbarpt1; get_func sbvmpt1; get_func sbhypt1; get_func sbtupt1; get_func sbvmargopt1)"
-clgz="$({ get_func clvlpt1; get_func clsspt1; get_func clanpt1; get_func clarpt1; get_func clvmpt1; get_func clhypt1; get_func cltupt1; get_func clvmargopt1; } | sed '2,$s/^/    /')"
+clgz="$({ get_func clvlpt1; get_func clsspt1; get_func clanpt1; get_func clvmpt1; get_func clhypt1; get_func cltupt1; get_func clvmargopt1; } | sed '2,$s/^/    /')"
 sbgz=$(printf "%s\n" "$sbgz" | sed '$ s/,$//')
 cat > $HOME/agsbx/sbox.json <<EOF
 {
@@ -2046,9 +2026,6 @@ rules:
   - GEOIP,CN,DIRECT
   - MATCH,🌍选择代理节点
 EOF
-
-
-
 echo "---------------------------------------------------------"
 echo "$argoshow"
 echo
