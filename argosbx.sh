@@ -1275,17 +1275,17 @@ clvlpt(){
 cat <<EOF
 - name: ${sxname}vless-reality-vision-$hostname               
   type: vless
-  server: $server_ipcl                           
-  port: $vl_port                                
+  server: $server_ip                          
+  port: $port_vl_re                                
   uuid: $uuid   
   network: tcp
   udp: true
   tls: true
   flow: xtls-rprx-vision
-  servername: $vl_name                 
+  servername: $ym_vl_re                 
   reality-opts: 
-    public-key: $public_key    
-    short-id: $short_id                      
+    public-key: $public_key_x    
+    short-id: $short_id_x                      
   client-fingerprint: chrome
 EOF
 }
@@ -1428,6 +1428,57 @@ ar_link="anytls://$uuid@$server_ip:$port_ar?security=reality&sni=$ym_vl_re&fp=ch
 echo "$ar_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$ar_link"
 echo
+sbarpt(){
+cat <<EOF
+    {
+        "type": "anytls",
+        "tag": "${sxname}any-reality-$hostname",
+        "server": "$server_ip",
+        "server_port": $port_ar,
+        "password": "$uuid",
+        "idle_session_check_interval": "30s",
+        "idle_session_timeout": "30s",
+        "min_idle_session": 5,
+        "tls": {
+        "enabled": true,
+        "server_name": "$ym_vl_re",
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+        },
+      "reality": {
+          "enabled": true,
+          "public_key": "$public_key_s",
+          "short_id": "$short_id_s"
+        }
+      }
+         },
+EOF
+}
+sbarpt1(){
+echo "\"${sxname}any-reality-$hostname\","
+}
+clarpt(){
+cat <<EOF
+- name: ${sxname}any-reality-$hostname
+  type: anytls
+  server: $server_ip
+  port: $port_ar
+  password: $uuid
+  client-fingerprint: chrome
+  udp: true
+  idle-session-check-interval: 30
+  idle-session-timeout: 30
+  servername: $ym_vl_re                 
+  reality-opts: 
+    public-key: $public_key_s    
+    short-id: $short_id_s                      
+  client-fingerprint: chrome
+EOF
+}
+clarpt1(){
+echo "- ${sxname}any-reality-$hostname"
+}
 fi
 if grep hy2-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 Hysteria2 】节点信息如下："
