@@ -2014,7 +2014,6 @@ cat > $HOME/agsbx/sbox.json <<EOF
 EOF
 
 cat > $HOME/agsbx/clmi.yaml <<EOF
-cat <<EOF
 port: 7890
 allow-lan: true
 mode: rule
