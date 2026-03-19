@@ -1506,9 +1506,8 @@ cat <<EOF
   idle-session-timeout: 30
   servername: $ym_vl_re                 
   reality-opts: 
-    public-key: $public_key_s    
-    short-id: $short_id_s                      
-  client-fingerprint: chrome
+    public-key: $public_key_s
+    short-id: $short_id_s
 EOF
 }
 clarpt1(){
