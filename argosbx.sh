@@ -1034,7 +1034,7 @@ argoname='临时'
 nohup "$HOME/agsbx/cloudflared" tunnel --url http://localhost:$(cat $HOME/agsbx/argoport.log) --edge-ip-version auto --no-autoupdate --protocol http2 > $HOME/agsbx/argo.log 2>&1 &
 fi
 echo "申请Argo$argoname隧道中……请稍等"
-sleep 8
+sleep 15
 if [ -n "${ARGO_DOMAIN}" ] && [ -n "${ARGO_AUTH}" ]; then
 argodomain=$(cat "$HOME/agsbx/sbargoym.log" 2>/dev/null)
 else
