@@ -1630,7 +1630,7 @@ cat <<EOF
         },
 EOF
 }
-sbvmarogpt1(){
+sbvmargopt1(){
 echo "\"${sxname}vmess-ws-tls-argo-$hostname-443\","
 echo "\"${sxname}vmess-ws-argo-$hostname-80\","
 }
