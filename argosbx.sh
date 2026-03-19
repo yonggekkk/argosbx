@@ -1339,7 +1339,7 @@ cat <<EOF
         },
 EOF
 }
-sbhvmt1(){
+sbvmpt1(){
 echo "\"${sxname}vmess-$hostname\","
 }
 clvmpt(){
@@ -1361,7 +1361,7 @@ cat <<EOF
       Host: www.bing.com
 EOF
 }
-clhvmt1(){
+clvmpt1(){
 echo "- ${sxname}vmess-ws-$hostname"
 }
 if [ -f "$HOME/agsbx/cdnym" ]; then
