@@ -1458,7 +1458,6 @@ EOF
 sbhypt1(){
 echo "\"${sxname}hy2-$hostname\","
 }
-
 clhypt(){
 cat <<EOF
 - name: ${sxname}hysteria2-$hostname                            
