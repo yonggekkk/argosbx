@@ -1308,6 +1308,62 @@ vm_link="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${sxname}vm-ws-$hostname\", \
 echo "$vm_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$vm_link"
 echo
+sbvmpt(){
+cat <<EOF
+{
+            "server": "$server_ip",
+            "server_port": $port_vm_ws,
+            "tag": "${sxname}vmess-$hostname",
+            "tls": {
+                "enabled": false,
+                "server_name": "www.bing.com",
+                "insecure": false,
+                "utls": {
+                    "enabled": true,
+                    "fingerprint": "chrome"
+                }
+            },
+            "packet_encoding": "packetaddr",
+            "transport": {
+                "headers": {
+                    "Host": [
+                        "www.bing.com"
+                    ]
+                },
+                "path": "$uuid-vm",
+                "type": "ws"
+            },
+            "type": "vmess",
+            "security": "auto",
+            "uuid": "$uuid"
+        },
+EOF
+}
+sbhvmt1(){
+echo "\"${sxname}vmess-$hostname\","
+}
+clvmpt(){
+cat <<EOF
+- name: ${sxname}vmess-ws-$hostname                         
+  type: vmess
+  server: $server_ip                        
+  port: $port_vm_ws                                     
+  uuid: $uuid       
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  network: ws
+  servername: www.bing.com                    
+  ws-opts:
+    path: "$uuid-vm"                             
+    headers:
+      Host: www.bing.com
+EOF
+}
+clhvmt1(){
+echo "- ${sxname}vmess-ws-$hostname"
+}
 if [ -f "$HOME/agsbx/cdnym" ]; then
 echo "💣【 Vmess-ws-cdn 】节点信息如下："
 echo "注：默认地址 yg数字.ygkkk.dpdns.org 可自行更换优选IP域名，如是回源端口需手动修改443或者80系端口"
