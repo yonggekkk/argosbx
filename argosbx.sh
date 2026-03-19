@@ -1247,7 +1247,7 @@ sbvlpt(){
 cat <<EOF
     {
       "type": "vless",
-      "tag": "vless-$hostname",
+      "tag": "${sxname}vless-$hostname",
       "server": "$server_ip",
       "server_port": $port_vl_re,
       "uuid": "$uuid",
@@ -1269,11 +1269,11 @@ cat <<EOF
 EOF
 }
 sbvlpt1(){
-echo "\"vless-$hostname\","
+echo "\"${sxname}vless-$hostname\","
 }
 clvlpt(){
 cat <<EOF
-- name: vless-reality-vision-$hostname               
+- name: ${sxname}vless-reality-vision-$hostname               
   type: vless
   server: $server_ipcl                           
   port: $vl_port                                
@@ -1290,7 +1290,7 @@ cat <<EOF
 EOF
 }
 clvlpt1(){
-echo "- vless-reality-vision-$hostname"
+echo "- ${sxname}vless-reality-vision-$hostname"
 }
 fi
 if grep ss-2022 "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
@@ -1328,7 +1328,7 @@ sbanpt(){
 cat <<EOF
          {
             "type": "anytls",
-            "tag": "anytls-$hostname",
+            "tag": "${sxname}anytls-$hostname",
             "server": "$server_ip",
             "server_port": $port_an,
             "password": "$uuid",
@@ -1344,11 +1344,11 @@ cat <<EOF
 EOF
 }
 sbanpt1(){
-echo "\"anytls-$hostname\","
+echo "\"${sxname}anytls-$hostname\","
 }
 clanpt(){
 cat <<EOF
-- name: anytls-$hostname
+- name: ${sxname}anytls-$hostname
   type: anytls
   server: $server_ip
   port: $port_an
@@ -1362,7 +1362,7 @@ cat <<EOF
 EOF
 }
 clanpt1(){
-echo "- anytls-$hostname"
+echo "- ${sxname}anytls-$hostname"
 }
 fi
 if grep anyreality-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
@@ -1380,6 +1380,46 @@ hy2_link="hysteria2://$uuid@$server_ip:$port_hy2?security=tls&alpn=h3&insecure=1
 echo "$hy2_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$hy2_link"
 echo
+sbhypt(){
+cat <<EOF
+    {
+        "type": "hysteria2",
+        "tag": "${sxname}hy2-$hostname",
+        "server": "$server_ip",
+        "server_port": $port_hy2,
+        "password": "$uuid",
+        "tls": {
+            "enabled": true,
+            "server_name": "www.bing.com",
+            "insecure": true,
+            "alpn": [
+                "h3"
+            ]
+        }
+    },
+EOF
+}
+sbhypt1(){
+echo "\"${sxname}hy2-$hostname\","
+}
+
+clhypt(){
+cat <<EOF
+- name: ${sxname}hysteria2-$hostname                            
+  type: hysteria2                                      
+  server: $server_ip                              
+  port: $port_hy2                                
+  password: $uuid                          
+  alpn:
+    - h3
+  sni: www.bing.com                               
+  skip-cert-verify: true
+  fast-open: true
+EOF
+}
+clhypt1(){
+echo "- ${sxname}hysteria2-$hostname"
+}
 fi
 if grep tuic5-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 Tuic 】节点信息如下："
@@ -1392,7 +1432,7 @@ sbtupt(){
 cat <<EOF
         {
             "type":"tuic",
-            "tag": "tuic5-$hostname",
+            "tag": "${sxname}tuic5-$hostname",
             "server": "$server_ip",
             "server_port": $port_tu,
             "uuid": "$uuid",
@@ -1414,11 +1454,11 @@ cat <<EOF
 EOF
 }
 sbtupt1(){
-echo "\"tuic5-$hostname\","
+echo "\"${sxname}tuic5-$hostname\","
 }
 cltupt(){
 cat <<EOF
-- name: tuic5-$hostname                            
+- name: ${sxname}tuic5-$hostname                            
   server: $server_ip                      
   port: $port_tu                                    
   type: tuic
@@ -1434,7 +1474,7 @@ cat <<EOF
 EOF
 }
 cltupt1(){
-echo "- tuic5-$hostname"
+echo "- ${sxname}tuic5-$hostname"
 }
 fi
 if grep socks5-xr "$HOME/agsbx/xr.json" >/dev/null 2>&1 || grep socks5-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
@@ -1770,10 +1810,8 @@ dns:
     "geosite:private,cn":
       - "https://223.5.5.5/dns-query"
       - "https://doh.pub/dns-query"
-
 proxies:
-$clxy              
-
+$clxy
 proxy-groups:
 - name: 负载均衡
   type: load-balance
