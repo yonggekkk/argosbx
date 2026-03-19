@@ -2018,6 +2018,7 @@ dns:
       - "https://doh.pub/dns-query"
 proxies:
 $clxy
+
 proxy-groups:
 - name: 负载均衡
   type: load-balance
