@@ -1300,6 +1300,41 @@ ss_link="ss://$(echo -n "2022-blake3-aes-128-gcm:$sskey@$server_ip:$port_ss" | b
 echo "$ss_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$ss_link"
 echo
+sbsspt(){
+cat <<EOF
+{
+       "type": "shadowsocks",
+       "tag": "${sxname}Shadowsocks-2022-$hostname",
+       "server": "$server_ip",
+       "server_port": $port_ss,
+       "method": "2022-blake3-aes-128-gcm",
+       "password": "$sskey",
+       "udp_over_tcp": {
+        "enabled": true,
+        "version": 2
+      }
+     },
+EOF
+}
+sbsspt1(){
+echo "\"${sxname}Shadowsocks-2022-$hostname\","
+}
+clsspt(){
+cat <<EOF
+- name: "${sxname}Shadowsocks-2022-$hostname"
+  type: ss
+  server: $server_ip
+  port: $port_ss
+  cipher: 2022-blake3-aes-128-gcm
+  password: "$sskey"
+  udp: true
+  udp-over-tcp: true
+  udp-over-tcp-version: 2
+EOF
+}
+clsspt1(){
+echo "- ${sxname}Shadowsocks-2022-$hostname"
+}
 fi
 if grep vmess-xr "$HOME/agsbx/xr.json" >/dev/null 2>&1 || grep vmess-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 Vmess-ws 】节点信息如下："
