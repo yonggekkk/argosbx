@@ -1324,6 +1324,46 @@ an_link="anytls://$uuid@$server_ip:$port_an?insecure=1&allowInsecure=1#${sxname}
 echo "$an_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$an_link"
 echo
+sbanpt(){
+cat <<EOF
+         {
+            "type": "anytls",
+            "tag": "anytls-$hostname",
+            "server": "$server_ip",
+            "server_port": $port_an,
+            "password": "$uuid",
+            "idle_session_check_interval": "30s",
+            "idle_session_timeout": "30s",
+            "min_idle_session": 5,
+            "tls": {
+                "enabled": true,
+                "insecure": true,
+                "server_name": "www.bing.com"
+            }
+         },
+EOF
+}
+sbanpt1(){
+echo "\"anytls-$hostname\","
+}
+clanpt(){
+cat <<EOF
+- name: anytls-$hostname
+  type: anytls
+  server: $server_ip
+  port: $port_an
+  password: $uuid
+  client-fingerprint: chrome
+  udp: true
+  idle-session-check-interval: 30
+  idle-session-timeout: 30
+  sni: www.bing.com
+  skip-cert-verify: true
+EOF
+}
+clanpt1(){
+echo "- anytls-$hostname"
+}
 fi
 if grep anyreality-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 Any-Reality 】节点信息如下："
