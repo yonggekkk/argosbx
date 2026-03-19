@@ -1688,6 +1688,7 @@ cat <<EOF
             "security": "auto",
             "uuid": "$uuid"
         },
+{
             "server": "yg6.ygkkk.dpdns.org",
             "server_port": 80,
             "tag": "${sxname}vmess-ws-argo-$hostname-80",
