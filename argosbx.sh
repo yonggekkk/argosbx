@@ -72,7 +72,7 @@ amd64|x86_64) cpu=amd64;;
 esac
 mkdir -p "$HOME/agsbx"
 if [ ! -f sbx_update ]; then
-echo "执行脚本中，请稍后"
+echo "执行必要的脚本依赖中，请稍后"
 if command -v apk >/dev/null 2>&1; then
 apk update >/dev/null 2>&1
 apk add gcompat libc6-compat >/dev/null 2>&1
@@ -89,7 +89,7 @@ v6dq=$( (command -v curl >/dev/null 2>&1 && curl -s6m5 -k https://ip.fm | sed -n
 }
 warpsx(){
 warpurl=$( (command -v curl >/dev/null 2>&1 && curl -sm5 -k https://warp.xijp.eu.org 2>/dev/null) || (command -v wget >/dev/null 2>&1 && timeout 3 wget --tries=2 -qO- https://warp.xijp.eu.org 2>/dev/null) )
-if echo "$warpurl" | grep -q html; then
+if [ -z "$warpurl" ] || printf '%s' "$warpurl" | grep -q html; then
 wpv6='2606:4700:110:8d8d:1845:c39f:2dd5:a03a'
 pvk='52cuYFgCJXp0LAq7+nWJIbCXXgU9eGggOc+Hlfz5u6A='
 res='[215, 69, 233]'
