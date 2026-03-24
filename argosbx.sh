@@ -75,9 +75,9 @@ if [ ! -f sbx_update ]; then
 echo "执行必要的脚本依赖中，请稍后"
 if command -v apk >/dev/null 2>&1; then
 apk update >/dev/null 2>&1
-apk add gcompat libc6-compat >/dev/null 2>&1
+apk add busybox-static gcompat libc6-compat >/dev/null 2>&1
 elif command -v apt >/dev/null 2>&1; then
-apt update >/dev/null 2>&1 && apt install coreutils util-linux -y >/dev/null 2>&1
+apt update >/dev/null 2>&1 && apt install busybox-static coreutils util-linux -y >/dev/null 2>&1
 fi
 touch sbx_update
 fi
