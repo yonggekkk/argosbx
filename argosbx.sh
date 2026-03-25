@@ -74,10 +74,9 @@ mkdir -p "$HOME/agsbx"
 if [ ! -f sbx_update ]; then
 echo "执行必要的脚本依赖中，请稍后"
 if command -v apk >/dev/null 2>&1; then
-apk update >/dev/null 2>&1
-apk add gcompat libc6-compat >/dev/null 2>&1
+apk update >/dev/null 2>&1 && apk add busybox-extras gcompat libc6-compat >/dev/null 2>&1
 elif command -v apt >/dev/null 2>&1; then
-apt update >/dev/null 2>&1 && apt install busybox-static coreutils util-linux -y >/dev/null 2>&1
+apt update >/dev/null 2>&1 && apt install busybox coreutils util-linux -y >/dev/null 2>&1
 fi
 touch sbx_update
 fi
@@ -2211,12 +2210,20 @@ mkdir -p $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"
 ln -sf $HOME/agsbx/clmi.yaml $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"/clmi.yaml
 ln -sf $HOME/agsbx/sbox.json $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"/sbox.json
 ln -sf $HOME/agsbx/jhsub.txt $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"/jhsub.txt
+if command -v apk >/dev/null 2>&1; then
+busybox-extras httpd -f -p "$(cat $HOME/agsbx/subport.log 2>/dev/null)" -h $HOME/websbx > /dev/null 2>&1 &
+else
 busybox httpd -f -p "$(cat $HOME/agsbx/subport.log 2>/dev/null)" -h $HOME/websbx > /dev/null 2>&1 &
+fi
 echo "$!" > $HOME/agsbx/subcmsbidsbx.log
 sleep 5
 crontab -l 2>/dev/null > /tmp/crontab.tmp
 sed -i '/subcmsbidsbx/d' /tmp/crontab.tmp
+if command -v apk >/dev/null 2>&1; then
+echo '@reboot sleep 10 && /bin/bash -c "busybox-extras httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h $HOME/websbx > /dev/null 2>&1 & pid=\$! && echo \$pid > $HOME/agsbx/subcmsbidsbx.log"' >> /tmp/crontab.tmp
+else
 echo '@reboot sleep 10 && /bin/bash -c "busybox httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h $HOME/websbx > /dev/null 2>&1 & pid=\$! && echo \$pid > $HOME/agsbx/subcmsbidsbx.log"' >> /tmp/crontab.tmp
+fi
 crontab /tmp/crontab.tmp >/dev/null 2>&1
 rm /tmp/crontab.tmp
 echo "本地IP订阅链接已更新完成"
