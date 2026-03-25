@@ -2211,18 +2211,18 @@ ln -sf $HOME/agsbx/clmi.yaml $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev
 ln -sf $HOME/agsbx/sbox.json $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"/sbox.json
 ln -sf $HOME/agsbx/jhsub.txt $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"/jhsub.txt
 if command -v apk >/dev/null 2>&1; then
-busybox-extras httpd -f -p "$(cat $HOME/agsbx/subport.log 2>/dev/null)" -h $HOME/websbx > /dev/null 2>&1 &
+busybox-extras httpd -f -p "$(cat $HOME/agsbx/subport.log 2>/dev/null)" -h "$HOME/websbx" > /dev/null 2>&1 &
 else
-busybox httpd -f -p "$(cat $HOME/agsbx/subport.log 2>/dev/null)" -h $HOME/websbx > /dev/null 2>&1 &
+busybox httpd -f -p "$(cat $HOME/agsbx/subport.log 2>/dev/null)" -h "$HOME/websbx" > /dev/null 2>&1 &
 fi
 echo "$!" > $HOME/agsbx/subcmsbidsbx.log
 sleep 5
 crontab -l 2>/dev/null > /tmp/crontab.tmp
 sed -i '/subcmsbidsbx/d' /tmp/crontab.tmp
 if command -v apk >/dev/null 2>&1; then
-echo '@reboot sleep 10 && /bin/bash -c "busybox-extras httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h $HOME/websbx > /dev/null 2>&1 & pid=\$! && echo \$pid > $HOME/agsbx/subcmsbidsbx.log"' >> /tmp/crontab.tmp
+echo '@reboot sleep 10 && /bin/bash -c "busybox-extras httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h "$HOME/websbx" > /dev/null 2>&1 & pid=\$! && echo \$pid > $HOME/agsbx/subcmsbidsbx.log"' >> /tmp/crontab.tmp
 else
-echo '@reboot sleep 10 && /bin/bash -c "busybox httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h $HOME/websbx > /dev/null 2>&1 & pid=\$! && echo \$pid > $HOME/agsbx/subcmsbidsbx.log"' >> /tmp/crontab.tmp
+echo '@reboot sleep 10 && /bin/bash -c "busybox httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h "$HOME/websbx" > /dev/null 2>&1 & pid=\$! && echo \$pid > $HOME/agsbx/subcmsbidsbx.log"' >> /tmp/crontab.tmp
 fi
 crontab /tmp/crontab.tmp >/dev/null 2>&1
 rm /tmp/crontab.tmp
