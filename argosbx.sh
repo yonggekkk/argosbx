@@ -1079,7 +1079,7 @@ if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; t
 echo '@reboot sleep 10 && /bin/sh -c "nohup $HOME/agsbx/cloudflared tunnel --no-autoupdate --edge-ip-version auto --protocol http2 run --token $(cat $HOME/agsbx/sbargotoken.log 2>/dev/null) >/dev/null 2>&1 &"' >> /tmp/crontab.tmp
 fi
 else
-echo '@reboot sleep 10 && /bin/sh -c "nohup $HOME/agsbx/cloudflared tunnel --url http://localhost:$(cat $HOME/agsbx/argoport.log) --edge-ip-version auto --no-autoupdate --protocol http2 > $HOME/agsbx/argo.log 2>&1 &"' >> /tmp/crontab.tmp
+echo '@reboot sleep 10 && /bin/sh -c "nohup $HOME/agsbx/cloudflared tunnel --url http://localhost:$(cat $HOME/agsbx/argoport.log) --edge-ip-version auto --no-autoupdate --protocol http2 > $HOME/agsbx/argo.log 2>&1 & && sleep 5 && bash $HOME/bin/agsbx list >/dev/null 2>&1"' >> /tmp/crontab.tmp
 fi
 fi
 crontab /tmp/crontab.tmp >/dev/null 2>&1
@@ -2220,11 +2220,9 @@ sleep 5
 crontab -l 2>/dev/null > /tmp/crontab.tmp
 sed -i '/subcmsbidsbx/d' /tmp/crontab.tmp
 if command -v apk >/dev/null 2>&1; then
-#echo '@reboot sleep 10 && /bin/bash -c "busybox-extras httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h "$HOME/websbx" > /dev/null 2>&1 & pid=\$! && echo \$pid > $HOME/agsbx/subcmsbidsbx.log"' >> /tmp/crontab.tmp
-echo '@reboot sleep 10 && /bin/bash -c "busybox-extras httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h \"$HOME/websbx\" > /dev/null 2>&1 & pid=\$! && echo \$pid > $HOME/agsbx/subcmsbidsbx.log && sleep 5 && bash $HOME/bin/agsbx list >/dev/null 2>&1"' >> /tmp/crontab.tmp
+echo '@reboot sleep 10 && /bin/bash -c "busybox-extras httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h \"$HOME/websbx\" > /dev/null 2>&1 & pid=\$! && echo \$pid > $HOME/agsbx/subcmsbidsbx.log"' >> /tmp/crontab.tmp
 else
-#echo '@reboot sleep 10 && /bin/bash -c "busybox httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h "$HOME/websbx" > /dev/null 2>&1 & pid=\$! && echo \$pid > $HOME/agsbx/subcmsbidsbx.log"' >> /tmp/crontab.tmp
-echo '@reboot sleep 10 && /bin/bash -c "busybox httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h \"$HOME/websbx\" > /dev/null 2>&1 & pid=\$! && echo \$pid > $HOME/agsbx/subcmsbidsbx.log && sleep 5 && bash $HOME/bin/agsbx list >/dev/null 2>&1"' >> /tmp/crontab.tmp
+echo '@reboot sleep 10 && /bin/bash -c "busybox httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h \"$HOME/websbx\" > /dev/null 2>&1 & pid=\$! && echo \$pid > $HOME/agsbx/subcmsbidsbx.log"' >> /tmp/crontab.tmp
 fi
 crontab /tmp/crontab.tmp >/dev/null 2>&1
 rm /tmp/crontab.tmp
