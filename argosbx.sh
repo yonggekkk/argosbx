@@ -74,7 +74,7 @@ mkdir -p "$HOME/agsbx"
 if [ ! -f sbx_update ]; then
 echo "执行必要的脚本依赖中，请稍后"
 if command -v apk >/dev/null 2>&1; then
-apk update >/dev/null 2>&1 && apk add busybox-extras gcompat libc6-compat >/dev/null 2>&1
+apk update >/dev/null 2>&1 && apk add bash busybox-extras gcompat libc6-compat >/dev/null 2>&1
 elif command -v apt >/dev/null 2>&1; then
 apt update >/dev/null 2>&1 && apt install busybox coreutils util-linux -y >/dev/null 2>&1
 fi
@@ -2028,14 +2028,16 @@ EOF
 echo "---------------------------------------------------------"
 echo "$argoshow"
 echo
-if [ -n "$(cat $HOME/agsbx/subcmsbidsbx.log 2>/dev/null)" ]; then
+if [ -s $HOME/agsbx/subport.log ]; then
+showsubport=$(cat $HOME/agsbx/subport.log)
+if ps -ef 2>/dev/null | grep "$showsubport" | grep -v grep >/dev/null; then
 showsubtoken=$(cat $HOME/agsbx/subtoken.log 2>/dev/null)
-showsubport=$(cat $HOME/agsbx/subport.log 2>/dev/null)
-subip=$(cat $HOME/agsbx/server_ip.log)
+subip=$(cat $HOME/agsbx/server_ip.log 2>/dev/null)
 suburl="$subip:$showsubport/$showsubtoken"
 echo "Clash/Mihomo本地IP订阅地址：http://$suburl/clmi.yaml"
 echo "Sing-box本地IP订阅地址：http://$suburl/sbox.json"
 echo "聚合协议本地IP订阅地址：http://$suburl/jhsub.txt"
+fi
 fi
 echo
 echo "---------------------------------------------------------"
@@ -2046,7 +2048,7 @@ showmode
 }
 cleandel(){
 for P in /proc/[0-9]*; do if [ -L "$P/exe" ]; then TARGET=$(readlink -f "$P/exe" 2>/dev/null); if echo "$TARGET" | grep -qE '/agsbx/c|/agsbx/s|/agsbx/x'; then PID=$(basename "$P"); kill "$PID" 2>/dev/null; fi; fi; done
-kill -15 $(pgrep -f 'agsbx/s' 2>/dev/null) $(pgrep -f 'agsbx/c' 2>/dev/null) $(pgrep -f 'agsbx/x' 2>/dev/null) $(cat $HOME/agsbx/subcmsbidsbx.log 2>/dev/null) >/dev/null 2>&1
+kill -15 $(pgrep -f 'agsbx/s' 2>/dev/null) $(pgrep -f 'agsbx/c' 2>/dev/null) $(pgrep -f 'agsbx/x' 2>/dev/null) $(pgrep -f 'websbx' 2>/dev/null) >/dev/null 2>&1
 sed -i '/agsbx/d' ~/.bashrc
 sed -i '/export PATH="\$HOME\/bin:\$PATH"/d' ~/.bashrc
 . ~/.bashrc 2>/dev/null
@@ -2054,7 +2056,7 @@ crontab -l > /tmp/crontab.tmp 2>/dev/null
 sed -i '/agsbx\/sing-box/d' /tmp/crontab.tmp
 sed -i '/agsbx\/xray/d' /tmp/crontab.tmp
 sed -i '/agsbx\/cloudflared/d' /tmp/crontab.tmp
-sed -i '/subcmsbidsbx/d' /tmp/crontab.tmp
+sed -i '/websbx/d' /tmp/crontab.tmp
 crontab /tmp/crontab.tmp >/dev/null 2>&1
 rm /tmp/crontab.tmp
 rm -rf  "$HOME/bin/agsbx"
@@ -2103,7 +2105,7 @@ showmode
 exit
 elif [ "$1" = "rep" ]; then
 cleandel
-rm -rf "$HOME/agsbx"/{sb.json,xr.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name,subcmsbidsbx.log}
+rm -rf "$HOME/agsbx"/{sb.json,xr.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name}
 echo "Argosbx重置协议完成，开始更新相关协议变量……" && sleep 2
 echo
 elif [ "$1" = "list" ]; then
@@ -2205,27 +2207,32 @@ echo $subport > $HOME/agsbx/subport.log
 }
 subtokenipsub && subportipsub
 echo "请稍后…………"
-kill -15 $(cat $HOME/agsbx/subcmsbidsbx.log 2>/dev/null) >/dev/null 2>&1
+kill -15 $(pgrep -f 'websbx' 2>/dev/null) >/dev/null 2>&1
 mkdir -p $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"
 ln -sf $HOME/agsbx/clmi.yaml $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"/clmi.yaml
 ln -sf $HOME/agsbx/sbox.json $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"/sbox.json
 ln -sf $HOME/agsbx/jhsub.txt $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"/jhsub.txt
 if command -v apk >/dev/null 2>&1; then
-busybox-extras httpd -f -p "$(cat $HOME/agsbx/subport.log 2>/dev/null)" -h "$HOME/websbx" > /dev/null 2>&1 &
+busybox-extras httpd -f -p "$(cat $HOME/agsbx/subport.log 2>/dev/null)" -h $HOME/websbx > /dev/null 2>&1 &
 else
-busybox httpd -f -p "$(cat $HOME/agsbx/subport.log 2>/dev/null)" -h "$HOME/websbx" > /dev/null 2>&1 &
+busybox httpd -f -p "$(cat $HOME/agsbx/subport.log 2>/dev/null)" -h $HOME/websbx > /dev/null 2>&1 &
 fi
-echo "$!" > $HOME/agsbx/subcmsbidsbx.log
 sleep 5
-crontab -l 2>/dev/null > /tmp/crontab.tmp
-sed -i '/subcmsbidsbx/d' /tmp/crontab.tmp
 if command -v apk >/dev/null 2>&1; then
-echo '@reboot sleep 10 && /bin/bash -c "busybox-extras httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h \"$HOME/websbx\" > /dev/null 2>&1 & pid=\$! && echo \$pid > $HOME/agsbx/subcmsbidsbx.log"' >> /tmp/crontab.tmp
+cat > /etc/local.d/alpinesubsbx.start <<'EOF'
+#!/bin/bash
+sleep 10
+busybox-extras httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h $HOME/websbx > /dev/null 2>&1 &
+EOF
+chmod +x /etc/local.d/alpinesubsbx.start
+rc-update add local default >/dev/null 2>&1
 else
-echo '@reboot sleep 10 && /bin/bash -c "busybox httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h \"$HOME/websbx\" > /dev/null 2>&1 & pid=\$! && echo \$pid > $HOME/agsbx/subcmsbidsbx.log"' >> /tmp/crontab.tmp
-fi
+crontab -l 2>/dev/null > /tmp/crontab.tmp
+sed -i '/websbx/d' /tmp/crontab.tmp
+echo '@reboot sleep 10 && /bin/bash -c "busybox httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h $HOME/websbx > /dev/null 2>&1 &"' >> /tmp/crontab.tmp
 crontab /tmp/crontab.tmp >/dev/null 2>&1
 rm /tmp/crontab.tmp
+fi
 echo "本地IP订阅链接已更新完成"
 fi
 cip
