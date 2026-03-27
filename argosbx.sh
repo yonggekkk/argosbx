@@ -1085,7 +1085,7 @@ cat > /etc/local.d/alpineargosbx.start <<EOF
 sleep 10
 nohup $HOME/agsbx/cloudflared tunnel --url http://localhost:\$(cat $HOME/agsbx/argoport.log) --edge-ip-version auto --no-autoupdate --protocol http2 > $HOME/agsbx/argo.log 2>&1 &
 sleep 10
-bash $HOME/bin/agsbx list >/dev/null 2>&1
+bash $HOME/bin/agsbx >/dev/null 2>&1
 EOF
 chmod +x /etc/local.d/alpineargosbx.start
 rc-update add local default >/dev/null 2>&1
