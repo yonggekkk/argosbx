@@ -1080,10 +1080,10 @@ echo '@reboot sleep 10 && /bin/sh -c "nohup $HOME/agsbx/cloudflared tunnel --no-
 fi
 else
 if command -v apk >/dev/null 2>&1; then
-cat > /etc/local.d/alpineargosbx.start <<'EOF'
+cat > /etc/local.d/alpineargosbx.start <<EOF
 #!/bin/bash
 sleep 10
-nohup $HOME/agsbx/cloudflared tunnel --url http://localhost:$(cat $HOME/agsbx/argoport.log) --edge-ip-version auto --no-autoupdate --protocol http2 > $HOME/agsbx/argo.log 2>&1 &
+nohup $HOME/agsbx/cloudflared tunnel --url http://localhost:\$(cat $HOME/agsbx/argoport.log) --edge-ip-version auto --no-autoupdate --protocol http2 > $HOME/agsbx/argo.log 2>&1 &
 sleep 10
 bash $HOME/bin/agsbx list >/dev/null 2>&1
 EOF
@@ -2231,10 +2231,10 @@ busybox httpd -f -p "$(cat $HOME/agsbx/subport.log 2>/dev/null)" -h $HOME/websbx
 fi
 sleep 5
 if command -v apk >/dev/null 2>&1; then
-cat > /etc/local.d/alpinesubsbx.start <<'EOF'
+cat > /etc/local.d/alpinesubsbx.start <<EOF
 #!/bin/bash
 sleep 10
-busybox-extras httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h $HOME/websbx > /dev/null 2>&1 &
+busybox-extras httpd -f -p \$(cat $HOME/agsbx/subport.log 2>/dev/null) -h $HOME/websbx > /dev/null 2>&1 &
 EOF
 chmod +x /etc/local.d/alpinesubsbx.start
 rc-update add local default >/dev/null 2>&1
