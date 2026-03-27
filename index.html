@@ -83,34 +83,38 @@
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: auto auto auto;
+      grid-template-rows: auto auto auto auto;
       gap: 20px;
     }
     @media (max-width: 1100px) {
       .grid {
         grid-template-columns: 1fr;
-        grid-template-rows: auto auto auto;
+        grid-template-rows: auto auto auto auto auto;
       }
     }
     .protocol-port {
       grid-column: 1;
-      grid-row: 1 / 3;
+      grid-row: 1 / 4;
     }
     .outbound-warp {
       grid-column: 2;
       grid-row: 1;
     }
-    .argo-tunnel {
+    .subscription-links {
       grid-column: 2;
       grid-row: 2;
     }
+    .argo-tunnel {
+      grid-column: 2;
+      grid-row: 3;
+    }
     .shortcut-commands-card {
       grid-column: 1 / 3;
-      grid-row: 3;
+      grid-row: 4;
     }
     .out {
       grid-column: 1 / 3;
-      grid-row: 4;
+      grid-row: 5;
     }
     .card {
       background: rgba(255, 255, 255, .04);
@@ -474,6 +478,25 @@
         <div class="row"><label>导出节点名称前缀 <span class="pill">name</span></label><input id="name" type="text" placeholder="留空则默认协议名前缀"/></div>
       </section>
 
+      <section class="card subscription-links">
+        <h2>Clash/Mihomo、Singbox、聚合单节点的订阅链接设置：</h2>
+        <div class="row">
+          <label>启用订阅链接 <span class="pill">subsbx</span></label>
+          <select id="subsbx">
+            <option value="">默认 关闭</option>
+            <option value="y">开启</option>
+          </select>
+        </div>
+        <div class="row">
+          <label>订阅链接密码 <span class="pill">subid</span></label>
+          <input id="subid" type="text" placeholder="留空则默认uuid路径密码" disabled/>
+        </div>
+        <div class="row">
+          <label>订阅链接端口 <span class="pill">subpt</span></label>
+          <input id="subpt" type="text" placeholder="留空则随机端口" disabled/>
+        </div>
+      </section>
+
       <section class="card argo-tunnel">
         <h2>Argo临时/固定隧道CDN：</h2>
         <div class="row">
@@ -533,11 +556,14 @@
   const CURL = 'bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)';
   const WGET = 'bash <(wget -qO- https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)';
   const protoKeys = ['sopt','vmpt','vlpt','xhpt','vxpt','vwpt','arpt','anpt','hypt','tupt','sspt'];
-  const optIds = ['warp','ippz','uuid','reym','cdnym','name', 'oap'];
+  const optIds = ['warp','ippz','uuid','reym','cdnym','name', 'oap', 'subsbx', 'subid', 'subpt'];
 
   const argoSelect = document.getElementById('argoSelect');
   const agn = document.getElementById('agn');
   const agk = document.getElementById('agk');
+  const subsbx = document.getElementById('subsbx');
+  const subid = document.getElementById('subid');
+  const subpt = document.getElementById('subpt');
   const vmessWsCheckbox = document.querySelector('[data-proto="vmpt"]');
   const vlessWsVCheckbox = document.querySelector('[data-proto="vwpt"]');
   const vlessXhttpCheckbox = document.querySelector('[data-proto="vxpt"]');
@@ -578,6 +604,16 @@
     [agn, agk].forEach(i => i.disabled = !isEnabled);
   }
 
+  function updateSubState() {
+    const isEnabled = subsbx.value === 'y';
+    if (!isEnabled) {
+      subid.value = '';
+      subpt.value = '';
+    }
+    [subid, subpt].forEach(i => i.disabled = !isEnabled);
+    render();
+  }
+
   function resetForm(preserveIppz = false) {
     checkboxes.forEach(cb => {
         cb.checked = false;
@@ -593,6 +629,8 @@
     document.getElementById('uuid').value = '';
     document.getElementById('reym').value = '';
     document.getElementById('name').value = '';
+    subsbx.value = '';
+    updateSubState();
     argoSelect.value = '';
     updateArgoState('');
     updateCdnymState();
@@ -600,32 +638,28 @@
 
   function updateCdnymState() {
       const isAnyProtocolChecked = vmessWsCheckbox.checked || vlessXhttpCheckbox.checked || vlessWsVCheckbox.checked;
-      
       cdnymInput.disabled = !isAnyProtocolChecked;
-      
       if (!isAnyProtocolChecked) {
           cdnymInput.value = '';
       }
       render();
   }
 
+  subsbx.addEventListener('change', updateSubState);
+
   argoSelect.addEventListener('change', () => {
     const argoValue = argoSelect.value;
     const isEnabled = argoValue !== '';
-    
     [agn, agk].forEach(i => i.disabled = !isEnabled);
-
     if (argoValue === 'vwpt') {
         vlessWsVCheckbox.checked = true;
     } else if (argoValue === 'vmpt') {
         vmessWsCheckbox.checked = true;
     } 
-
     if (!isEnabled) {
         agn.value = '';
         agk.value = '';
     }
-
     updateCdnymState(); 
     render();
   });
@@ -653,7 +687,6 @@
     render();
   });
 
-
   document.querySelectorAll('[data-port]').forEach(inp => {
     inp.addEventListener('input', () => {
       const key = inp.getAttribute('data-port');
@@ -662,7 +695,6 @@
       if (inp.value.trim() !== '' && !ck.checked) {
         ck.checked = true;
       }
-      
       if (key === 'vmpt' || key === 'vwpt' || key === 'vxpt') {
         updateCdnymState();
       }
@@ -679,7 +711,6 @@
           pt.value = '';
         }
       }
-
       if (ck.getAttribute('data-proto') === 'vmpt' || ck.getAttribute('data-proto') === 'vxpt' || ck.getAttribute('data-proto') === 'vwpt') {
           updateCdnymState();
       }
@@ -717,14 +748,11 @@
     const argoValue = argoSelect.value;
     if (argoValue !== '') {
       m['argo'] = argoValue; 
-      
       const _agn = (agn.value || '').trim();
       const _agk = (agk.value || '').trim();
-      
       if (!agn.disabled && _agn) m['agn'] = _agn;
       if (!agk.disabled && _agk) m['agk'] = _agk;
     }
-    
     return m;
   }
 
@@ -732,7 +760,7 @@
     const keys = Object.keys(m);
     const ordered = [];
     protoKeys.forEach(k => { if (keys.includes(k)) ordered.push(k); });
-    ['warp', 'uuid', 'reym', 'cdnym', 'name', 'ippz'].forEach(k => { if (keys.includes(k)) ordered.push(k); });
+    ['warp', 'uuid', 'reym', 'cdnym', 'name', 'ippz', 'subsbx', 'subid', 'subpt'].forEach(k => { if (keys.includes(k)) ordered.push(k); });
     if (keys.includes('argo')) ordered.push('argo');
     if (keys.includes('agn')) ordered.push('agn');
     if (keys.includes('agk')) ordered.push('agk');
@@ -758,6 +786,7 @@
 
   initTheme();
   updateCdnymState();
+  updateSubState();
   render();
 
   allInputs.forEach(el => {
@@ -809,9 +838,3 @@
 </script>
 </body>
 </html>
-
-
-
-
-
-
