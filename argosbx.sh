@@ -45,7 +45,7 @@ agsbxurl="https://raw.githubusercontent.com/yonggekkk/argosbx/beta/argosbx.sh"
 showmode(){
 echo "Argosbx脚本一键SSH命令生器在线网址：https://yonggekkk.github.io/argosbx/"
 echo "主脚本：bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh) 或 bash <(wget -qO- https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)"
-echo "显示节点信息命令：agsbx list 【或者】 主脚本 list"
+echo "显示节点信息命令：agsbx 【或者】 主脚本"
 echo "重置变量组命令：自定义各种协议变量组 agsbx rep 【或者】 自定义各种协议变量组 主脚本 rep"
 echo "更新脚本命令：原已安装的自定义各种协议变量组 主脚本 rep"
 echo "更新Xray或Singbox内核命令：agsbx upx或ups 【或者】 主脚本 upx或ups"
@@ -2253,6 +2253,8 @@ else
 echo "Argosbx脚本已安装"
 echo
 argosbxstatus
+echo
+cip
 echo
 echo "相关快捷方式如下："
 showmode
