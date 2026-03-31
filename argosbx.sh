@@ -2067,7 +2067,7 @@ systemctl disable nftables >/dev/null 2>&1
 systemctl stop nftables >/dev/null 2>&1
 fi
 rm -rf /etc/nftables.conf
-nft delete table ip nat >/dev/null 2>&1
+nft delete table inet nat >/dev/null 2>&1
 }
 cleandel(){
 for P in /proc/[0-9]*; do if [ -L "$P/exe" ]; then TARGET=$(readlink -f "$P/exe" 2>/dev/null); if echo "$TARGET" | grep -qE '/agsbx/c|/agsbx/s|/agsbx/x'; then PID=$(basename "$P"); kill "$PID" 2>/dev/null; fi; fi; done
@@ -2260,14 +2260,10 @@ echo "本地IP订阅链接已更新完成"
 fi
 if [ -n "$hyjpt" ]; then
 hyjmptdel
-nft add table ip nat
-nft add chain ip nat prerouting { type nat hook prerouting priority -100 \; }
-if [ -z "$jppt" ]; then
-hyjumpport="{$(cat "$HOME/agsbx/port_hy2")}"
-else
-hyjumpport="{$jppt}"
-fi
-nft add rule ip nat prerouting udp dport $hyjumpport dnat to :$(cat "$HOME/agsbx/port_hy2")
+nft add table inet nat
+nft add chain inet nat prerouting { type nat hook prerouting priority -100 \; }
+hyjumpport="{$hyjpt}"
+nft add rule inet nat prerouting udp dport $hyjumpport dnat to :$(cat "$HOME/agsbx/port_hy2")
 nft list ruleset > /etc/nftables.conf
 if command -v apk >/dev/null 2>&1; then
 rc-update add nftables 2>/dev/null
