@@ -2247,6 +2247,33 @@ rm /tmp/crontab.tmp
 fi
 echo "本地IP订阅链接已更新完成"
 fi
+if [ -n "$hyjpt" ]; then
+if command -v apk >/dev/null 2>&1; then
+rc-update del nftables >/dev/null 2>&1
+/etc/init.d/nftables stop >/dev/null 2>&1
+else
+systemctl disable nftables >/dev/null 2>&1
+systemctl stop nftables >/dev/null 2>&1
+fi
+rm -rf /etc/nftables.conf
+nft delete table ip nat 2>/dev/null || true
+nft add table ip nat
+nft add chain ip nat prerouting { type nat hook prerouting priority -100 \; }
+if [ -z "$jppt" ]; then
+hyjumpport="{$(cat "$HOME/agsbx/port_hy2")}"
+else
+hyjumpport="{$jppt}"
+fi
+nft add rule ip nat prerouting udp dport $hyjumpport dnat to :$(cat "$HOME/agsbx/port_hy2")
+nft list ruleset > /etc/nftables.conf
+if command -v apk >/dev/null 2>&1; then
+rc-update add nftables 2>/dev/null
+/etc/init.d/nftables start >/dev/null 2>&1
+else
+systemctl enable nftables >/dev/null 2>&1
+systemctl restart nftables >/dev/null 2>&1
+fi
+fi
 cip
 echo
 else
