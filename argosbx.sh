@@ -2259,7 +2259,7 @@ hyport=$(cat "$HOME/agsbx/port_hy2")
 hyjppt=($hyjpt)
 for port in "${hyjppt[@]}"; do
 iptables -t nat -A PREROUTING -p udp --dport "$port" -j DNAT --to-destination :$hyport
-ip6tables -t nat -A PREROUTING -p udp --dport "$port" -j DNAT --to-destination :$hyport
+ip6tables -t nat -A PREROUTING -p udp --dport "$port" -j DNAT --to-destination $server_ip:$hyport
 done
 netfilter-persistent save >/dev/null 2>&1
 fi
