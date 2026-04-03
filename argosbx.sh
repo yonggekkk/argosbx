@@ -73,7 +73,7 @@ esac
 if [ "$1" != "del" ]; then
 mkdir -p "$HOME/agsbx"
 if [ ! -f sbx_update ]; then
-echo "执行必要的脚本依赖中，请稍后"
+echo "执行必要的脚本依赖中，请稍等10秒……"
 if command -v apk >/dev/null 2>&1; then
 apk update >/dev/null 2>&1 && apk add --no-cache iptables ip6tables bash busybox-extras gcompat libc6-compat >/dev/null 2>&1
 elif command -v apt >/dev/null 2>&1; then
