@@ -430,6 +430,17 @@ echo "=========启用Sing-box内核========="
 if [ ! -e "$HOME/agsbx/sing-box" ]; then
 upsingbox
 fi
+if [ -n "$sni" ] && { [ -n "$hyp" ] || [ -n "$tup" ] || [ -n "$anp" ];  }; then
+if [ ! -s "/root/ygkkkca/private.key" ]; then
+certificateHTA="$HOME/agsbx/cert.crt"
+keyHTA="$HOME/agsbx/private.key"
+echo "使用自签证书"
+else
+certificateHTA="/root/ygkkkca/cert.crt"
+keyHTA="/root/ygkkkca/private.key"
+echo "使用IP证书或域名证书"
+fi
+fi
 cat > "$HOME/agsbx/sb.json" <<EOF
 {
 "log": {
@@ -1210,6 +1221,17 @@ uuid=$(cat "$HOME/agsbx/uuid")
 server_ip=$(cat "$HOME/agsbx/server_ip.log")
 sxname=$(cat "$HOME/agsbx/name" 2>/dev/null)
 xvvmcdnym=$(cat "$HOME/agsbx/cdnym" 2>/dev/null)
+if grep -q 'ygkkkca/private.key' "$HOME/agsbx/sb.json"; then
+sni=www.bing.com
+add=$server_ip
+jhins=1
+msins=true
+else
+sni=$(cat /root/ygkkkca/ca.log 2>/dev/null)
+add=$(cat /root/ygkkkca/ca.log 2>/dev/null)
+jhins=0
+msins=false
+fi
 echo "*********************************************************"
 echo "*********************************************************"
 echo "Argosbx脚本输出节点配置如下："
@@ -1447,7 +1469,7 @@ fi
 if grep anytls-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 AnyTLS 】节点信息如下："
 port_an=$(cat "$HOME/agsbx/port_an")
-an_link="anytls://$uuid@$server_ip:$port_an?insecure=1&allowInsecure=1#${sxname}anytls-$hostname"
+an_link="anytls://$uuid@$add:$port_an?sni=$sni&insecure=$jhins&allowInsecure=$jhins#${sxname}anytls-$hostname"
 echo "$an_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$an_link"
 echo
@@ -1456,7 +1478,7 @@ cat <<EOF
          {
             "type": "anytls",
             "tag": "${sxname}anytls-$hostname",
-            "server": "$server_ip",
+            "server": "$add",
             "server_port": $port_an,
             "password": "$uuid",
             "idle_session_check_interval": "30s",
@@ -1464,8 +1486,8 @@ cat <<EOF
             "min_idle_session": 5,
             "tls": {
                 "enabled": true,
-                "insecure": true,
-                "server_name": "www.bing.com"
+                "insecure": $msins,
+                "server_name": "$sni"
             }
          },
 EOF
@@ -1477,15 +1499,15 @@ clanpt(){
 cat <<EOF
 - name: ${sxname}anytls-$hostname
   type: anytls
-  server: $server_ip
+  server: $add
   port: $port_an
   password: $uuid
   client-fingerprint: chrome
   udp: true
   idle-session-check-interval: 30
   idle-session-timeout: 30
-  sni: www.bing.com
-  skip-cert-verify: true
+  sni: $sni
+  skip-cert-verify: $msins
 EOF
 }
 clanpt1(){
@@ -1549,7 +1571,7 @@ else
 hyps=
 fi
 #hy2_link="hysteria2://$uuid@$server_ip:$port_hy2?security=tls&alpn=h3&insecure=1&allowInsecure=1$hyps&sni=www.bing.com#${sxname}hy2-$hostname"
-hy2_link="hysteria2://$uuid@$server_ip:$port_hy2?security=tls&alpn=h3&insecure=0&allowInsecure=0$hyps&sni=www.bing.com&pinSHA256=$SHA256#${sxname}hy2-$hostname"
+hy2_link="hysteria2://$uuid@$add:$port_hy2?security=tls&alpn=h3&insecure=0&allowInsecure=0$hyps&sni=$sni&pinSHA256=$SHA256#${sxname}hy2-$hostname"
 echo "$hy2_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$hy2_link"
 echo
@@ -1558,14 +1580,14 @@ cat <<EOF
     {
         "type": "hysteria2",
         "tag": "${sxname}hy2-$hostname",
-        "server": "$server_ip",
+        "server": "$add",
         "server_port": $port_hy2,
 $(sbhy2ports 2>/dev/null)
         "password": "$uuid",
         "tls": {
             "enabled": true,
-            "server_name": "www.bing.com",
-            "insecure": true,
+            "server_name": "$sni",
+            "insecure": $msins,
             "alpn": [
                 "h3"
             ]
@@ -1580,14 +1602,14 @@ clhypt(){
 cat <<EOF
 - name: ${sxname}hysteria2-$hostname                            
   type: hysteria2                                      
-  server: $server_ip                              
+  server: $add                              
   port: $port_hy2
   ports: $cmhy2pt
   password: $uuid                          
   alpn:
     - h3
-  sni: www.bing.com                               
-  skip-cert-verify: true
+  sni: $sni                               
+  skip-cert-verify: $msins
   fast-open: true
 EOF
 }
@@ -1598,7 +1620,7 @@ fi
 if grep tuic5-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 Tuic 】节点信息如下："
 port_tu=$(cat "$HOME/agsbx/port_tu")
-tuic5_link="tuic://$uuid:$uuid@$server_ip:$port_tu?congestion_control=bbr&udp_relay_mode=native&alpn=h3&sni=www.bing.com&insecure=1&allowInsecure=1&allow_insecure=1#${sxname}tuic-$hostname"
+tuic5_link="tuic://$uuid:$uuid@$add:$port_tu?congestion_control=bbr&udp_relay_mode=native&alpn=h3&sni=$sni&insecure=$jhins&allowInsecure=$jhins&allow_insecure=$jhins#${sxname}tuic-$hostname"
 echo "$tuic5_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$tuic5_link"
 echo
@@ -1607,7 +1629,7 @@ cat <<EOF
         {
             "type":"tuic",
             "tag": "${sxname}tuic5-$hostname",
-            "server": "$server_ip",
+            "server": "$add",
             "server_port": $port_tu,
             "uuid": "$uuid",
             "password": "$uuid",
@@ -1618,8 +1640,8 @@ cat <<EOF
             "heartbeat": "10s",
             "tls":{
                 "enabled": true,
-                "server_name": "www.bing.com",
-                "insecure": true,
+                "server_name": "$sni",
+                "insecure": $msins,
                 "alpn": [
                     "h3"
                 ]
@@ -1633,7 +1655,7 @@ echo "\"${sxname}tuic5-$hostname\","
 cltupt(){
 cat <<EOF
 - name: ${sxname}tuic5-$hostname                            
-  server: $server_ip                      
+  server: $add                      
   port: $port_tu                                    
   type: tuic
   uuid: $uuid       
@@ -1643,8 +1665,8 @@ cat <<EOF
   reduce-rtt: true
   udp-relay-mode: native
   congestion-controller: bbr
-  sni: www.bing.com                                
-  skip-cert-verify: true
+  sni: $sni                                
+  skip-cert-verify: $msins
 EOF
 }
 cltupt1(){
