@@ -479,8 +479,8 @@ cat >> "$HOME/agsbx/sb.json" <<EOF
             "alpn": [
                 "h3"
             ],
-            "certificate_path": "$HOME/agsbx/cert.crt",
-            "key_path": "$HOME/agsbx/private.key"
+            "certificate_path": "$certificateHTA",
+            "key_path": "$keyHTA"
         }
     },
 EOF
@@ -515,8 +515,8 @@ cat >> "$HOME/agsbx/sb.json" <<EOF
                 "alpn": [
                     "h3"
                 ],
-                "certificate_path": "$HOME/agsbx/cert.crt",
-                "key_path": "$HOME/agsbx/private.key"
+                "certificate_path": "$certificateHTA",
+                "key_path": "$keyHTA"
             }
         },
 EOF
@@ -547,8 +547,8 @@ cat >> "$HOME/agsbx/sb.json" <<EOF
             "padding_scheme":[],
             "tls":{
                 "enabled": true,
-                "certificate_path": "$HOME/agsbx/cert.crt",
-                "key_path": "$HOME/agsbx/private.key"
+                "certificate_path": "$certificateHTA",
+                "key_path": "$keyHTA"
             }
         },
 EOF
