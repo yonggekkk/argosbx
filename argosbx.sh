@@ -2147,6 +2147,7 @@ rc-update del "$svc" default >/dev/null 2>&1
 done
 rm -rf /etc/init.d/{sing-box,xray,argo} /etc/local.d/alpineargosbx.start /etc/local.d/alpinesubsbx.start
 iptables -t nat -F PREROUTING >/dev/null 2>&1
+ip6tables -t nat -F PREROUTING >/dev/null 2>&1
 netfilter-persistent save >/dev/null 2>&1
 rc-service iptables save >/dev/null 2>&1
 rc-service ip6tables save >/dev/null 2>&1
