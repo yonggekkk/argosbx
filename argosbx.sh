@@ -432,7 +432,7 @@ echo "=========启用Sing-box内核========="
 if [ ! -e "$HOME/agsbx/sing-box" ]; then
 upsingbox
 fi
-if [ -n "$sni" ] && { [ -n "$hyp" ] || [ -n "$nvp" ] || [ -n "$tup" ] || [ -n "$anp" ];  }; then
+if [ -n "$alns" ] && { [ -n "$hyp" ] || [ -n "$tup" ] || [ -n "$anp" ];  }; then
 if [ ! -s "/root/ygkkkca/private.key" ]; then
 certificateHTA="$HOME/agsbx/cert.crt"
 keyHTA="$HOME/agsbx/private.key"
@@ -466,7 +466,7 @@ echo "$SHA256" > "$HOME/agsbx/SHA256.txt"
 #fi
 fi
 
-if [ -n "$nvp" ]; then
+if [ -s "/root/ygkkkca/private.key" ] && [ -n "$nvp" ]; then
 nvp=nvpt
 if [ -z "$port_nv" ] && [ ! -e "$HOME/agsbx/port_nv" ]; then
 port_nv=$(shuf -i 10000-65535 -n 1)
@@ -490,8 +490,8 @@ cat >> "$HOME/agsbx/sb.json" <<EOF
         ],
         "tls": {
             "enabled": true,
-            "certificate_path": "$certificateHTA",
-            "key_path": "$keyHTA"
+            "certificate_path": "/root/ygkkkca/cert.crt",
+            "key_path": "/root/ygkkkca/private.key"
         }
     },
 EOF
@@ -1510,7 +1510,7 @@ fi
 if grep naive-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 Naiveproxy 】节点信息如下："
 port_nv=$(cat "$HOME/agsbx/port_nv")
-nv_link="naive+https://$uuid:$uuid@$add:$port_vn?security=tls&sni=$sni&insecure=$jhins&allowInsecure=$jhins&pcs=$SHA256#${sxname}naiveproxy-$hostname"
+nv_link="naive+https://$uuid:$uuid@$add:$port_vn?security=tls&sni=$sni&insecure=0&allowInsecure=0#${sxname}naiveproxy-$hostname"
 echo "$nv_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$nv_link"
 echo
@@ -1525,7 +1525,7 @@ cat <<EOF
             "password": "$uuid",
             "tls": {
                 "enabled": true,
-                "insecure": $msins,
+                "insecure": false,
                 "server_name": "$sni"
             }
          },
