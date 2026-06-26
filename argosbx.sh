@@ -432,15 +432,14 @@ echo "=========启用Sing-box内核========="
 if [ ! -e "$HOME/agsbx/sing-box" ]; then
 upsingbox
 fi
-if [ -n "$alns" ] && { [ -n "$hyp" ] || [ -n "$tup" ] || [ -n "$anp" ];  }; then
-if [ ! -s "/root/ygkkkca/private.key" ]; then
-certificateHTA="$HOME/agsbx/cert.crt"
-keyHTA="$HOME/agsbx/private.key"
-echo "使用自签证书"
-else
+if [ -n "$alns" ] && [ -s "/root/ygkkkca/private.key" ]; then
 certificateHTA="/root/ygkkkca/cert.crt"
 keyHTA="/root/ygkkkca/private.key"
 echo "使用IP证书或域名证书"
+else
+certificateHTA="$HOME/agsbx/cert.crt"
+keyHTA="$HOME/agsbx/private.key"
+echo "使用自签证书"
 fi
 fi
 cat > "$HOME/agsbx/sb.json" <<EOF
@@ -484,7 +483,7 @@ cat >> "$HOME/agsbx/sb.json" <<EOF
         "listen_port": ${port_nv},
         "users": [
             {
-			    "username": "${uuid}",
+                "username": "${uuid}",
                 "password": "${uuid}"
             }
         ],
