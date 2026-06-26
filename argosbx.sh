@@ -1520,32 +1520,32 @@ cat <<EOF
          {
             "type": "naive",
             "tag": "${sxname}naive-h3-$hostname",
-            "server": "$add",
+            "server": "$(cat /root/ygkkkca/ca.log 2>/dev/null)",
             "server_port": $port_nv,
-			"username": "$uuid",
+            "username": "$uuid",
             "password": "$uuid",
-			"udp_over_tcp": false,
+            "udp_over_tcp": false,
             "quic": true,
             "quic_congestion_control": "bbr",
             "tls": {
                 "enabled": true,
                 "insecure": false,
-                "server_name": "$sni"
+                "server_name": "$(cat /root/ygkkkca/ca.log 2>/dev/null)"
             }
          },
 		 {
             "type": "naive",
             "tag": "${sxname}naive-h2-$hostname",
-            "server": "$add",
+            "server": "$(cat /root/ygkkkca/ca.log 2>/dev/null)",
             "server_port": $port_nv,
-			"username": "$uuid",
+            "username": "$uuid",
             "password": "$uuid",
             "udp_over_tcp": true,
             "quic": false,
             "tls": {
                 "enabled": true,
                 "insecure": false,
-                "server_name": "$sni"
+                "server_name": "$(cat /root/ygkkkca/ca.log 2>/dev/null)"
             }
          },
 EOF
