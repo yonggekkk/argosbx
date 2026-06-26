@@ -441,7 +441,6 @@ certificateHTA="$HOME/agsbx/cert.crt"
 keyHTA="$HOME/agsbx/private.key"
 echo "使用自签证书"
 fi
-fi
 cat > "$HOME/agsbx/sb.json" <<EOF
 {
 "log": {
