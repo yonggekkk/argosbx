@@ -43,7 +43,7 @@ export warp=${warp:-''}
 export name=${name:-''}
 export oap=${oap:-''}
 v46url="https://icanhazip.com"
-agsbxurl="https://raw.githubusercontent.com/yonggekkk/argosbx/beta/argosbx.sh"
+agsbxurl="https://raw.githubusercontent.com/yonggekkk/argosbx/beta1/argosbx.sh"
 showmode(){
 echo "Argosbx脚本一键SSH命令生器在线网址：https://yonggekkk.github.io/argosbx/"
 echo "主脚本：bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh) 或 bash <(wget -qO- https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)"
@@ -432,7 +432,7 @@ echo "=========启用Sing-box内核========="
 if [ ! -e "$HOME/agsbx/sing-box" ]; then
 upsingbox
 fi
-if [ -n "$sni" ] && { [ -n "$hyp" ] || [ -n "$tup" ] || [ -n "$anp" ];  }; then
+if [ -n "$sni" ] && { [ -n "$hyp" ] || [ -n "$nvp" ] || [ -n "$tup" ] || [ -n "$anp" ];  }; then
 if [ ! -s "/root/ygkkkca/private.key" ]; then
 certificateHTA="$HOME/agsbx/cert.crt"
 keyHTA="$HOME/agsbx/private.key"
