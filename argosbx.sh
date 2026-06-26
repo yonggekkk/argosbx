@@ -1979,7 +1979,7 @@ cat > $HOME/agsbx/sbox.json <<EOF
                 "type": "https",
                 "server": "dns.google",
                 "path": "/dns-query",
-	              "domain_resolver": "aliDns",
+                "domain_resolver": "aliDns",
                 "detour": "proxy"
             },
            {
