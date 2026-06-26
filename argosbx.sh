@@ -463,7 +463,6 @@ SHA256=$(openssl x509 -in $HOME/agsbx/cert.crt -outform DER | sha256sum | awk '{
 echo "$SHA256" > "$HOME/agsbx/SHA256.txt"
 #fi
 fi
-
 if [ -s "/root/ygkkkca/private.key" ] && [ -n "$nvp" ]; then
 nvp=nvpt
 if [ -z "$port_nv" ] && [ ! -e "$HOME/agsbx/port_nv" ]; then
@@ -496,7 +495,6 @@ EOF
 else
 nvp=nvptargo
 fi
-
 if [ -n "$hyp" ]; then
 hyp=hypt
 if [ -z "$port_hy2" ] && [ ! -e "$HOME/agsbx/port_hy2" ]; then
@@ -1504,7 +1502,6 @@ echo "$vm_cdn_link"
 echo
 fi
 fi
-
 if grep naive-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 Naiveproxy 】节点信息如下："
 port_nv=$(cat "$HOME/agsbx/port_nv")
@@ -1564,7 +1561,6 @@ echo "\"${sxname}naive-h3-$hostname\","
 echo "\"${sxname}naive-h2-$hostname\","
 }
 fi
-
 if grep anytls-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 AnyTLS 】节点信息如下："
 port_an=$(cat "$HOME/agsbx/port_an")
