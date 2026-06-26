@@ -1516,10 +1516,11 @@ echo "$nv1_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$nv2_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$nv3_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$nv4_link" >> "$HOME/agsbx/jhsub.txt"
-echo "V2rayN/Nekobox单节点专用："
+echo "V2rayN/Karing/Nekobox单节点分享："
 echo "$nv1_link" 
 echo "$nv2_link"
-echo "Shadowrocket小火箭专用单节点分享："
+echo
+echo "Shadowrocket小火箭单节点分享："
 echo "$nv3_link"
 echo "$nv4_link"
 echo
