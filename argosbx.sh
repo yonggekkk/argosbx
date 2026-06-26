@@ -1553,7 +1553,8 @@ cat <<EOF
 EOF
 }
 sbnvpt1(){
-echo "\"${sxname}naiveproxy-$hostname\","
+echo "\"${sxname}naive-h3-$hostname\","
+echo "\"${sxname}naive-h2-$hostname\","
 }
 fi
 
