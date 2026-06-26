@@ -1508,8 +1508,8 @@ fi
 if grep naive-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 Naiveproxy 】节点信息如下："
 port_nv=$(cat "$HOME/agsbx/port_nv")
-nv2_link="naive+https://$uuid:$uuid@$add:$port_nv?security=tls&sni=$sni&insecure=0&allowInsecure=0#${sxname}naive-h2-$hostname"
-nv3_link="naive+quic://$uuid:$uuid@$add:$port_nv?congestion_control=bbr&security=tls&sni=$sni&insecure=0&allowInsecure=0#${sxname}naive-h3-$hostname"
+nv2_link="naive+https://$uuid:$uuid@$(cat /root/ygkkkca/ca.log 2>/dev/null):$port_nv?security=tls&sni=$(cat /root/ygkkkca/ca.log 2>/dev/null)&insecure=0&allowInsecure=0#${sxname}naive-h2-$hostname"
+nv3_link="naive+quic://$uuid:$uuid@$(cat /root/ygkkkca/ca.log 2>/dev/null):$port_nv?congestion_control=bbr&security=tls&sni=$(cat /root/ygkkkca/ca.log 2>/dev/null)&insecure=0&allowInsecure=0#${sxname}naive-h3-$hostname"
 echo "$nv2_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$nv3_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$nv2_link"
