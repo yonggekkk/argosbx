@@ -1510,19 +1510,40 @@ fi
 if grep naive-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 Naiveproxy 】节点信息如下："
 port_nv=$(cat "$HOME/agsbx/port_nv")
-nv_link="naive+https://$uuid:$uuid@$add:$port_vn?security=tls&sni=$sni&insecure=0&allowInsecure=0#${sxname}naiveproxy-$hostname"
-echo "$nv_link" >> "$HOME/agsbx/jhsub.txt"
-echo "$nv_link"
+nv2_link="naive+https://$uuid:$uuid@$add:$port_nv?security=tls&sni=$sni&insecure=0&allowInsecure=0#${sxname}naive-h2-$hostname"
+nv3_link="naive+quic://$uuid:$uuid@$add:$port_nv?congestion_control=bbr&security=tls&sni=$sni&insecure=0&allowInsecure=0#${sxname}naive-h3-$hostname"
+echo "$nv_link2" >> "$HOME/agsbx/jhsub.txt"
+echo "$nv_link3" >> "$HOME/agsbx/jhsub.txt"
+echo "$nv_link2"
+echo "$nv_link3"
 echo
 sbnvpt(){
 cat <<EOF
          {
             "type": "naive",
-            "tag": "${sxname}naiveproxy-$hostname",
+            "tag": "${sxname}naive-h3-$hostname",
             "server": "$add",
             "server_port": $port_nv,
 			"username": "$uuid",
             "password": "$uuid",
+			"udp_over_tcp": false,
+            "quic": true,
+            "quic_congestion_control": "bbr",
+            "tls": {
+                "enabled": true,
+                "insecure": false,
+                "server_name": "$sni"
+            }
+         },
+		 {
+            "type": "naive",
+            "tag": "${sxname}naive-h2-$hostname",
+            "server": "$add",
+            "server_port": $port_nv,
+			"username": "$uuid",
+            "password": "$uuid",
+            "udp_over_tcp": true,
+            "quic": false,
             "tls": {
                 "enabled": true,
                 "insecure": false,
