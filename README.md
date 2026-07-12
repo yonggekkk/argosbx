@@ -19,7 +19,7 @@
 #### 6、所有代理协议都无需域名（除了argo固定隧道、IP端口CDN），支持单个或多个代理协议任意组合并快速重置更换
 【 已支持：AnyTLS、Any-reality、Vless-xhttp-reality-vison-enc、Vless-tcp-reality-vision、Vless-xhttp-vison-enc、Vless-ws-vision-enc、Shadowsocks-2022、Vmess-ws、Socks5、Hysteria2、Tuic、Mieru TCP/UDP；Argo 临时/固定隧道仅支持 Vless-ws-vision-enc 或 Vmess-ws 】
 
-#### 7、建议配合SSH一键脚本命令生成器网页使用：https://yonggekkk.github.io/argosbx/
+#### 7、个人 SSH 一键脚本命令生成器：https://fool076.github.io/argosbx/（命令默认从本 fork 下载脚本与配套资产）
 
 #### 8、如需要多样的功能，推荐使用VPS专用五合一脚本[Sing-box-yg](https://github.com/yonggekkk/sing-box-yg)
 

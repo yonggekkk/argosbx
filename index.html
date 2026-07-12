@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ArgoSBX一键SSH命令生成器-甬哥ygkkk</title>
+  <title>fool076 · ArgoSBX 一键 SSH 命令生成器</title>
   <style>
     :root {
       --bg:#0b1020;
@@ -390,16 +390,14 @@
           </svg>
         </label>
       </div>
-      <h1>ArgoSBX小钢炮脚本💣一键SSH命令生成器 V26.5.26</h1>
+      <h1>fool076 · ArgoSBX 一键 SSH 命令生成器</h1>
       <p>
-        甬哥Github项目：
-        <a href="https://github.com/yonggekkk" target="_blank">github.com/yonggekkk</a><br>
-        甬哥Blogger博客：
-        <a href="https://ygkkk.blogspot.com" target="_blank">ygkkk.blogspot.com</a><br>
-        甬哥YouTube频道：
-        <a href="https://www.youtube.com/@ygkkk" target="_blank">www.youtube.com/@ygkkk</a><br>
-        甬哥最新动态推特X：
-        <a href="https://x.com/ygkkkg" target="_blank">x.com/ygkkkg</a><br>
+        维护仓库：
+        <a href="https://github.com/fool076/argosbx" target="_blank" rel="noopener noreferrer">github.com/fool076/argosbx</a><br>
+        个人网页：
+        <a href="https://fool076.github.io/argosbx/" target="_blank" rel="noopener noreferrer">fool076.github.io/argosbx</a><br>
+        上游项目：
+        <a href="https://github.com/yonggekkk/argosbx" target="_blank" rel="noopener noreferrer">yonggekkk/argosbx</a>
       </p>
     </header>
 
@@ -560,26 +558,19 @@
           <button id="reset">重置</button>
           <button id="copy">复制</button>
         </div>
-        <p style="margin-top: 10px;">相关细节说明，请参考ArgoSBX小钢炮脚本项目💣：<a href="https://github.com/yonggekkk/argosbx" target="_blank">github.com/yonggekkk/argosbx</a></p>
-1、ArgoSBX一键SSH命令生成器发布，只要点几下，各大代理协议任你选：<a href="https://youtu.be/4u6W4c-t3oU" target="_blank">点击视频教程</a></p>
-2、ArgoSBX内置15种WARP出站组合，轻松替代独立的WARP脚本：<a href="https://youtu.be/iywjT8fIka4" target="_blank">点击视频教程</a></p>
-3、代理节点的IP、端口被封依旧可用！ArgoSBX脚本套CDN优选4大方案：<a href="https://youtu.be/RnUT1CNbCr8" target="_blank">点击视频教程</a></p>
-4、VPS+容器搭建最强CDN节点；独家解读Argo临时/固定隧道区别：<a href="https://youtu.be/K35NhrNiLK8" target="_blank">点击视频教程</a></p>
-5、ArgoSBX更新：VLESS抗量子加密；80端口开启TLS，无需域名CDN：<a href="https://youtu.be/X8BFVyeiY9g" target="_blank">点击视频教程</a></p>
-6、小白一分钟自建ArgoSBX翻墙VPN代理：支付IP订阅链接；HY2端口跳跃：<a href="https://youtu.be/xHzZFP_ywLs" target="_blank">点击视频教程</a></p>      
-        安卓手机客户端推荐：<a href="https://github.com/starifly/NekoBoxForAndroid/releases" target="_blank">Nekobox-starifly版 (全协议支持)</a>、<a href="https://github.com/2dust/v2rayNG/releases" target="_blank">V2rayNG官方版</a><br>
-        电脑win客户端推荐：<a href="https://github.com/2dust/v2rayN/releases" target="_blank">V2rayN官方版 (全协议支持)</a><br>
-        苹果IOS客户端推荐：Happ、OneXray、Streisand
-      </p>
+        <p style="margin-top: 10px;">当前网页由 <a href="https://github.com/fool076/argosbx" target="_blank" rel="noopener noreferrer">fool076/argosbx</a> 维护，基于 <a href="https://github.com/yonggekkk/argosbx" target="_blank" rel="noopener noreferrer">yonggekkk/argosbx</a> 派生。生成的命令会从本 fork 下载脚本与配套资产。</p>
+        <p>Mieru 仅支持公网 TCP/UDP 直连；请显式映射端口并放行防火墙，不支持 Argo/CDN/WARP 出站。</p>
+        <p>客户端推荐：Android 使用 <a href="https://github.com/starifly/NekoBoxForAndroid/releases" target="_blank" rel="noopener noreferrer">NekoBox</a> 或 <a href="https://github.com/2dust/v2rayNG/releases" target="_blank" rel="noopener noreferrer">v2rayNG</a>；Windows 使用 <a href="https://github.com/2dust/v2rayN/releases" target="_blank" rel="noopener noreferrer">v2rayN</a>；iOS 可使用 Happ、OneXray 或 Streisand。</p>
       </section>
     </div>
   </div>
 
 <script>
 (function(){
+  const defaultAssetRepo = 'fool076/argosbx';
   const githubPagesOwner = location.hostname.endsWith('.github.io') ? location.hostname.split('.')[0] : '';
-  const githubPagesRepo = location.pathname.split('/').filter(Boolean)[0] || 'argosbx';
-  const assetRepo = githubPagesOwner ? `${githubPagesOwner}/${githubPagesRepo}` : 'yonggekkk/argosbx';
+  const githubPagesRepo = location.pathname.split('/').filter(Boolean)[0] || defaultAssetRepo.split('/')[1];
+  const assetRepo = githubPagesOwner ? `${githubPagesOwner}/${githubPagesRepo}` : defaultAssetRepo;
   const rawScript = `https://raw.githubusercontent.com/${assetRepo}/main/argosbx.sh`;
   const CURL = `ARGOSBX_ASSET_REPO=${assetRepo} bash <(curl -Ls ${rawScript})`;
   const WGET = `ARGOSBX_ASSET_REPO=${assetRepo} bash <(wget -qO- ${rawScript})`;
