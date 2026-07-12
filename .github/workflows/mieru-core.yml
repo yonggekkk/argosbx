@@ -1,0 +1,106 @@
+name: Build Mieru cores
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - versions.env
+      - scripts/check-versions.sh
+      - argosbx.sh
+      - container/nodejs/start.sh
+      - .github/workflows/mieru-core.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mieru-core-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Argosbx
+        uses: actions/checkout@v4
+
+      - name: Check shared version constants
+        run: sh scripts/check-versions.sh
+
+      - name: Load version metadata
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          source versions.env
+          echo "version=$MIERU_VERSION" >> "$GITHUB_OUTPUT"
+          echo "release_tag=$MIERU_RELEASE_TAG" >> "$GITHUB_OUTPUT"
+          echo "upstream=$MIERU_UPSTREAM_REPO" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Go 1.24
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.x'
+          cache: false
+
+      - name: Checkout fixed Mieru source
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          UPSTREAM: ${{ steps.version.outputs.upstream }}
+        run: git clone --filter=blob:none --depth 1 --branch "$VERSION" "https://github.com/$UPSTREAM.git" mieru-upstream
+
+      - name: Build static linux binaries
+        shell: bash
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          for arch in amd64 arm64; do
+            (
+              cd mieru-upstream
+              CGO_ENABLED=0 GOOS=linux GOARCH="$arch" \
+                go build -trimpath -ldflags='-s -w' -o "../dist/mita-linux-$arch" ./cmd/mita
+              CGO_ENABLED=0 GOOS=linux GOARCH="$arch" \
+                go build -trimpath -ldflags='-s -w' -o "../dist/mieru-linux-$arch" ./cmd/mieru
+            )
+          done
+          chmod 0755 dist/mita-linux-* dist/mieru-linux-*
+          cp mieru-upstream/LICENSE dist/MIERU-LICENSE
+          git -C mieru-upstream archive \
+            --format=tar.gz \
+            --prefix="mieru-${VERSION#v}/" \
+            --output="../dist/mieru-${VERSION}-source.tar.gz" \
+            HEAD
+          (cd dist && sha256sum mita-linux-* mieru-linux-* MIERU-LICENSE "mieru-${VERSION}-source.tar.gz" > SHA256SUMS)
+
+      - name: Verify release files
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd dist && sha256sum -c SHA256SUMS)
+          for file in dist/mita-linux-* dist/mieru-linux-*; do
+            file "$file"
+            if ldd "$file" >/dev/null 2>&1; then
+              echo "$file is dynamically linked" >&2
+              exit 1
+            fi
+          done
+
+      - name: Publish versioned release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.version.outputs.release_tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" dist/* --clobber
+          else
+            gh release create "$RELEASE_TAG" dist/* \
+              --target "$GITHUB_SHA" \
+              --title "Mieru cores $VERSION" \
+              --notes "Static linux/amd64 and linux/arm64 builds of mita and mieru from enfein/mieru $VERSION. Includes SHA-256 checksums, the upstream GPL-3.0 license, and the corresponding source archive."
+          fi

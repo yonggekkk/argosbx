@@ -197,6 +197,9 @@
       outline: none;
       transition: background-color 0.3s, border-color 0.3s, color 0.3s;
     }
+    input[aria-invalid="true"] {
+      border-color: var(--err);
+    }
     input[disabled] {
       opacity: .5;
     }
@@ -429,6 +432,13 @@
             <label><input type="checkbox" data-proto="vmpt"> Vmess-ws <span class="pill">vmpt</span></label><input type="text" placeholder="留空则随机端口（支持CDN优选，固定隧道必填URL端口）" data-port="vmpt">
           </div>
         </div>
+        <div class="protocol-group separator">
+          <h3>Mieru独立内核（仅公网 TCP/UDP 直连，不支持 Argo/CDN/WARP）：</h3>
+          <div class="protocol-grid">
+            <label><input type="checkbox" data-proto="mitpt"> Mieru TCP <span class="pill">mitpt</span></label><input type="text" inputmode="numeric" maxlength="11" placeholder="留空则复用/随机；支持单端口或 5000-5010" data-port="mitpt">
+            <label><input type="checkbox" data-proto="miupt"> Mieru UDP <span class="pill">miupt</span></label><input type="text" inputmode="numeric" maxlength="11" placeholder="留空则复用/随机；支持单端口或 6000-6010" data-port="miupt">
+          </div>
+        </div>
       </section>
 
       <section class="card outbound-warp">
@@ -438,6 +448,14 @@
           <div class="input-with-button">
             <input id="uuid" type="text" placeholder="留空则随机生成uuid密码"/>
             <button id="generateUuidBtn" type="button" class="primary">生成 UUID</button>
+          </div>
+        </div>
+        <div class="row"><label>Mieru 用户名 <span class="pill">miuser</span></label><input id="miuser" type="text" maxlength="64" pattern="[A-Za-z0-9._~-]{1,64}" placeholder="首次留空默认 argosbx；rep 留空保留原值" autocomplete="username"/></div>
+        <div class="row">
+          <label>Mieru 密码 <span class="pill">mipass</span></label>
+          <div class="input-with-button">
+            <input id="mipass" type="text" minlength="12" maxlength="128" pattern="[A-Za-z0-9._~-]{12,128}" placeholder="首次留空随机生成；rep 留空保留原值" autocomplete="new-password"/>
+            <button id="generateMieruPasswordBtn" type="button" class="primary">生成密码</button>
           </div>
         </div>
         <div class="row"><label>Reality 域名 <span class="pill">reym</span></label><input id="reym" type="text" placeholder="选择Reality相关协议后可用，留空默认apple.com" disabled/></div>
@@ -522,6 +540,7 @@
           <button class="command-button" data-command="del">卸载脚本命令：del</button>
           <button class="command-button" data-command="upx">升级Xray内核：upx</button>
           <button class="command-button" data-command="ups">升级Singbox内核：ups</button>
+          <button class="command-button" data-command="upm">升级Mieru内核：upm</button>
           <button class="command-button" data-command="res">重启脚本命令：res</button>
           <button class="command-button" data-command="rep">调整变量、更新脚本命令（注:所有变量设置完成后再点击）：rep</button>
         </div>
@@ -558,10 +577,14 @@
 
 <script>
 (function(){
-  const CURL = 'bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)';
-  const WGET = 'bash <(wget -qO- https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)';
-  const protoKeys = ['sopt','vmpt','vlpt','xhpt','vxpt','vwpt','arpt','anpt','hypt','tupt','sspt'];
-  const optIds = ['warp','ippz','uuid','reym','hyjpt','cdnym','name', 'oap', 'sub', 'subid', 'subpt'];
+  const githubPagesOwner = location.hostname.endsWith('.github.io') ? location.hostname.split('.')[0] : '';
+  const githubPagesRepo = location.pathname.split('/').filter(Boolean)[0] || 'argosbx';
+  const assetRepo = githubPagesOwner ? `${githubPagesOwner}/${githubPagesRepo}` : 'yonggekkk/argosbx';
+  const rawScript = `https://raw.githubusercontent.com/${assetRepo}/main/argosbx.sh`;
+  const CURL = `ARGOSBX_ASSET_REPO=${assetRepo} bash <(curl -Ls ${rawScript})`;
+  const WGET = `ARGOSBX_ASSET_REPO=${assetRepo} bash <(wget -qO- ${rawScript})`;
+  const protoKeys = ['sopt','vmpt','vlpt','xhpt','vxpt','vwpt','arpt','anpt','hypt','tupt','sspt','mitpt','miupt'];
+  const optIds = ['miuser','mipass','warp','ippz','uuid','reym','hyjpt','cdnym','name', 'oap', 'sub', 'subid', 'subpt'];
 
   const argoSelect = document.getElementById('argoSelect');
   const agn = document.getElementById('agn');
@@ -591,6 +614,10 @@
   const oapSelect = document.getElementById('oap');
   const generateUuidBtn = document.getElementById('generateUuidBtn');
   const uuidInput = document.getElementById('uuid');
+  const generateMieruPasswordBtn = document.getElementById('generateMieruPasswordBtn');
+  const miuserInput = document.getElementById('miuser');
+  const mipassInput = document.getElementById('mipass');
+  const mieruPortInputs = ['mitpt', 'miupt'].map(key => document.querySelector(`[data-port="${key}"]`));
   const themeSwitchCheckbox = document.getElementById('theme-switch-checkbox');
   const commandTypeRadios = document.querySelectorAll('input[name="commandType"]');
 
@@ -611,6 +638,48 @@
   }
 
   themeSwitchCheckbox.addEventListener('change', toggleTheme);
+
+  function setInputValidity(input, message) {
+    input.setCustomValidity(message);
+    if (message) {
+      input.setAttribute('aria-invalid', 'true');
+      input.title = message;
+    } else {
+      input.removeAttribute('aria-invalid');
+      input.removeAttribute('title');
+    }
+  }
+
+  function validateMieruPortInput(input) {
+    const value = (input.value || '').trim();
+    if (value === '') {
+      setInputValidity(input, '');
+      return true;
+    }
+    const match = value.match(/^(\d+)(?:-(\d+))?$/);
+    let message = '';
+    if (!match) {
+      message = '仅支持 1025-65535 的单端口或严格递增范围，例如 5000 或 5000-5010';
+    } else {
+      const start = Number(match[1]);
+      const end = Number(match[2] || match[1]);
+      if (start < 1025 || end > 65535) {
+        message = '端口必须位于 1025-65535';
+      } else if (match[2] && start >= end) {
+        message = '端口范围必须严格递增';
+      }
+    }
+    setInputValidity(input, message);
+    return message === '';
+  }
+
+  function validateMieruFields() {
+    mieruPortInputs.forEach(validateMieruPortInput);
+    const user = (miuserInput.value || '').trim();
+    const pass = (mipassInput.value || '').trim();
+    setInputValidity(miuserInput, user === '' || /^[A-Za-z0-9._~-]{1,64}$/.test(user) ? '' : '用户名必须是 1-64 位 URL-safe ASCII');
+    setInputValidity(mipassInput, pass === '' || /^[A-Za-z0-9._~-]{12,128}$/.test(pass) ? '' : '密码必须是 12-128 位 URL-safe ASCII');
+  }
 
   function updateArgoState(argoValue) {
     const isEnabled = argoValue !== '';
@@ -737,6 +806,18 @@
     render();
   });
 
+  generateMieruPasswordBtn.addEventListener('click', () => {
+    const bytes = crypto.getRandomValues(new Uint8Array(24));
+    let raw = '';
+    bytes.forEach(byte => { raw += String.fromCharCode(byte); });
+    mipassInput.value = btoa(raw)
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+    validateMieruFields();
+    render();
+  });
+
   commandTypeRadios.forEach(radio => {
     radio.addEventListener('change', render);
   });
@@ -776,7 +857,7 @@
     const keys = Object.keys(m);
     const ordered = [];
     protoKeys.forEach(k => { if (keys.includes(k)) ordered.push(k); });
-    ['warp', 'uuid', 'reym', 'hyjpt', 'cdnym', 'name', 'ippz', 'sub', 'subid', 'subpt'].forEach(k => { if (keys.includes(k)) ordered.push(k); });
+    ['miuser', 'mipass', 'warp', 'uuid', 'reym', 'hyjpt', 'cdnym', 'name', 'ippz', 'sub', 'subid', 'subpt'].forEach(k => { if (keys.includes(k)) ordered.push(k); });
     if (keys.includes('argo')) ordered.push('argo');
     if (keys.includes('agn')) ordered.push('agn');
     if (keys.includes('agk')) ordered.push('agk');
@@ -795,7 +876,8 @@
   }
 
   function render(){
-    if (isUpdatingFromOutput) return; 
+    if (isUpdatingFromOutput) return;
+    validateMieruFields();
     const m = collectVars();
     const vars = toBashVars(m);
     const selectedCommand = document.querySelector('input[name="commandType"]:checked').value === 'curl' ? CURL : WGET;
@@ -867,6 +949,7 @@
       }
     });
 
+    validateMieruFields();
     isUpdatingFromOutput = false;
   }
 

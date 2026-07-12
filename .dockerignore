@@ -1,0 +1,5 @@
+.git
+.github
+mieru-upstream
+node_modules
+*.log

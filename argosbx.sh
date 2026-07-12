@@ -1,5 +1,8 @@
 #!/bin/sh
 export LANG=en_US.UTF-8
+MIERU_VERSION=v3.34.0
+MIERU_RELEASE_TAG=mieru-core-v3.34.0
+ARGOSBX_DEFAULT_REPO=${GITHUB_REPOSITORY:-yonggekkk/argosbx}
 [ -z "${vlpt+x}" ] || vlp=yes
 [ -z "${vmpt+x}" ] || { vmp=yes; vmag=yes; }
 [ -z "${vwpt+x}" ] || { vwp=yes; vmag=yes; }
@@ -12,12 +15,53 @@ export LANG=en_US.UTF-8
 [ -z "${arpt+x}" ] || arp=yes
 [ -z "${sopt+x}" ] || sop=yes
 [ -z "${warp+x}" ] || wap=yes
-if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsbx/(s|x)' || pgrep -f 'agsbx/(s|x)' >/dev/null 2>&1; then
+[ -z "${mitpt+x}" ] || mit=yes
+[ -z "${miupt+x}" ] || miu=yes
+
+is_exe_running(){
+target=$(readlink -f "$1" 2>/dev/null || printf '%s' "$1")
+for exe in /proc/[0-9]*/exe; do
+[ -L "$exe" ] || continue
+[ "$(readlink -f "$exe" 2>/dev/null)" = "$target" ] && return 0
+done
+return 1
+}
+kill_exe(){
+target=$(readlink -f "$1" 2>/dev/null || printf '%s' "$1")
+signal=${2:-TERM}
+for exe in /proc/[0-9]*/exe; do
+[ -L "$exe" ] || continue
+if [ "$(readlink -f "$exe" 2>/dev/null)" = "$target" ]; then
+kill -s "$signal" "$(basename "$(dirname "$exe")")" 2>/dev/null || true
+fi
+done
+}
+has_argosbx_install(){
+[ -f "$HOME/agsbx/xr.json" ] || [ -f "$HOME/agsbx/sb.json" ] || [ -f "$HOME/agsbx/mita.json" ]
+}
+legacy_selected(){
+[ "$vwp" = yes ] || [ "$sop" = yes ] || [ "$vxp" = yes ] || [ "$ssp" = yes ] || [ "$vlp" = yes ] || [ "$vmp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || [ "$xhp" = yes ] || [ "$anp" = yes ] || [ "$arp" = yes ]
+}
+mieru_selected(){
+[ "$mit" = yes ] || [ "$miu" = yes ]
+}
+any_protocol_selected(){
+legacy_selected || mieru_selected
+}
+
+case "${argo:-}" in
+mitpt|miupt|mieru|mita)
+echo "错误：Mieru 使用原生 TCP/UDP，不能选作 Argo/CDN 协议" >&2
+exit 1
+;;
+esac
+
+if has_argosbx_install; then
 if [ "$1" = "rep" ]; then
-[ "$vwp" = yes ] || [ "$sop" = yes ] || [ "$vxp" = yes ] || [ "$ssp" = yes ] || [ "$vlp" = yes ] || [ "$vmp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || [ "$xhp" = yes ] || [ "$anp" = yes ] || [ "$arp" = yes ] || { echo "提示：rep重置协议时，请在脚本前至少设置一个协议变量哦，再见！💣"; exit; }
+any_protocol_selected || { echo "提示：rep重置协议时，请在脚本前至少设置一个协议变量哦，再见！💣"; exit; }
 fi
 else
-[ "$1" = "del" ] || [ "$vwp" = yes ] || [ "$sop" = yes ] || [ "$vxp" = yes ] || [ "$ssp" = yes ] || [ "$vlp" = yes ] || [ "$vmp" = yes ] || [ "$hyp" = yes ] || [ "$tup" = yes ] || [ "$xhp" = yes ] || [ "$anp" = yes ] || [ "$arp" = yes ] || { echo "提示：未安装argosbx脚本，请在脚本前至少设置一个协议变量哦，再见！💣"; exit; }
+[ "$1" = "del" ] || any_protocol_selected || { echo "提示：未安装argosbx脚本，请在脚本前至少设置一个协议变量哦，再见！💣"; exit; }
 fi
 export uuid=${uuid:-''}
 export port_vl_re=${vlpt:-''}
@@ -31,6 +75,10 @@ export port_an=${anpt:-''}
 export port_ar=${arpt:-''}
 export port_ss=${sspt:-''}
 export port_so=${sopt:-''}
+export port_mi_tcp=${mitpt:-''}
+export port_mi_udp=${miupt:-''}
+export miuser=${miuser:-''}
+export mipass=${mipass:-''}
 export ym_vl_re=${reym:-''}
 export cdnym=${cdnym:-''}
 export argo=${argo:-''}
@@ -41,14 +89,19 @@ export warp=${warp:-''}
 export name=${name:-''}
 export oap=${oap:-''}
 v46url="https://icanhazip.com"
-agsbxurl="https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh"
+if [ -z "${ARGOSBX_ASSET_REPO:-}" ] && [ -s "$HOME/agsbx/asset_repo" ]; then
+ARGOSBX_ASSET_REPO=$(cat "$HOME/agsbx/asset_repo" 2>/dev/null)
+fi
+ARGOSBX_ASSET_REPO=${ARGOSBX_ASSET_REPO:-$ARGOSBX_DEFAULT_REPO}
+agsbxurl="https://raw.githubusercontent.com/$ARGOSBX_ASSET_REPO/main/argosbx.sh"
+MIERU_RELEASE_BASE="https://github.com/$ARGOSBX_ASSET_REPO/releases/download/$MIERU_RELEASE_TAG"
 showmode(){
 echo "Argosbx脚本一键SSH命令生器在线网址：https://yonggekkk.github.io/argosbx/"
-echo "主脚本：bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh) 或 bash <(wget -qO- https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)"
+echo "主脚本：ARGOSBX_ASSET_REPO=$ARGOSBX_ASSET_REPO bash <(curl -Ls $agsbxurl) 或 ARGOSBX_ASSET_REPO=$ARGOSBX_ASSET_REPO bash <(wget -qO- $agsbxurl)"
 echo "显示节点信息命令：agsbx list 【或者】 主脚本 list"
 echo "重置变量组命令：自定义各种协议变量组 agsbx rep 【或者】 自定义各种协议变量组 主脚本 rep"
 echo "更新脚本命令：原已安装的自定义各种协议变量组 主脚本 rep"
-echo "更新Xray或Singbox内核命令：agsbx upx或ups 【或者】 主脚本 upx或ups"
+echo "更新Xray、Sing-box或Mieru内核命令：agsbx upx、ups或upm 【或者】 主脚本 upx、ups或upm"
 echo "重启脚本命令：agsbx res 【或者】 主脚本 res"
 echo "卸载脚本命令：agsbx del 【或者】 主脚本 del"
 echo "双栈VPS显示IPv4/IPv6节点配置命令：ippz=4或6 agsbx list 【或者】 ippz=4或6 主脚本 list"
@@ -72,14 +125,17 @@ amd64|x86_64) cpu=amd64;;
 esac
 if [ "$1" != "del" ]; then
 mkdir -p "$HOME/agsbx"
+chmod 0700 "$HOME/agsbx" 2>/dev/null || true
+printf '%s\n' "$ARGOSBX_ASSET_REPO" > "$HOME/agsbx/asset_repo"
+chmod 0600 "$HOME/agsbx/asset_repo" 2>/dev/null || true
 if [ ! -f sbx_update ]; then
 echo "执行必要的脚本依赖中，请稍等10秒……"
 if command -v apk >/dev/null 2>&1; then
-apk update >/dev/null 2>&1 && apk add --no-cache bash busybox-extras gcompat libc6-compat iptables openssl >/dev/null 2>&1
+apk update >/dev/null 2>&1 && apk add --no-cache bash busybox-extras ca-certificates coreutils curl gcompat iproute2 libc6-compat iptables openssl wget >/dev/null 2>&1
 elif command -v apt >/dev/null 2>&1; then
 export DEBIAN_FRONTEND=noninteractive
 printf 'iptables-persistent iptables-persistent/autosave_v4 boolean true\niptables-persistent iptables-persistent/autosave_v6 boolean true\n' | debconf-set-selections
-apt update >/dev/null 2>&1 && apt install -y busybox coreutils util-linux iptables iptables-persistent cron openssl >/dev/null 2>&1
+apt update >/dev/null 2>&1 && apt install -y busybox ca-certificates coreutils curl iproute2 util-linux wget iptables iptables-persistent cron openssl >/dev/null 2>&1
 fi
 touch sbx_update
 fi
@@ -168,6 +224,662 @@ url="https://github.com/yonggekkk/argosbx/releases/download/argosbx/sing-box-$cp
 chmod +x "$HOME/agsbx/sing-box"
 sbcore=$("$HOME/agsbx/sing-box" version 2>/dev/null | awk '/version/{print $NF}')
 echo "已安装Sing-box正式版内核：$sbcore"
+}
+download_file(){
+url=$1
+out=$2
+if command -v curl >/dev/null 2>&1; then
+curl -fL --retry 3 --connect-timeout 10 -o "$out" "$url"
+elif command -v wget >/dev/null 2>&1; then
+wget -O "$out" --tries=3 --timeout=20 "$url"
+else
+echo "错误：系统缺少 curl 或 wget" >&2
+return 1
+fi
+}
+port_spec_is_valid(){
+printf '%s' "$1" | grep -Eq '^[1-9][0-9]*(-[1-9][0-9]*)?$' || return 1
+case "$1" in
+*-*) start=${1%-*}; end=${1#*-} ;;
+*) start=$1; end=$1 ;;
+esac
+[ "$start" -ge 1025 ] 2>/dev/null && [ "$end" -le 65535 ] 2>/dev/null && [ "$start" -le "$end" ] 2>/dev/null
+}
+validate_mieru_port_spec(){
+spec=$1
+label=$2
+case "$spec" in
+*,*|*' '*|*'\t'*) echo "错误：$label 仅支持单端口或递增范围，不支持逗号列表和空格：$spec" >&2; return 1 ;;
+esac
+port_spec_is_valid "$spec" || {
+echo "错误：$label 必须是 1025-65535 的单端口或递增范围，例如 5000 或 5000-5010：$spec" >&2
+return 1
+}
+case "$spec" in
+*-*) [ "${spec%-*}" -lt "${spec#*-}" ] || { echo "错误：$label 范围必须严格递增：$spec" >&2; return 1; } ;;
+esac
+}
+port_spec_contains(){
+spec=$1
+port=$2
+case "$spec" in
+*-*) start=${spec%-*}; end=${spec#*-} ;;
+*) start=$spec; end=$spec ;;
+esac
+[ "$port" -ge "$start" ] 2>/dev/null && [ "$port" -le "$end" ] 2>/dev/null
+}
+port_specs_overlap(){
+a=$1
+b=$2
+case "$a" in *-*) a1=${a%-*}; a2=${a#*-} ;; *) a1=$a; a2=$a ;; esac
+case "$b" in *-*) b1=${b%-*}; b2=${b#*-} ;; *) b1=$b; b2=$b ;; esac
+[ "$a1" -le "$b2" ] && [ "$b1" -le "$a2" ]
+}
+legacy_port_conflict(){
+spec=$1
+for file in "$HOME/agsbx"/port_*; do
+[ -f "$file" ] || continue
+case "$(basename "$file")" in port_mi_tcp|port_mi_udp) continue ;; esac
+other=$(cat "$file" 2>/dev/null)
+port_spec_is_valid "$other" || continue
+if port_specs_overlap "$spec" "$other"; then
+echo "错误：Mieru 端口 $spec 与现有 Argosbx 端口文件 $(basename "$file")=$other 冲突" >&2
+return 0
+fi
+done
+for other in "$port_vl_re" "$port_vm_ws" "$port_vw" "$port_hy2" "$port_tu" "$port_xh" "$port_vx" "$port_an" "$port_ar" "$port_ss" "$port_so"; do
+port_spec_is_valid "$other" || continue
+if port_specs_overlap "$spec" "$other"; then
+echo "错误：Mieru 端口 $spec 与本次选择的 Argosbx 端口 $other 冲突" >&2
+return 0
+fi
+done
+return 1
+}
+listener_conflict(){
+protocol=$1
+spec=$2
+if command -v ss >/dev/null 2>&1; then
+case "$protocol" in TCP) lines=$(ss -H -ltnp 2>/dev/null) ;; UDP) lines=$(ss -H -lunp 2>/dev/null) ;; esac
+elif command -v netstat >/dev/null 2>&1; then
+case "$protocol" in TCP) lines=$(netstat -lntp 2>/dev/null | sed '1,2d') ;; UDP) lines=$(netstat -lnup 2>/dev/null | sed '1,2d') ;; esac
+else
+echo "警告：缺少 ss/netstat，无法检查系统监听端口冲突" >&2
+return 1
+fi
+[ -n "$lines" ] || return 1
+old_spec=''
+case "$protocol" in
+TCP) old_spec=$(cat "$HOME/agsbx/port_mi_tcp" 2>/dev/null) ;;
+UDP) old_spec=$(cat "$HOME/agsbx/port_mi_udp" 2>/dev/null) ;;
+esac
+while IFS= read -r line; do
+set -- $line
+local_addr=${4:-}
+port=${local_addr##*:}
+port=${port%]}
+case "$port" in ''|*[!0-9]*) continue ;; esac
+port_spec_contains "$spec" "$port" || continue
+own_mita=no
+for exe in /proc/[0-9]*/exe; do
+[ -L "$exe" ] || continue
+if [ "$(readlink -f "$exe" 2>/dev/null)" = "$(readlink -f "$HOME/agsbx/mita" 2>/dev/null)" ]; then
+pid=$(basename "$(dirname "$exe")")
+printf '%s' "$line" | grep -q "pid=$pid," && own_mita=yes
+fi
+done
+if [ "$own_mita" != yes ] && is_exe_running "$HOME/agsbx/mita" && port_spec_is_valid "$old_spec" && port_spec_contains "$old_spec" "$port"; then
+own_mita=yes
+fi
+if [ "$own_mita" != yes ]; then
+echo "错误：Mieru $protocol 端口 $port 已被系统监听：$line" >&2
+return 0
+fi
+done <<EOF
+$lines
+EOF
+return 1
+}
+mieru_port_conflict(){
+protocol=$1
+spec=$2
+legacy_port_conflict "$spec" && return 0
+listener_conflict "$protocol" "$spec" && return 0
+return 1
+}
+random_port_number(){
+if command -v shuf >/dev/null 2>&1; then
+shuf -i 1025-65535 -n 1
+else
+n=$(od -An -N4 -tu4 /dev/urandom 2>/dev/null | tr -d ' ')
+echo $((n % 64511 + 1025))
+fi
+}
+choose_random_mieru_port(){
+protocol=$1
+avoid=${2:-}
+i=0
+while [ "$i" -lt 1000 ]; do
+candidate=$(random_port_number)
+[ -n "$avoid" ] && [ "$candidate" = "$avoid" ] && { i=$((i+1)); continue; }
+if ! mieru_port_conflict "$protocol" "$candidate"; then
+printf '%s\n' "$candidate"
+return 0
+fi
+i=$((i+1))
+done
+echo "错误：未能找到可用的 Mieru $protocol 随机端口" >&2
+return 1
+}
+generate_mieru_password(){
+if command -v openssl >/dev/null 2>&1; then
+openssl rand -base64 24 | tr '+/' '-_' | tr -d '=\r\n'
+else
+head -c 24 /dev/urandom | base64 | tr '+/' '-_' | tr -d '=\r\n'
+fi
+}
+generate_uuid_token(){
+if [ -r /proc/sys/kernel/random/uuid ]; then
+cat /proc/sys/kernel/random/uuid
+elif command -v uuidgen >/dev/null 2>&1; then
+uuidgen | tr 'A-Z' 'a-z'
+else
+hex=$(openssl rand -hex 16)
+printf '%s-%s-4%s-%x%s-%s\n' "${hex%????????????????????????}" "$(printf '%s' "$hex" | cut -c9-12)" "$(printf '%s' "$hex" | cut -c14-16)" "$((0x$(printf '%s' "$hex" | cut -c17-17) % 4 + 8))" "$(printf '%s' "$hex" | cut -c18-20)" "$(printf '%s' "$hex" | cut -c21-32)"
+fi
+}
+ensure_subscription_uuid(){
+[ -s "$HOME/agsbx/uuid" ] && return 0
+umask 077
+generate_uuid_token > "$HOME/agsbx/uuid"
+chmod 0600 "$HOME/agsbx/uuid"
+}
+prepare_mieru_credentials(){
+old_user=$(cat "$HOME/agsbx/miuser" 2>/dev/null)
+old_pass=$(cat "$HOME/agsbx/mipass" 2>/dev/null)
+if [ -n "$miuser" ]; then
+mieru_user=$miuser
+elif [ -n "$old_user" ]; then
+mieru_user=$old_user
+else
+mieru_user=argosbx
+fi
+if [ -n "$mipass" ]; then
+mieru_pass=$mipass
+elif [ -n "$old_pass" ]; then
+mieru_pass=$old_pass
+else
+mieru_pass=$(generate_mieru_password)
+fi
+printf '%s' "$mieru_user" | LC_ALL=C grep -Eq '^[A-Za-z0-9._~-]{1,64}$' || {
+echo "错误：miuser 必须是 1-64 位 URL-safe ASCII（字母、数字、点、下划线、波浪线或连字符）" >&2
+return 1
+}
+printf '%s' "$mieru_pass" | LC_ALL=C grep -Eq '^[A-Za-z0-9._~-]{12,128}$' || {
+echo "错误：mipass 必须是 12-128 位 URL-safe ASCII（字母、数字、点、下划线、波浪线或连字符）" >&2
+return 1
+}
+}
+prepare_mieru_settings(){
+prepare_mieru_credentials || return 1
+tcp_random=no
+udp_random=no
+if [ "$mit" = yes ]; then
+if [ -n "$port_mi_tcp" ]; then
+mieru_tcp=$port_mi_tcp
+elif [ -s "$HOME/agsbx/port_mi_tcp" ]; then
+mieru_tcp=$(cat "$HOME/agsbx/port_mi_tcp")
+else
+tcp_random=yes
+mieru_tcp=$(choose_random_mieru_port TCP) || return 1
+fi
+validate_mieru_port_spec "$mieru_tcp" "mitpt" || return 1
+mieru_port_conflict TCP "$mieru_tcp" && return 1
+fi
+if [ "$miu" = yes ]; then
+if [ -n "$port_mi_udp" ]; then
+mieru_udp=$port_mi_udp
+elif [ -s "$HOME/agsbx/port_mi_udp" ]; then
+mieru_udp=$(cat "$HOME/agsbx/port_mi_udp")
+else
+udp_random=yes
+avoid=''
+[ "$tcp_random" = yes ] && avoid=$mieru_tcp
+mieru_udp=$(choose_random_mieru_port UDP "$avoid") || return 1
+fi
+validate_mieru_port_spec "$mieru_udp" "miupt" || return 1
+mieru_port_conflict UDP "$mieru_udp" && return 1
+fi
+if [ "$tcp_random" = yes ] && [ "$udp_random" = yes ] && [ "$mieru_tcp" = "$mieru_udp" ]; then
+echo "错误：随机生成的 Mieru TCP/UDP 端口不能相同" >&2
+return 1
+fi
+umask 077
+printf '%s\n' "$mieru_user" > "$HOME/agsbx/miuser"
+printf '%s\n' "$mieru_pass" > "$HOME/agsbx/mipass"
+chmod 0600 "$HOME/agsbx/miuser" "$HOME/agsbx/mipass"
+if [ "$mit" = yes ]; then
+printf '%s\n' "$mieru_tcp" > "$HOME/agsbx/port_mi_tcp"
+: > "$HOME/agsbx/mieru_tcp.enabled"
+else
+rm -f "$HOME/agsbx/mieru_tcp.enabled"
+fi
+if [ "$miu" = yes ]; then
+printf '%s\n' "$mieru_udp" > "$HOME/agsbx/port_mi_udp"
+: > "$HOME/agsbx/mieru_udp.enabled"
+else
+rm -f "$HOME/agsbx/mieru_udp.enabled"
+fi
+chmod 0600 "$HOME/agsbx"/port_mi_* "$HOME/agsbx"/mieru_*.enabled 2>/dev/null || true
+ensure_subscription_uuid
+}
+stage_mieru_cores(){
+MIERU_STAGE_DIR="$HOME/agsbx/.mieru-download.$$"
+rm -rf "$MIERU_STAGE_DIR"
+mkdir -p "$MIERU_STAGE_DIR" || return 1
+sums="$MIERU_STAGE_DIR/SHA256SUMS"
+download_file "$MIERU_RELEASE_BASE/SHA256SUMS" "$sums" || { rm -rf "$MIERU_STAGE_DIR"; return 1; }
+for core in mita mieru; do
+asset="$core-linux-$cpu"
+download_file "$MIERU_RELEASE_BASE/$asset" "$MIERU_STAGE_DIR/$asset" || { rm -rf "$MIERU_STAGE_DIR"; return 1; }
+expected=$(awk -v name="$asset" '{n=$2; sub(/^\*/, "", n); if (n==name) {print $1; exit}}' "$sums")
+[ -n "$expected" ] || { echo "错误：SHA256SUMS 缺少 $asset" >&2; rm -rf "$MIERU_STAGE_DIR"; return 1; }
+actual=$(sha256sum "$MIERU_STAGE_DIR/$asset" | awk '{print $1}')
+[ "$actual" = "$expected" ] || { echo "错误：$asset SHA-256 校验失败" >&2; rm -rf "$MIERU_STAGE_DIR"; return 1; }
+chmod 0755 "$MIERU_STAGE_DIR/$asset"
+done
+}
+activate_staged_mieru_cores(){
+for core in mita mieru; do
+asset="$core-linux-$cpu"
+new="$HOME/agsbx/.$core.new.$$"
+mv "$MIERU_STAGE_DIR/$asset" "$new" || {
+rm -f "$HOME/agsbx"/.mita.new.$$ "$HOME/agsbx"/.mieru.new.$$
+return 1
+}
+chmod 0755 "$new"
+mv -f "$new" "$HOME/agsbx/$core" || {
+rm -f "$HOME/agsbx"/.mita.new.$$ "$HOME/agsbx"/.mieru.new.$$
+return 1
+}
+done
+rm -rf "$MIERU_STAGE_DIR"
+}
+ensure_mieru_cores(){
+[ -x "$HOME/agsbx/mita" ] && [ -x "$HOME/agsbx/mieru" ] && return 0
+echo "下载并校验 Mieru $MIERU_VERSION 的 mita/mieru 静态内核……"
+stage_mieru_cores || return 1
+activate_staged_mieru_cores || { rm -rf "$MIERU_STAGE_DIR"; return 1; }
+}
+mita_env_status(){
+env MITA_CONFIG_JSON_FILE="$HOME/agsbx/mita.json" MITA_UDS_PATH="$HOME/agsbx/mita.sock" MITA_INSECURE_UDS=1 MITA_LOG_NO_TIMESTAMP=true "$HOME/agsbx/mita" status 2>&1
+}
+mita_running(){
+[ -x "$HOME/agsbx/mita" ] || return 1
+mita_env_status | grep -q 'status is "RUNNING"'
+}
+stop_mita_runtime(){
+if [ "$(id -u)" -eq 0 ] && pidof systemd >/dev/null 2>&1; then
+systemctl stop argosbx-mita.service >/dev/null 2>&1 || true
+elif [ "$(id -u)" -eq 0 ] && command -v rc-service >/dev/null 2>&1; then
+rc-service argosbx-mita stop >/dev/null 2>&1 || true
+fi
+kill_exe "$HOME/agsbx/mita" TERM
+sleep 1
+is_exe_running "$HOME/agsbx/mita" && kill_exe "$HOME/agsbx/mita" KILL
+rm -f "$HOME/agsbx/mita.sock" "$HOME/agsbx/mita.pid"
+}
+remove_mita_service(){
+stop_mita_runtime
+if [ "$(id -u)" -eq 0 ] && pidof systemd >/dev/null 2>&1; then
+systemctl disable argosbx-mita.service >/dev/null 2>&1 || true
+rm -f /etc/systemd/system/argosbx-mita.service
+systemctl daemon-reload >/dev/null 2>&1 || true
+elif [ "$(id -u)" -eq 0 ] && command -v rc-service >/dev/null 2>&1; then
+rc-update del argosbx-mita default >/dev/null 2>&1 || true
+rm -f /etc/init.d/argosbx-mita
+fi
+}
+start_mita_runtime(){
+rm -f "$HOME/agsbx/mita.sock" "$HOME/agsbx/mita.pid"
+if [ "$(id -u)" -eq 0 ] && pidof systemd >/dev/null 2>&1; then
+cat > /etc/systemd/system/argosbx-mita.service <<EOF
+[Unit]
+Description=Argosbx Mita service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+Environment="MITA_CONFIG_JSON_FILE=$HOME/agsbx/mita.json"
+Environment="MITA_UDS_PATH=$HOME/agsbx/mita.sock"
+Environment="MITA_INSECURE_UDS=1"
+Environment="MITA_LOG_NO_TIMESTAMP=true"
+ExecStart=$HOME/agsbx/mita run
+Restart=on-failure
+RestartSec=5s
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload >/dev/null 2>&1
+systemctl enable argosbx-mita.service >/dev/null 2>&1
+systemctl restart argosbx-mita.service >/dev/null 2>&1
+elif [ "$(id -u)" -eq 0 ] && command -v rc-service >/dev/null 2>&1; then
+cat > /etc/init.d/argosbx-mita <<EOF
+#!/sbin/openrc-run
+description="Argosbx Mita service"
+command="$HOME/agsbx/mita"
+command_args="run"
+command_background="yes"
+pidfile="$HOME/agsbx/mita.pid"
+output_log="$HOME/agsbx/mita.log"
+error_log="$HOME/agsbx/mita.log"
+export MITA_CONFIG_JSON_FILE="$HOME/agsbx/mita.json"
+export MITA_UDS_PATH="$HOME/agsbx/mita.sock"
+export MITA_INSECURE_UDS="1"
+export MITA_LOG_NO_TIMESTAMP="true"
+depend() {
+need net
+}
+EOF
+chmod 0755 /etc/init.d/argosbx-mita
+rc-update add argosbx-mita default >/dev/null 2>&1
+rc-service argosbx-mita restart >/dev/null 2>&1
+else
+kill_exe "$HOME/agsbx/mita" TERM
+nohup env MITA_CONFIG_JSON_FILE="$HOME/agsbx/mita.json" MITA_UDS_PATH="$HOME/agsbx/mita.sock" MITA_INSECURE_UDS=1 MITA_LOG_NO_TIMESTAMP=true "$HOME/agsbx/mita" run > "$HOME/agsbx/mita.log" 2>&1 &
+printf '%s\n' "$!" > "$HOME/agsbx/mita.pid"
+chmod 0600 "$HOME/agsbx/mita.log" "$HOME/agsbx/mita.pid" 2>/dev/null || true
+fi
+}
+wait_mita_running(){
+i=0
+while [ "$i" -lt 10 ]; do
+mita_running && return 0
+sleep 1
+i=$((i+1))
+done
+mita_env_status >&2 || true
+return 1
+}
+write_mita_config(){
+umask 077
+{
+cat <<EOF
+{
+  "portBindings": [
+EOF
+first=yes
+if [ "$mit" = yes ]; then
+[ "$first" = yes ] || echo ','
+case "$mieru_tcp" in
+*-*) printf '    {"portRange": "%s", "protocol": "TCP"}' "$mieru_tcp" ;;
+*) printf '    {"port": %s, "protocol": "TCP"}' "$mieru_tcp" ;;
+esac
+first=no
+fi
+if [ "$miu" = yes ]; then
+[ "$first" = yes ] || echo ','
+case "$mieru_udp" in
+*-*) printf '    {"portRange": "%s", "protocol": "UDP"}' "$mieru_udp" ;;
+*) printf '    {"port": %s, "protocol": "UDP"}' "$mieru_udp" ;;
+esac
+first=no
+fi
+cat <<EOF
+
+  ],
+  "users": [
+    {"name": "$mieru_user", "password": "$mieru_pass"}
+  ],
+  "loggingLevel": "INFO",
+  "mtu": 1400
+}
+EOF
+} > "$HOME/agsbx/mita.json"
+chmod 0600 "$HOME/agsbx/mita.json"
+}
+warn_mieru_clock(){
+if command -v timedatectl >/dev/null 2>&1; then
+synced=$(timedatectl show -p NTPSynchronized --value 2>/dev/null)
+[ "$synced" = yes ] || echo "警告：系统时钟似乎尚未同步；Mieru 客户端和服务端时间偏差会导致连接失败"
+fi
+}
+installmita(){
+echo
+echo "=========启用 Mieru Mita 独立内核========="
+prepare_mieru_settings || return 1
+ensure_mieru_cores || return 1
+write_mita_config || return 1
+warn_mieru_clock
+[ "$wap" = yes ] && echo "提示：WARP 仅作用于 Xray/sing-box，Mieru 保持公网直连"
+echo "提示：请在防火墙和云安全组放行完整 Mieru TCP/UDP 端口或范围"
+start_mita_runtime || return 1
+if wait_mita_running; then
+echo "Mita $MIERU_VERSION 已运行，配置文件：$HOME/agsbx/mita.json"
+else
+echo "错误：Mita 启动失败，请检查 $HOME/agsbx/mita.log 或系统服务日志" >&2
+return 1
+fi
+}
+cleanup_mieru_runtime(){
+remove_mita_service
+rm -f "$HOME/agsbx/mita.json" "$HOME/agsbx/mita.sock" "$HOME/agsbx/mita.pid" "$HOME/agsbx/mita.log" "$HOME/agsbx/mieru.txt" "$HOME/agsbx/mieru_tcp.enabled" "$HOME/agsbx/mieru_udp.enabled"
+rm -f "$HOME/agsbx"/.mieru-client.* "$HOME/agsbx"/.mieru-links.*
+}
+update_mieru_cores(){
+[ -f "$HOME/agsbx/mita.json" ] || { echo "错误：当前未启用 Mieru，无法执行 upm" >&2; return 1; }
+[ -x "$HOME/agsbx/mita" ] && [ -x "$HOME/agsbx/mieru" ] || { echo "错误：现有 Mieru 内核不完整，请先 rep 重新安装" >&2; return 1; }
+echo "下载并校验 Mieru $MIERU_VERSION 更新……"
+stage_mieru_cores || { echo "Mieru 更新下载或校验失败，旧内核及运行服务保持不变" >&2; return 1; }
+backup_mita="$HOME/agsbx/.mita.rollback.$$"
+backup_mieru="$HOME/agsbx/.mieru.rollback.$$"
+cp -p "$HOME/agsbx/mita" "$backup_mita" && cp -p "$HOME/agsbx/mieru" "$backup_mieru" || {
+rm -rf "$MIERU_STAGE_DIR" "$backup_mita" "$backup_mieru"
+echo "Mieru 更新备份失败，旧服务保持不变" >&2
+return 1
+}
+stop_mita_runtime
+update_failure="Mieru 新内核启动或状态验证失败"
+if activate_staged_mieru_cores && start_mita_runtime && wait_mita_running; then
+server_ip=$(cat "$HOME/agsbx/server_ip.log" 2>/dev/null)
+if [ -n "$server_ip" ] && generate_mieru_links; then
+rm -f "$backup_mita" "$backup_mieru"
+echo "Mita 与 mieru 已更新到 $MIERU_VERSION"
+return 0
+fi
+update_failure="Mieru 更新后的分享链接生成失败"
+fi
+echo "$update_failure，正在回滚旧内核……" >&2
+stop_mita_runtime
+rm -rf "$MIERU_STAGE_DIR"
+mv -f "$backup_mita" "$HOME/agsbx/mita"
+mv -f "$backup_mieru" "$HOME/agsbx/mieru"
+chmod 0755 "$HOME/agsbx/mita" "$HOME/agsbx/mieru"
+start_mita_runtime >/dev/null 2>&1 || true
+wait_mita_running >/dev/null 2>&1 || true
+return 1
+}
+configured_cores_running(){
+found=no
+if [ -f "$HOME/agsbx/xr.json" ]; then
+found=yes
+is_exe_running "$HOME/agsbx/xray" || return 1
+fi
+if [ -f "$HOME/agsbx/sb.json" ]; then
+found=yes
+is_exe_running "$HOME/agsbx/sing-box" || return 1
+fi
+if [ -f "$HOME/agsbx/mita.json" ]; then
+found=yes
+mita_running || return 1
+fi
+[ "$found" = yes ]
+}
+write_mieru_client_config(){
+local out tcp_spec udp_spec address ip_address domain_name user pass first entry
+out=$1
+tcp_spec=$2
+udp_spec=$3
+address=${server_ip#[}
+address=${address%]}
+case "$address" in
+*:*|[0-9]*.[0-9]*.[0-9]*.[0-9]*) ip_address=$address; domain_name='' ;;
+*) ip_address=''; domain_name=$address ;;
+esac
+user=$(cat "$HOME/agsbx/miuser")
+pass=$(cat "$HOME/agsbx/mipass")
+umask 077
+{
+cat <<EOF
+{
+  "profiles": [
+    {
+      "profileName": "argosbx",
+      "user": {"name": "$user", "password": "$pass"},
+      "servers": [
+        {
+          "ipAddress": "$ip_address",
+          "domainName": "$domain_name",
+          "portBindings": [
+EOF
+first=yes
+if [ -n "$tcp_spec" ]; then
+case "$tcp_spec" in *-*) entry="{\"portRange\": \"$tcp_spec\", \"protocol\": \"TCP\"}" ;; *) entry="{\"port\": $tcp_spec, \"protocol\": \"TCP\"}" ;; esac
+printf '            %s' "$entry"
+first=no
+fi
+if [ -n "$udp_spec" ]; then
+[ "$first" = yes ] || echo ','
+case "$udp_spec" in *-*) entry="{\"portRange\": \"$udp_spec\", \"protocol\": \"UDP\"}" ;; *) entry="{\"port\": $udp_spec, \"protocol\": \"UDP\"}" ;; esac
+printf '            %s' "$entry"
+first=no
+fi
+cat <<EOF
+
+          ]
+        }
+      ],
+      "mtu": 1400
+    }
+  ],
+  "activeProfile": "argosbx",
+  "rpcPort": 0,
+  "socks5Port": 1080,
+  "loggingLevel": "INFO",
+  "socks5ListenLAN": false
+}
+EOF
+} > "$out"
+chmod 0600 "$out"
+}
+export_mieru_link(){
+local config mode output link
+config=$1
+mode=${2:-standard}
+if [ "$mode" = simple ]; then
+output=$(MIERU_CONFIG_JSON_FILE="$config" "$HOME/agsbx/mieru" export config simple 2>&1)
+else
+output=$(MIERU_CONFIG_JSON_FILE="$config" "$HOME/agsbx/mieru" export config 2>&1)
+fi
+link=$(printf '%s\n' "$output" | grep -Eo 'mierus?://[^[:space:]]+' | tail -n 1)
+[ -n "$link" ] || { printf '%s\n' "$output" >&2; return 1; }
+printf '%s\n' "$link"
+}
+validate_mieru_link(){
+"$HOME/agsbx/mieru" explain config "$1" >/dev/null 2>&1
+}
+generate_mieru_links(){
+local tcp_spec udp_spec combo_cfg standard_link combo_link tcp_link udp_link tcp_cfg udp_cfg links_tmp
+mierushow=''
+[ -f "$HOME/agsbx/mita.json" ] || return 0
+[ -x "$HOME/agsbx/mieru" ] || { echo "错误：缺少 mieru 客户端二进制，无法生成分享链接" >&2; return 1; }
+tcp_spec=''; udp_spec=''
+[ -f "$HOME/agsbx/mieru_tcp.enabled" ] && tcp_spec=$(cat "$HOME/agsbx/port_mi_tcp")
+[ -f "$HOME/agsbx/mieru_udp.enabled" ] && udp_spec=$(cat "$HOME/agsbx/port_mi_udp")
+[ -n "$tcp_spec$udp_spec" ] || { echo "错误：Mieru 配置缺少启用的端口绑定" >&2; return 1; }
+combo_cfg="$HOME/agsbx/.mieru-client.combo.$$"
+write_mieru_client_config "$combo_cfg" "$tcp_spec" "$udp_spec"
+standard_link=$(export_mieru_link "$combo_cfg" standard) || { rm -f "$combo_cfg"; return 1; }
+combo_link=$(export_mieru_link "$combo_cfg" simple) || { rm -f "$combo_cfg"; return 1; }
+validate_mieru_link "$standard_link" && validate_mieru_link "$combo_link" || { echo "错误：Mieru 组合分享链接自检失败" >&2; rm -f "$combo_cfg"; return 1; }
+tcp_link=''; udp_link=''
+if [ -n "$tcp_spec" ] && [ -n "$udp_spec" ]; then
+tcp_cfg="$HOME/agsbx/.mieru-client.tcp.$$"
+udp_cfg="$HOME/agsbx/.mieru-client.udp.$$"
+write_mieru_client_config "$tcp_cfg" "$tcp_spec" ''
+write_mieru_client_config "$udp_cfg" '' "$udp_spec"
+tcp_link=$(export_mieru_link "$tcp_cfg" simple) || { rm -f "$combo_cfg" "$tcp_cfg" "$udp_cfg"; return 1; }
+udp_link=$(export_mieru_link "$udp_cfg" simple) || { rm -f "$combo_cfg" "$tcp_cfg" "$udp_cfg"; return 1; }
+validate_mieru_link "$tcp_link" && validate_mieru_link "$udp_link" || { echo "错误：Mieru 独立分享链接自检失败" >&2; rm -f "$combo_cfg" "$tcp_cfg" "$udp_cfg"; return 1; }
+fi
+links_tmp="$HOME/agsbx/.mieru-links.$$"
+umask 077
+{
+printf '%s\n' "$combo_link"
+[ -n "$tcp_link" ] && printf '%s\n' "$tcp_link"
+[ -n "$udp_link" ] && printf '%s\n' "$udp_link"
+printf '%s\n' "$standard_link"
+} > "$links_tmp"
+chmod 0600 "$links_tmp"
+mv -f "$links_tmp" "$HOME/agsbx/mieru.txt"
+printf '%s\n' "$combo_link" >> "$HOME/agsbx/jhsub.txt"
+chmod 0600 "$HOME/agsbx/jhsub.txt" 2>/dev/null || true
+rm -f "$combo_cfg" "$tcp_cfg" "$udp_cfg"
+mierushow="Mieru $MIERU_VERSION 公网直连节点：
+组合简单链接：$combo_link"
+[ -n "$tcp_link" ] && mierushow="$mierushow
+TCP 独立简单链接：$tcp_link"
+[ -n "$udp_link" ] && mierushow="$mierushow
+UDP 独立简单链接：$udp_link"
+mierushow="$mierushow
+标准配置链接：$standard_link"
+}
+clmieru(){
+local server user pass spec
+server=${server_ip#[}
+server=${server%]}
+user=$(cat "$HOME/agsbx/miuser" 2>/dev/null)
+pass=$(cat "$HOME/agsbx/mipass" 2>/dev/null)
+if [ -f "$HOME/agsbx/mieru_tcp.enabled" ]; then
+spec=$(cat "$HOME/agsbx/port_mi_tcp")
+cat <<EOF
+- name: Mieru-TCP-$hostname
+  type: mieru
+  server: "$server"
+EOF
+case "$spec" in *-*) echo "  port-range: \"$spec\"" ;; *) echo "  port: $spec" ;; esac
+cat <<EOF
+  transport: TCP
+  username: "$user"
+  password: "$pass"
+EOF
+fi
+if [ -f "$HOME/agsbx/mieru_udp.enabled" ]; then
+spec=$(cat "$HOME/agsbx/port_mi_udp")
+cat <<EOF
+- name: Mieru-UDP-$hostname
+  type: mieru
+  server: "$server"
+EOF
+case "$spec" in *-*) echo "  port-range: \"$spec\"" ;; *) echo "  port: $spec" ;; esac
+cat <<EOF
+  transport: UDP
+  username: "$user"
+  password: "$pass"
+EOF
+fi
+}
+clmieru1(){
+[ -f "$HOME/agsbx/mieru_tcp.enabled" ] && echo "- Mieru-TCP-$hostname"
+[ -f "$HOME/agsbx/mieru_udp.enabled" ] && echo "- Mieru-UDP-$hostname"
+}
+mitarestart(){
+[ -f "$HOME/agsbx/mita.json" ] || return 0
+stop_mita_runtime
+start_mita_runtime && wait_mita_running
 }
 insuuid(){
 if [ -z "$uuid" ] && [ ! -e "$HOME/agsbx/uuid" ]; then
@@ -966,6 +1678,7 @@ fi
 fi
 }
 ins(){
+if legacy_selected; then
 if [ "$hyp" != yes ] && [ "$tup" != yes ] && [ "$anp" != yes ] && [ "$arp" != yes ] && [ "$ssp" != yes ]; then
 installxray
 xrsbvm
@@ -987,6 +1700,13 @@ xrsbvm
 xrsbso
 warpsx
 xrsbout
+fi
+fi
+if mieru_selected; then
+installmita || exit 1
+fi
+if [ -n "$argo" ] && [ -z "$vmag" ]; then
+echo "提示：Argo 只支持现有 WebSocket 协议，Mieru 不会接入 Argo/CDN"
 fi
 if [ -n "$argo" ] && [ -n "$vmag" ]; then
 echo
@@ -1057,7 +1777,7 @@ fi
 fi
 sleep 5
 echo
-if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsbx/(s|x)' || pgrep -f 'agsbx/(s|x)' >/dev/null 2>&1 ; then
+if configured_cores_running; then
 [ -f ~/.bashrc ] || touch ~/.bashrc
 sed -i '/agsbx/d' ~/.bashrc
 SCRIPT_PATH="$HOME/bin/agsbx"
@@ -1065,7 +1785,29 @@ mkdir -p "$HOME/bin"
 (command -v curl >/dev/null 2>&1 && curl -sL "$agsbxurl" -o "$SCRIPT_PATH") || (command -v wget >/dev/null 2>&1 && wget -qO "$SCRIPT_PATH" "$agsbxurl")
 chmod +x "$SCRIPT_PATH"
 if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then
-echo "if ! find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsbx/(s|x)' && ! pgrep -f 'agsbx/(s|x)' >/dev/null 2>&1; then echo '检测到系统可能中断过，或者变量格式错误？建议在SSH对话框输入 reboot 重启下服务器。现在自动执行Argosbx脚本的节点恢复操作，请稍等……'; sleep 6; export cfip=\"${cfip}\" hyjpt=\"${hyjpt}\" cdnym=\"${cdnym}\" name=\"${name}\" ippz=\"${ippz}\" argo=\"${argo}\" uuid=\"${uuid}\" $wap=\"${warp}\" $xhp=\"${port_xh}\" $vxp=\"${port_vx}\" $ssp=\"${port_ss}\" $sop=\"${port_so}\" $anp=\"${port_an}\" $arp=\"${port_ar}\" $vlp=\"${port_vl_re}\" $vwp=\"${port_vw}\" $vmp=\"${port_vm_ws}\" $hyp=\"${port_hy2}\" $tup=\"${port_tu}\" reym=\"${ym_vl_re}\" agn=\"${ARGO_DOMAIN}\" agk=\"${ARGO_AUTH}\"; bash "$HOME/bin/agsbx"; fi" >> ~/.bashrc
+cat >> ~/.bashrc <<'AGSHEALTH'
+argosbx_healthcheck(){
+need_res=no
+for item in "xr.json:xray" "sb.json:sing-box"; do
+cfg=${item%%:*}
+core=${item#*:}
+if [ -f "$HOME/agsbx/$cfg" ]; then
+found=no
+for exe in /proc/[0-9]*/exe; do
+[ -L "$exe" ] || continue
+[ "$(readlink -f "$exe" 2>/dev/null)" = "$(readlink -f "$HOME/agsbx/$core" 2>/dev/null)" ] && found=yes
+done
+[ "$found" = yes ] || need_res=yes
+fi
+done
+if [ -f "$HOME/agsbx/mita.json" ] && ! env MITA_CONFIG_JSON_FILE="$HOME/agsbx/mita.json" MITA_UDS_PATH="$HOME/agsbx/mita.sock" MITA_INSECURE_UDS=1 MITA_LOG_NO_TIMESTAMP=true "$HOME/agsbx/mita" status 2>/dev/null | grep -q 'status is "RUNNING"'; then
+need_res=yes
+fi
+[ "$need_res" = yes ] && "$HOME/bin/agsbx" res >/dev/null 2>&1 || true
+}
+argosbx_healthcheck
+unset -f argosbx_healthcheck
+AGSHEALTH
 fi
 sed -i '/export PATH="\$HOME\/bin:\$PATH"/d' ~/.bashrc
 echo 'export PATH="$HOME/bin:$PATH"' >> "$HOME/.bashrc"
@@ -1075,11 +1817,14 @@ crontab -l > /tmp/crontab.tmp 2>/dev/null
 if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then
 sed -i '/agsbx\/sing-box/d' /tmp/crontab.tmp
 sed -i '/agsbx\/xray/d' /tmp/crontab.tmp
-if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -q 'agsbx/s' || pgrep -f 'agsbx/s' >/dev/null 2>&1 ; then
+if [ -f "$HOME/agsbx/sb.json" ]; then
 echo '@reboot sleep 10 && /bin/sh -c "nohup $HOME/agsbx/sing-box run -c $HOME/agsbx/sb.json >/dev/null 2>&1 &"' >> /tmp/crontab.tmp
 fi
-if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -q 'agsbx/x' || pgrep -f 'agsbx/x' >/dev/null 2>&1 ; then
+if [ -f "$HOME/agsbx/xr.json" ]; then
 echo '@reboot sleep 10 && /bin/sh -c "nohup $HOME/agsbx/xray run -c $HOME/agsbx/xr.json >/dev/null 2>&1 &"' >> /tmp/crontab.tmp
+fi
+if [ -f "$HOME/agsbx/mita.json" ]; then
+echo '@reboot sleep 10 && /bin/sh -c "nohup env MITA_CONFIG_JSON_FILE=$HOME/agsbx/mita.json MITA_UDS_PATH=$HOME/agsbx/mita.sock MITA_INSECURE_UDS=1 MITA_LOG_NO_TIMESTAMP=true $HOME/agsbx/mita run >$HOME/agsbx/mita.log 2>&1 &"' >> /tmp/crontab.tmp
 fi
 fi
 sed -i '/agsbx\/cloudflared/d' /tmp/crontab.tmp
@@ -1129,22 +1874,28 @@ fi
 fi
 }
 argosbxstatus(){
-echo "=========当前三大内核运行状态========="
-procs=$(find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null)
-if echo "$procs" | grep -Eq 'agsbx/s' || pgrep -f 'agsbx/s' >/dev/null 2>&1; then
+echo "=========当前四大内核运行状态========="
+if is_exe_running "$HOME/agsbx/sing-box"; then
 echo "Sing-box (版本V$("$HOME/agsbx/sing-box" version 2>/dev/null | awk '/version/{print $NF}'))：运行中"
 else
 echo "Sing-box：未启用"
 fi
-if echo "$procs" | grep -Eq 'agsbx/x' || pgrep -f 'agsbx/x' >/dev/null 2>&1; then
+if is_exe_running "$HOME/agsbx/xray"; then
 echo "Xray (版本V$("$HOME/agsbx/xray" version 2>/dev/null | awk '/^Xray/{print $2}'))：运行中"
 else
 echo "Xray：未启用"
 fi
-if echo "$procs" | grep -Eq 'agsbx/c' || pgrep -f 'agsbx/c' >/dev/null 2>&1; then
+if is_exe_running "$HOME/agsbx/cloudflared"; then
 echo "Argo (版本V$("$HOME/agsbx/cloudflared" version 2>/dev/null | awk '{print $3}'))：运行中"
 else
 echo "Argo：未启用"
+fi
+if mita_running; then
+echo "Mita (Mieru $MIERU_VERSION)：运行中"
+elif [ -f "$HOME/agsbx/mita.json" ]; then
+echo "Mita (Mieru $MIERU_VERSION)：异常或未运行"
+else
+echo "Mita：未启用"
 fi
 }
 cip(){
@@ -1207,8 +1958,10 @@ ipbest
 fi
 }
 ipchange
-rm -rf "$HOME/agsbx/jhsub.txt"
-uuid=$(cat "$HOME/agsbx/uuid")
+rm -f "$HOME/agsbx/jhsub.txt"
+uuid=$(cat "$HOME/agsbx/uuid" 2>/dev/null)
+legacy_output=no
+if [ -f "$HOME/agsbx/xr.json" ] || [ -f "$HOME/agsbx/sb.json" ]; then legacy_output=yes; fi
 server_ip=$(cat "$HOME/agsbx/server_ip.log")
 sxname=$(cat "$HOME/agsbx/name" 2>/dev/null)
 xvvmcdnym=$(cat "$HOME/agsbx/cdnym" 2>/dev/null)
@@ -1222,6 +1975,9 @@ case "$server_ip" in
 104.28*|\[2a09*) echo "检测到有WARP的IP作为客户端地址 (104.28或者2a09开头的IP)，请把客户端地址上的WARP的IP手动更换为VPS本地IPV4或者IPV6地址" && sleep 3 ;;
 esac
 echo
+if [ -f "$HOME/agsbx/mita.json" ]; then
+generate_mieru_links || echo "警告：Mieru 分享链接生成失败，旧 mieru.txt（如有）保持不变" >&2
+fi
 ym_vl_re=$(cat "$HOME/agsbx/ym_vl_re" 2>/dev/null)
 cfipsj() { echo $((RANDOM % 13 + 1)); }
 if [ -e "$HOME/agsbx/xray" ]; then
@@ -1829,10 +2585,11 @@ out=$($f)
 fi
 }
 sbxy="$(get_func sbvlpt; get_func sbsspt; get_func sbanpt; get_func sbarpt; get_func sbvmpt; get_func sbhypt; get_func sbtupt; get_func sbvmargopt)"
-clxy="$(get_func clvlpt; get_func clsspt; get_func clanpt; get_func clvmpt; get_func clhypt; get_func cltupt; get_func clvmargopt)"
+clxy="$(get_func clvlpt; get_func clsspt; get_func clanpt; get_func clvmpt; get_func clhypt; get_func cltupt; get_func clvmargopt; get_func clmieru)"
 sbgz="$(get_func sbvlpt1; get_func sbsspt1; get_func sbanpt1; get_func sbarpt1; get_func sbvmpt1; get_func sbhypt1; get_func sbtupt1; get_func sbvmargopt1)"
-clgz="$({ get_func clvlpt1; get_func clsspt1; get_func clanpt1; get_func clvmpt1; get_func clhypt1; get_func cltupt1; get_func clvmargopt1; } | sed '2,$s/^/    /')"
+clgz="$({ get_func clvlpt1; get_func clsspt1; get_func clanpt1; get_func clvmpt1; get_func clhypt1; get_func cltupt1; get_func clvmargopt1; get_func clmieru1; } | sed '2,$s/^/    /')"
 sbgz=$(printf "%s\n" "$sbgz" | sed '$ s/,$//')
+if [ "$legacy_output" = yes ]; then
 cat > $HOME/agsbx/sbox.json <<EOF
 {
     "log": {
@@ -2012,6 +2769,8 @@ cat > $HOME/agsbx/sbox.json <<EOF
 }
 EOF
 
+fi
+
 cat > $HOME/agsbx/clmi.yaml <<EOF
 port: 7890
 allow-lan: true
@@ -2082,6 +2841,9 @@ rules:
 EOF
 echo "---------------------------------------------------------"
 echo "$argoshow"
+if [ -n "$mierushow" ]; then
+echo "$mierushow"
+fi
 echo
 if [ -s $HOME/agsbx/subport.log ]; then
 showsubport=$(cat $HOME/agsbx/subport.log)
@@ -2090,69 +2852,92 @@ showsubtoken=$(cat $HOME/agsbx/subtoken.log 2>/dev/null)
 subip=$(cat $HOME/agsbx/server_ip.log 2>/dev/null)
 suburl="$subip:$showsubport/$showsubtoken"
 echo "**********************************************************"
-echo "Clash/Mihomo本地IP订阅地址：http://$suburl/clmi.yaml"
-echo "Sing-box本地IP订阅地址：http://$suburl/sbox.json"
-echo "聚合协议本地IP订阅地址：http://$suburl/jhsub.txt"
+[ -s "$HOME/agsbx/clmi.yaml" ] && echo "Clash/Mihomo本地IP订阅地址：http://$suburl/clmi.yaml"
+[ -s "$HOME/agsbx/sbox.json" ] && echo "Sing-box本地IP订阅地址：http://$suburl/sbox.json"
+[ -s "$HOME/agsbx/jhsub.txt" ] && echo "聚合协议本地IP订阅地址：http://$suburl/jhsub.txt"
+[ -s "$HOME/agsbx/mieru.txt" ] && echo "Mieru本地IP订阅地址：http://$suburl/mieru.txt"
 echo "**********************************************************"
 fi
 fi
 echo
 echo "---------------------------------------------------------"
 echo "聚合节点信息，请进入 $HOME/agsbx/jhsub.txt 文件目录查看或者运行 cat $HOME/agsbx/jhsub.txt 查看"
+[ -s "$HOME/agsbx/mieru.txt" ] && echo "Mieru 标准/简单链接保存在 $HOME/agsbx/mieru.txt"
 echo "========================================================="
 echo "相关快捷方式如下：(首次安装成功后需重连SSH，agsbx快捷方式才可生效；如未生效，请使用主脚本)"
 showmode
 }
 cleandel(){
-for P in /proc/[0-9]*; do if [ -L "$P/exe" ]; then TARGET=$(readlink -f "$P/exe" 2>/dev/null); if echo "$TARGET" | grep -qE '/agsbx/c|/agsbx/s|/agsbx/x'; then PID=$(basename "$P"); kill "$PID" 2>/dev/null; fi; fi; done
-kill -15 $(pgrep -f 'agsbx/s' 2>/dev/null) $(pgrep -f 'agsbx/c' 2>/dev/null) $(pgrep -f 'agsbx/x' 2>/dev/null) $(pgrep -f 'websbx' 2>/dev/null) >/dev/null 2>&1
-sed -i '/agsbx/d' ~/.bashrc
-sed -i '/export PATH="\$HOME\/bin:\$PATH"/d' ~/.bashrc
-. ~/.bashrc 2>/dev/null
-crontab -l > /tmp/crontab.tmp 2>/dev/null
+kill_exe "$HOME/agsbx/sing-box" TERM
+kill_exe "$HOME/agsbx/xray" TERM
+kill_exe "$HOME/agsbx/cloudflared" TERM
+remove_mita_service
+pkill -f 'busybox.*httpd.*websbx' >/dev/null 2>&1 || true
+sed -i '/agsbx/d' ~/.bashrc 2>/dev/null || true
+sed -i '/export PATH="\$HOME\/bin:\$PATH"/d' ~/.bashrc 2>/dev/null || true
+. ~/.bashrc 2>/dev/null || true
+crontab -l > /tmp/crontab.tmp 2>/dev/null || : > /tmp/crontab.tmp
 sed -i '/agsbx\/sing-box/d' /tmp/crontab.tmp
 sed -i '/agsbx\/xray/d' /tmp/crontab.tmp
+sed -i '/agsbx\/mita/d' /tmp/crontab.tmp
 sed -i '/agsbx\/cloudflared/d' /tmp/crontab.tmp
 sed -i '/websbx/d' /tmp/crontab.tmp
-crontab /tmp/crontab.tmp >/dev/null 2>&1
-rm /tmp/crontab.tmp
-rm -rf  "$HOME/bin/agsbx"
-if pidof systemd >/dev/null 2>&1; then
+crontab /tmp/crontab.tmp >/dev/null 2>&1 || true
+rm -f /tmp/crontab.tmp "$HOME/bin/agsbx"
+if [ "$(id -u)" -eq 0 ] && pidof systemd >/dev/null 2>&1; then
 for svc in xr sb argo; do
-systemctl stop "$svc" >/dev/null 2>&1
-systemctl disable "$svc" >/dev/null 2>&1
+systemctl stop "$svc" >/dev/null 2>&1 || true
+systemctl disable "$svc" >/dev/null 2>&1 || true
 done
-rm -rf /etc/systemd/system/{xr.service,sb.service,argo.service}
-elif command -v rc-service >/dev/null 2>&1; then
+rm -f /etc/systemd/system/xr.service /etc/systemd/system/sb.service /etc/systemd/system/argo.service
+systemctl daemon-reload >/dev/null 2>&1 || true
+elif [ "$(id -u)" -eq 0 ] && command -v rc-service >/dev/null 2>&1; then
 for svc in sing-box xray argo; do
-rc-service "$svc" stop >/dev/null 2>&1
-rc-update del "$svc" default >/dev/null 2>&1
+rc-service "$svc" stop >/dev/null 2>&1 || true
+rc-update del "$svc" default >/dev/null 2>&1 || true
 done
-rm -rf /etc/init.d/{sing-box,xray,argo} /etc/local.d/alpineargosbx.start /etc/local.d/alpinesubsbx.start
-iptables -t nat -F PREROUTING >/dev/null 2>&1
-netfilter-persistent save >/dev/null 2>&1
-rc-service iptables save >/dev/null 2>&1
-rc-service ip6tables save >/dev/null 2>&1
+rm -f /etc/init.d/sing-box /etc/init.d/xray /etc/init.d/argo /etc/local.d/alpineargosbx.start /etc/local.d/alpinesubsbx.start
+iptables -t nat -F PREROUTING >/dev/null 2>&1 || true
+netfilter-persistent save >/dev/null 2>&1 || true
+rc-service iptables save >/dev/null 2>&1 || true
+rc-service ip6tables save >/dev/null 2>&1 || true
 fi
 }
 xrestart(){
-kill -15 $(pgrep -f 'agsbx/x' 2>/dev/null) >/dev/null 2>&1
-if pidof systemd >/dev/null 2>&1; then
+[ -f "$HOME/agsbx/xr.json" ] || return 0
+kill_exe "$HOME/agsbx/xray" TERM
+if [ "$(id -u)" -eq 0 ] && pidof systemd >/dev/null 2>&1 && [ -f /etc/systemd/system/xr.service ]; then
 systemctl restart xr >/dev/null 2>&1
-elif command -v rc-service >/dev/null 2>&1; then
+elif [ "$(id -u)" -eq 0 ] && command -v rc-service >/dev/null 2>&1 && [ -f /etc/init.d/xray ]; then
 rc-service xray restart >/dev/null 2>&1
 else
-nohup $HOME/agsbx/xray run -c $HOME/agsbx/xr.json >/dev/null 2>&1 &
+nohup "$HOME/agsbx/xray" run -c "$HOME/agsbx/xr.json" >/dev/null 2>&1 &
 fi
 }
 sbrestart(){
-kill -15 $(pgrep -f 'agsbx/s' 2>/dev/null) >/dev/null 2>&1
-if pidof systemd >/dev/null 2>&1; then
+[ -f "$HOME/agsbx/sb.json" ] || return 0
+kill_exe "$HOME/agsbx/sing-box" TERM
+if [ "$(id -u)" -eq 0 ] && pidof systemd >/dev/null 2>&1 && [ -f /etc/systemd/system/sb.service ]; then
 systemctl restart sb >/dev/null 2>&1
-elif command -v rc-service >/dev/null 2>&1; then
+elif [ "$(id -u)" -eq 0 ] && command -v rc-service >/dev/null 2>&1 && [ -f /etc/init.d/sing-box ]; then
 rc-service sing-box restart >/dev/null 2>&1
 else
-nohup $HOME/agsbx/sing-box run -c $HOME/agsbx/sb.json >/dev/null 2>&1 &
+nohup "$HOME/agsbx/sing-box" run -c "$HOME/agsbx/sb.json" >/dev/null 2>&1 &
+fi
+}
+argorestart(){
+[ -f "$HOME/agsbx/argoport.log" ] || return 0
+kill_exe "$HOME/agsbx/cloudflared" TERM
+if [ -s "$HOME/agsbx/sbargotoken.log" ]; then
+if [ "$(id -u)" -eq 0 ] && pidof systemd >/dev/null 2>&1 && [ -f /etc/systemd/system/argo.service ]; then
+systemctl restart argo >/dev/null 2>&1
+elif [ "$(id -u)" -eq 0 ] && command -v rc-service >/dev/null 2>&1 && [ -f /etc/init.d/argo ]; then
+rc-service argo restart >/dev/null 2>&1
+else
+nohup "$HOME/agsbx/cloudflared" tunnel --no-autoupdate --edge-ip-version auto --protocol http2 run --token "$(cat "$HOME/agsbx/sbargotoken.log")" >/dev/null 2>&1 &
+fi
+else
+nohup "$HOME/agsbx/cloudflared" tunnel --url "http://localhost:$(cat "$HOME/agsbx/argoport.log")" --edge-ip-version auto --no-autoupdate --protocol http2 > "$HOME/agsbx/argo.log" 2>&1 &
 fi
 }
 if [ "$1" = "del" ]; then
@@ -2165,58 +2950,49 @@ showmode
 exit
 elif [ "$1" = "rep" ]; then
 cleandel
-rm -rf "$HOME/agsbx"/{sb.json,xr.json,sbargoym.log,sbargotoken.log,argo.log,argoport.log,cdnym,name}
+rm -f "$HOME/agsbx"/sb.json "$HOME/agsbx"/xr.json "$HOME/agsbx"/sbargoym.log "$HOME/agsbx"/sbargotoken.log "$HOME/agsbx"/argo.log "$HOME/agsbx"/argoport.log "$HOME/agsbx"/cdnym "$HOME/agsbx"/name
+cleanup_mieru_runtime
+rm -f "$HOME/agsbx/sbox.json" "$HOME/agsbx/clmi.yaml" "$HOME/agsbx/jhsub.txt"
 echo "Argosbx重置协议完成，开始更新相关协议变量……" && sleep 2
 echo
 elif [ "$1" = "list" ]; then
 cip
 exit
 elif [ "$1" = "upx" ]; then
-for P in /proc/[0-9]*; do [ -L "$P/exe" ] || continue; TARGET=$(readlink -f "$P/exe" 2>/dev/null) || continue; case "$TARGET" in *"/agsbx/x"*) kill "$(basename "$P")" 2>/dev/null ;; esac; done
-kill -15 $(pgrep -f 'agsbx/x' 2>/dev/null) >/dev/null 2>&1
+[ -f "$HOME/agsbx/xr.json" ] || { echo "错误：当前未启用 Xray" >&2; exit 1; }
+kill_exe "$HOME/agsbx/xray" TERM
 upxray && xrestart && echo "Xray内核更新完成" && sleep 2 && cip
 exit
 elif [ "$1" = "ups" ]; then
-for P in /proc/[0-9]*; do [ -L "$P/exe" ] || continue; TARGET=$(readlink -f "$P/exe" 2>/dev/null) || continue; case "$TARGET" in *"/agsbx/s"*) kill "$(basename "$P")" 2>/dev/null ;; esac; done
-kill -15 $(pgrep -f 'agsbx/s' 2>/dev/null) >/dev/null 2>&1
+[ -f "$HOME/agsbx/sb.json" ] || { echo "错误：当前未启用 Sing-box" >&2; exit 1; }
+kill_exe "$HOME/agsbx/sing-box" TERM
 upsingbox && sbrestart && echo "Sing-box内核更新完成" && sleep 2 && cip
 exit
-elif [ "$1" = "res" ]; then
-for P in /proc/[0-9]*; do
-[ -L "$P/exe" ] || continue
-TARGET=$(readlink -f "$P/exe" 2>/dev/null) || continue
-case "$TARGET" in
-*"/agsbx/s"*)
-kill "$(basename "$P")" 2>/dev/null
-sbrestart
-;;
-*"/agsbx/x"*)
-kill "$(basename "$P")" 2>/dev/null
-xrestart
-;;
-*"/agsbx/c"*)
-kill "$(basename "$P")" 2>/dev/null
-kill -15 $(pgrep -f 'agsbx/c' 2>/dev/null) >/dev/null 2>&1
-if [ -e "$HOME/agsbx/sbargotoken.log" ]; then
-if pidof systemd >/dev/null 2>&1; then
-systemctl restart argo >/dev/null 2>&1
-elif command -v rc-service >/dev/null 2>&1; then
-rc-service argo restart >/dev/null 2>&1
-else
-nohup $HOME/agsbx/cloudflared tunnel --no-autoupdate --edge-ip-version auto --protocol http2 run --token $(cat $HOME/agsbx/sbargotoken.log 2>/dev/null) >/dev/null 2>&1 &
-fi
-else
-nohup $HOME/agsbx/cloudflared tunnel --url http://localhost:$(cat $HOME/agsbx/argoport.log 2>/dev/null) --edge-ip-version auto --no-autoupdate --protocol http2 > $HOME/agsbx/argo.log 2>&1 &
-fi
-;;
-esac
-done
-sleep 5 && echo "重启完成" && sleep 3 && cip
+elif [ "$1" = "upm" ]; then
+if update_mieru_cores; then
+sleep 2
+cip
 exit
 fi
-if ! find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsbx/(s|x)' && ! pgrep -f 'agsbx/(s|x)' >/dev/null 2>&1; then
-for P in /proc/[0-9]*; do if [ -L "$P/exe" ]; then TARGET=$(readlink -f "$P/exe" 2>/dev/null); if echo "$TARGET" | grep -qE '/agsbx/c|/agsbx/s|/agsbx/x'; then PID=$(basename "$P"); kill "$PID" 2>/dev/null && echo "Killed $PID ($TARGET)" || echo "Could not kill $PID ($TARGET)"; fi; fi; done
-kill -15 $(pgrep -f 'agsbx/s' 2>/dev/null) $(pgrep -f 'agsbx/c' 2>/dev/null) $(pgrep -f 'agsbx/x' 2>/dev/null) >/dev/null 2>&1
+exit 1
+elif [ "$1" = "res" ]; then
+restarted=no
+if [ -f "$HOME/agsbx/sb.json" ]; then sbrestart && restarted=yes; fi
+if [ -f "$HOME/agsbx/xr.json" ]; then xrestart && restarted=yes; fi
+if [ -f "$HOME/agsbx/mita.json" ]; then mitarestart && restarted=yes; fi
+if [ -f "$HOME/agsbx/argoport.log" ]; then argorestart && restarted=yes; fi
+[ "$restarted" = yes ] || { echo "错误：未找到可恢复的 Argosbx 配置" >&2; exit 1; }
+sleep 5
+echo "重启完成"
+sleep 2
+cip
+exit
+fi
+if ! has_argosbx_install; then
+kill_exe "$HOME/agsbx/sing-box" TERM
+kill_exe "$HOME/agsbx/xray" TERM
+kill_exe "$HOME/agsbx/cloudflared" TERM
+stop_mita_runtime
 if [ -z "$( (command -v curl >/dev/null 2>&1 && curl -s4m5 -k "$v46url" 2>/dev/null) || (command -v wget >/dev/null 2>&1 && timeout 3 wget -4 -qO- --tries=2 "$v46url" 2>/dev/null) )" ]; then
 echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a00:1098:2c::1" > /etc/resolv.conf
 fi
@@ -2267,9 +3043,11 @@ subtokenipsub && subportipsub
 echo "请稍后…………"
 kill -15 $(pgrep -f 'websbx' 2>/dev/null) >/dev/null 2>&1
 mkdir -p $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"
-ln -sf $HOME/agsbx/clmi.yaml $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"/clmi.yaml
-ln -sf $HOME/agsbx/sbox.json $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"/sbox.json
-ln -sf $HOME/agsbx/jhsub.txt $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"/jhsub.txt
+subdir="$HOME/websbx/$(cat "$HOME/agsbx/subtoken.log" 2>/dev/null)"
+[ -s "$HOME/agsbx/clmi.yaml" ] && ln -sf "$HOME/agsbx/clmi.yaml" "$subdir/clmi.yaml"
+[ -s "$HOME/agsbx/sbox.json" ] && ln -sf "$HOME/agsbx/sbox.json" "$subdir/sbox.json"
+[ -s "$HOME/agsbx/jhsub.txt" ] && ln -sf "$HOME/agsbx/jhsub.txt" "$subdir/jhsub.txt"
+[ -s "$HOME/agsbx/mieru.txt" ] && ln -sf "$HOME/agsbx/mieru.txt" "$subdir/mieru.txt"
 if command -v apk >/dev/null 2>&1; then
 busybox-extras httpd -f -p "$(cat $HOME/agsbx/subport.log 2>/dev/null)" -h $HOME/websbx > /dev/null 2>&1 &
 else

@@ -6,18 +6,18 @@
 
 ---------------------------------------
 
-#### 1、基于Sing-box + Xray + Cloudflared-Argo 三内核自动分配
+#### 1、基于 Sing-box + Xray + Cloudflared-Argo + Mita 四内核按需分配；Mieru 可独立运行
 
 #### 2、支持Linux类主流VPS系统（建议最新版系统），SSH脚本支持非root环境运行，无脑一次回车搞定
 
-#### 3、支持各种容器系统，Docker镜像部署，公开镜像库：```ygkkk/argosbx```
+#### 3、支持普通 Docker 容器部署，公开镜像库：```ygkkk/argosbx```；fork 的 Actions 默认发布多架构镜像到 ```ghcr.io/<fork-owner>/argosbx```
 
 #### 4、根据Sing-box与Xray不同内核，可选15种WARP出站组合，更换落地IP为WARP的IP，解锁流媒体
 
-#### 5、客户端支持方面，各类单协议分享、clash/mihomo/singbox聚合订阅分享都可支持
+#### 5、客户端支持各类单协议分享及 Clash/Mihomo/Sing-box 聚合订阅；Mieru 额外输出官方 ```mieru://```、```mierus://``` 和 Mihomo ```type: mieru``` 配置
 
 #### 6、所有代理协议都无需域名（除了argo固定隧道、IP端口CDN），支持单个或多个代理协议任意组合并快速重置更换
-【 已支持：AnyTLS、Any-reality、Vless-xhttp-reality-vison-enc、Vless-tcp-reality-vision、Vless-xhttp-vison-enc、Vless-ws-vision-enc、Shadowsocks-2022、Vmess-ws、Socks5、Hysteria2、Tuic、Argo临时/固定隧道支持Vless-ws-vision-enc或Vmess-ws 】
+【 已支持：AnyTLS、Any-reality、Vless-xhttp-reality-vison-enc、Vless-tcp-reality-vision、Vless-xhttp-vison-enc、Vless-ws-vision-enc、Shadowsocks-2022、Vmess-ws、Socks5、Hysteria2、Tuic、Mieru TCP/UDP；Argo 临时/固定隧道仅支持 Vless-ws-vision-enc 或 Vmess-ws 】
 
 #### 7、建议配合SSH一键脚本命令生成器网页使用：https://yonggekkk.github.io/argosbx/
 
@@ -48,22 +48,28 @@
 | 9、启用socks5 | sopt | 端口指定 | 关闭socks5 | 端口随机 | 必选之一 【xray/singbox内核：TCP】 |
 | 10、启用hysteria2 | hypt | 端口指定 | 关闭hy2 | 端口随机 | 必选之一 【singbox内核：UDP】 |
 | 11、启用tuic | tupt | 端口指定 | 关闭tuic | 端口随机 | 必选之一 【singbox内核：UDP】 |
-| 12、warp开关 | warp | 详见下方15种warp出站模式图 | 关闭warp | singbox与xray内核协议都启用warp全局V4+V6 | 可选，详见下方15种warp出站模式图 |
-| 13、argo开关 | argo | 填写vwpt或者vmpt | 关闭argo隧道 | 关闭argo隧道 | 可选，填写vmpt或vwpt时，vmess-ws或vless-ws变量vmpt或vwpt必须启用，且固定隧道必须填写vmpt或vwpt端口 |
-| 14、argo固定隧道域名 | agn | 托管在CF上的域名 | 使用临时隧道 | 使用临时隧道 | 可选，argo填写vmpt或vwpt时才可激活固定隧道|
-| 15、argo固定隧道token | agk | CF获取的ey开头的token | 使用临时隧道 | 使用临时隧道 | 可选，argo填写vmpt或vwpt时才可激活固定隧道 |
-| 16、uuid密码 | uuid | 符合uuid规定格式 | 随机生成 | 随机生成 | 可选 |
-| 17、reality域名（仅支持reality类协议） | reym | 符合reality域名规定 | apple官网 | apple官网 | 可选，使用CF类域名时：服务器ip:节点端口的组合，可作为ProxyIP/客户端地址反代IP（建议高位端口或纯IPV6下使用，以防被扫泄露）|
-| 18、vmess-ws、vless-xhttp/ws-enc在客户端的host地址 | cdnym | CF解析IP的域名 | vmess-ws、vless-xhttp/ws-enc为直连 | vmess-ws、vless-xhttp/ws-enc为直连 | 可选，使用80系CDN或者回源CDN时可设置，否则客户端host地址需手动更改为CF解析IP的域名|
-| 19、切换ipv4或ipv6配置 | ippz | 填写4或者6 | 自动识别IP配置 | 自动识别IP配置 | 可选，4表示IPV4配置输出，6表示IPV6配置输出 |
-| 20、添加所有节点名称前缀 | name | 任意字符 | 默认协议名前缀 | 默认协议名前缀 | 可选 |
-| 21、开启IP订阅链接 | sub | 填写y | 关闭IP订阅链接 | 关闭IP订阅链接 | 可选 |
-| 22、IP订阅链接密码 | subid | 任意字符 | uuid | uuid | 可选 |
-| 23、IP订阅链接端口 | subpt | 端口指定 | 随机端口 | 随机端口 | 可选 |
-| 24、argo优选IP域名 | cfip | 填写IPV4或者[IPV6]或者域名 | 默认优选域名 | 默认优选域名 | 可选，IP域名之间留空格，仅限填写两个 |
-| 25、hysteria2端口跳跃 | hyjpt | 范围端口或者单端口或者一起混用 | 关闭端口跳跃 | 关闭端口跳跃 | 可选，范围端口格式为小数字:大数字，每组端口之间留空格 |
-| 26、【仅容器类docker】监听端口，网页查询 | PORT | 端口指定 | 3000 | 3000 | 可选 |
-| 27、【仅容器类docker】启用vless-ws-tls | DOMAIN | 服务器域名 | 关闭vless-ws-tls | 关闭vless-ws-tls | 可选，vless-ws-tls可独立存在，uuid变量必须启用 |
+| 12、启用 Mieru TCP | mitpt | 1025-65535 单端口或严格递增范围 | 关闭 Mieru TCP | 复用已保存端口；无保存则随机 | 必选之一 【Mita 内核：原生 TCP 直连】 |
+| 13、启用 Mieru UDP | miupt | 1025-65535 单端口或严格递增范围 | 关闭 Mieru UDP | 复用已保存端口；无保存则随机 | 必选之一 【Mita 内核：原生 UDP 直连】 |
+| 14、Mieru 用户名 | miuser | 1-64 位 URL-safe ASCII | 首装默认 argosbx；rep 保留旧值 | 首装默认 argosbx；rep 保留旧值 | 可选，仅允许字母、数字、点、下划线、波浪线、连字符 |
+| 15、Mieru 密码 | mipass | 12-128 位 URL-safe ASCII | 首装随机；rep 保留旧值 | 首装随机；rep 保留旧值 | 可选，默认生成 32 字符 Base64URL 高熵密码 |
+| 16、warp开关 | warp | 详见下方15种warp出站模式图 | 关闭warp | singbox与xray内核协议都启用warp全局V4+V6 | 可选；WARP 不作用于 Mieru |
+| 17、argo开关 | argo | 填写vwpt或者vmpt | 关闭argo隧道 | 关闭argo隧道 | 可选；Mieru 不能选作 Argo/CDN 协议 |
+| 18、argo固定隧道域名 | agn | 托管在CF上的域名 | 使用临时隧道 | 使用临时隧道 | 可选，argo填写vmpt或vwpt时才可激活固定隧道|
+| 19、argo固定隧道token | agk | CF获取的ey开头的token | 使用临时隧道 | 使用临时隧道 | 可选，argo填写vmpt或vwpt时才可激活固定隧道 |
+| 20、uuid密码 | uuid | 符合uuid规定格式 | 随机生成 | 随机生成 | 可选 |
+| 21、reality域名（仅支持reality类协议） | reym | 符合reality域名规定 | apple官网 | apple官网 | 可选，使用CF类域名时：服务器ip:节点端口的组合，可作为ProxyIP/客户端地址反代IP（建议高位端口或纯IPV6下使用，以防被扫泄露）|
+| 22、vmess-ws、vless-xhttp/ws-enc在客户端的host地址 | cdnym | CF解析IP的域名 | vmess-ws、vless-xhttp/ws-enc为直连 | vmess-ws、vless-xhttp/ws-enc为直连 | 可选，使用80系CDN或者回源CDN时可设置，否则客户端host地址需手动更改为CF解析IP的域名|
+| 23、切换ipv4或ipv6配置 | ippz | 填写4或者6 | 自动识别IP配置 | 自动识别IP配置 | 可选，4表示IPV4配置输出，6表示IPV6配置输出 |
+| 24、添加所有节点名称前缀 | name | 任意字符 | 默认协议名前缀 | 默认协议名前缀 | 可选 |
+| 25、开启IP订阅链接 | sub | 填写y | 关闭IP订阅链接 | 关闭IP订阅链接 | 可选 |
+| 26、IP订阅链接密码 | subid | 任意字符 | uuid | uuid | 可选 |
+| 27、IP订阅链接端口 | subpt | 端口指定 | 随机端口 | 随机端口 | 可选 |
+| 28、argo优选IP域名 | cfip | 填写IPV4或者[IPV6]或者域名 | 默认优选域名 | 默认优选域名 | 可选，IP域名之间留空格，仅限填写两个 |
+| 29、hysteria2端口跳跃 | hyjpt | 范围端口或者单端口或者一起混用 | 关闭端口跳跃 | 关闭端口跳跃 | 可选，范围端口格式为小数字:大数字，每组端口之间留空格 |
+| 30、【仅容器类docker】监听端口，网页查询 | PORT | 端口指定 | 3000 | 3000 | 可选 |
+| 31、【仅容器类docker】启用vless-ws-tls | DOMAIN | 服务器域名 | 关闭vless-ws-tls | 关闭vless-ws-tls | 可选，vless-ws-tls可独立存在，uuid变量必须启用 |
+
+> Mieru 端口范围不支持逗号列表或空格，且起始端口必须小于结束端口。TCP 与 UDP 可以使用相同数字；同时随机生成时会选择不同端口。脚本会在写入配置前检查现有 Argosbx 端口及系统监听冲突。
 
 ------------------------------------------------------------------
 
@@ -93,7 +99,7 @@
 
 * 如报错curl not found 可换用主脚本wget：```bash <(wget -qO- https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)```
 
-* 必选其一的协议端口变量：```vwpt=""```、```vmpt=""```、```vmpt="" argo="vmpt"```、```vwpt="" argo="vwpt"```、```vlpt=""```、```xhpt=""```、```anpt=""```、```arpt=""```、```hypt=""```、```tupt=""```、```sspt=""```、```vxpt=""```、```sopt=""```
+* 必选其一的协议端口变量：```vwpt=""```、```vmpt=""```、```vmpt="" argo="vmpt"```、```vwpt="" argo="vwpt"```、```vlpt=""```、```xhpt=""```、```anpt=""```、```arpt=""```、```hypt=""```、```tupt=""```、```sspt=""```、```vxpt=""```、```sopt=""```、```mitpt=""```、```miupt=""```
 
 请参考```一、自定义变量参数说明```中变量的作用说明，变量值填写在```" "```之间，变量之间空一格，不用的变量可以删除
 
@@ -101,7 +107,7 @@
 
 * ### 模版1：多个任意协议组合运行
 ```
-sspt="" vlpt="" vmpt="" vwpt="" hypt="" tupt="" xhpt="" vxpt="" anpt="" arpt="" sopt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+sspt="" vlpt="" vmpt="" vwpt="" hypt="" tupt="" xhpt="" vxpt="" anpt="" arpt="" sopt="" mitpt="" miupt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
 ```
 
 * ### 模版2：主流TCP或UDP单个协议运行
@@ -161,6 +167,21 @@ Tuic协议节点
 tupt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
 ```
 
+Mieru-only TCP 节点（不会下载或启动 Xray/Sing-box）
+```
+mitpt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+```
+
+Mieru-only UDP 节点
+```
+miupt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+```
+
+Mieru TCP + UDP 范围节点（自定义凭据）
+```
+mitpt="5000-5010" miupt="6000-6010" miuser="argosbx" mipass="change-this-password" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+```
+
 * ### 模版3：开启CDN优选的节点运行
 
 Argo临时/固定隧道运行优选节点，类似无公网的IDX-Google-VPS容器推荐使用此脚本，快速一键内网穿透获取节点
@@ -212,7 +233,64 @@ vwpt="80系端口、指定回源端口" cdnym="CF解析IP的域名" bash <(curl 
 
 ---------------------------------------------------------
 
-## 三、多功能SSH快捷方式命令组
+## 三、Mieru 客户端、订阅、Docker 与限制
+
+### 1、运行架构与平台限制
+
+- 固定集成 [Mieru v3.34.0](https://github.com/enfein/mieru/tree/v3.34.0)。服务端仅常驻 `mita`；`mieru` 客户端二进制只用于生成和自检分享链接。
+- v1 仅支持公网 IPv4、IPv6 或域名的原生 TCP/UDP 直连，不接入 Argo、CDN、普通 Cloudflare Tunnel，也不走现有 WARP 出站。选择 `warp` 时，WARP 仍只作用于 Xray/Sing-box。
+- Cloud Foundry、SAP 等仅提供 HTTP 路由的平台不支持 Mieru；Node 容器检测到这些环境时会拒绝启动 Mita并输出提示。普通 Docker 必须允许原生 TCP/UDP 端口映射。
+- 服务端和客户端时间需要同步。脚本只对系统时钟状态给出告警，不阻断安装；时间偏差过大时可能无法连接。
+
+### 2、客户端与输出矩阵
+
+| 客户端/格式 | 输出 | 说明 |
+| :--- | :--- | :--- |
+| 官方 Mieru | `$HOME/agsbx/mieru.txt` | 包含标准 `mieru://` 和简单 `mierus://`；TCP+UDP 时同时保存组合、TCP 独立、UDP 独立简单链接 |
+| Clash/Mihomo | `$HOME/agsbx/clmi.yaml` | TCP、UDP 分别生成 `type: mieru` 节点；单端口使用 `port`，范围使用 `port-range` |
+| 原版 Sing-box | `$HOME/agsbx/sbox.json` | 不写入 Mieru outbound；需要兼容 Mieru 时请使用 `mbox` 等实现 |
+| 聚合单节点 | `$HOME/agsbx/jhsub.txt` | 仅追加 Mieru 组合简单链接，避免重复节点 |
+
+启用本地订阅 `sub=y` 后可访问 `http://服务器IP:订阅端口/<token>/mieru.txt`。Node 容器地址为 `http://容器地址:PORT/<uuid>/mieru.txt`。运行 `agsbx list` 会重新生成 Mieru 链接和 Mihomo YAML，因此 `ippz=4/6` 切换也会同步更新地址。
+
+### 3、Docker/GHCR 部署
+
+fork 的 Actions 默认构建 `linux/amd64`、`linux/arm64` 并发布 `ghcr.io/<fork-owner>/argosbx`。容器中建议显式指定端口；若让脚本随机选端口，Docker 无法预先映射该随机端口。
+
+单端口 TCP/UDP 使用相同数字：
+
+```bash
+docker run -d --name argosbx \
+  -e mitpt=5000 -e miupt=5000 \
+  -e miuser=argosbx -e mipass=change-this-password \
+  -p 3000:3000 \
+  -p 5000:5000/tcp -p 5000:5000/udp \
+  ghcr.io/<fork-owner>/argosbx
+```
+
+完整范围映射：
+
+```bash
+docker run -d --name argosbx \
+  -e mitpt=5000-5010 -e miupt=6000-6010 \
+  -p 3000:3000 \
+  -p 5000-5010:5000-5010/tcp \
+  -p 6000-6010:6000-6010/udp \
+  ghcr.io/<fork-owner>/argosbx
+```
+
+同时在系统防火墙和云厂商安全组放行完整 TCP/UDP 单端口或范围；只映射范围中的一个端口会导致部分 Mieru 连接失败。
+
+### 4、内核发布、升级与许可证
+
+- fork 的 Release 标签为 `mieru-core-v3.34.0`，包含 `mita-linux-amd64`、`mita-linux-arm64`、`mieru-linux-amd64`、`mieru-linux-arm64`、`SHA256SUMS`、`MIERU-LICENSE` 和 `mieru-v3.34.0-source.tar.gz`。
+- Actions 构建的容器和 fork 的 GitHub Pages 命令生成器默认使用当前 fork。直接通过 raw URL/process substitution 执行主脚本时无法自动获知来源，因此首次从 fork 安装请显式设置 `ARGOSBX_ASSET_REPO=<fork-owner>/argosbx`；该值会保存到 `$HOME/agsbx/asset_repo`，后续 `rep`、`upm` 和快捷脚本继续复用。Release 和 GHCR 应由同一 fork 发布。
+- `agsbx upm` 同时升级 `mita` 与 `mieru`：先下载到临时文件并校验 SHA-256，成功后原子替换、重启 Mita、重新生成链接；失败会保留旧二进制和正在运行的服务。
+- Argosbx 与 Mieru 均采用 GPL-3.0。再分发二进制时须保留 Mieru 原作者声明，并同时提供许可证、校验和及对应版本源码包。
+
+---------------------------------------------------------
+
+## 四、多功能SSH快捷方式命令组
 
 #### 说明：首次安装成功后需重连SSH，```agsbx 命令```的快捷方式才可生效；如未生效，请使用```主脚本 命令```的快捷方式
 
@@ -222,7 +300,7 @@ vwpt="80系端口、指定回源端口" cdnym="CF解析IP的域名" bash <(curl 
 
 3、更新脚本命令：```原已安装的自定义各种协议变量组 主脚本 rep``` 
 
-4、更新Xray或Singbox内核命令：agsbx upx或ups 【或者】 主脚本 upx或ups
+4、更新 Xray、Sing-box 或 Mieru 内核命令：```agsbx upx```、```agsbx ups```、```agsbx upm```【或者】主脚本加对应参数
 
 5、重启脚本命令：```agsbx res``` 或者 ```主脚本 res```
 

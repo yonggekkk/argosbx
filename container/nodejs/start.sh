@@ -1,26 +1,48 @@
 #!/bin/sh
 export LANG=en_US.UTF-8
-export uuid=${uuid}
-export vlpt=${vlpt}
-export vmpt=${vmpt}
-export vwpt=${vwpt}
-export hypt=${hypt}
-export tupt=${tupt}
-export xhpt=${xhpt}
-export vxpt=${vxpt}
-export anpt=${anpt}
-export arpt=${arpt}
-export sspt=${sspt}
-export sopt=${sopt}
-export reym=${reym}
-export cdnym=${cdnym}
-export argo=${argo}
-export agn=${agn}
-export agk=${agk}
-export ippz=${ippz}
-export warp=${warp}
-export name=${name}
+MIERU_VERSION=v3.34.0
+MIERU_RELEASE_TAG=mieru-core-v3.34.0
+ARGOSBX_ASSET_REPO=${ARGOSBX_ASSET_REPO:-${GITHUB_REPOSITORY:-yonggekkk/argosbx}}
+[ -z "${mitpt+x}" ] || mit=yes
+[ -z "${miupt+x}" ] || miu=yes
+[ -z "${warp+x}" ] || wap=yes
+export uuid=${uuid:-}
+export vlpt=${vlpt:-}
+export vmpt=${vmpt:-}
+export vwpt=${vwpt:-}
+export hypt=${hypt:-}
+export tupt=${tupt:-}
+export xhpt=${xhpt:-}
+export vxpt=${vxpt:-}
+export anpt=${anpt:-}
+export arpt=${arpt:-}
+export sspt=${sspt:-}
+export sopt=${sopt:-}
+export mitpt=${mitpt:-}
+export miupt=${miupt:-}
+export miuser=${miuser:-}
+export mipass=${mipass:-}
+export reym=${reym:-}
+export cdnym=${cdnym:-}
+export argo=${argo:-}
+export agn=${agn:-}
+export agk=${agk:-}
+export ippz=${ippz:-}
+export warp=${warp:-}
+export name=${name:-}
 v46url="https://icanhazip.com"
+legacy_requested(){
+[ -n "$vlpt$vmpt$vwpt$hypt$tupt$xhpt$vxpt$anpt$arpt$sspt$sopt" ]
+}
+mieru_selected(){
+[ "$mit" = yes ] || [ "$miu" = yes ]
+}
+container_installed(){
+[ -f "$HOME/agsbx/xr.json" ] || [ -f "$HOME/agsbx/sb.json" ] || [ -f "$HOME/agsbx/mita.json" ] || [ "${MIERU_UNSUPPORTED:-}" = yes ]
+}
+case "$argo" in mitpt|miupt|mieru|mita) echo "错误：Mieru 不能选作 Argo/CDN 协议" >&2; exit 1 ;; esac
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+. "$SCRIPT_DIR/mieru.sh"
 showmode(){
 echo "Argosbx脚本项目地址：https://github.com/yonggekkk/argosbx"
 echo "---------------------------------------------------------"
@@ -42,6 +64,7 @@ x86_64) cpu=amd64;;
 *) echo "目前脚本不支持$(uname -m)架构" && exit
 esac
 mkdir -p "$HOME/agsbx"
+chmod 0700 "$HOME/agsbx" 2>/dev/null || true
 v4v6(){
 v4=$( (command -v curl >/dev/null 2>&1 && curl -s4m5 -k "$v46url" 2>/dev/null) || (command -v wget >/dev/null 2>&1 && timeout 3 wget -4 --tries=2 -qO- "$v46url" 2>/dev/null) )
 v6=$( (command -v curl >/dev/null 2>&1 && curl -s6m5 -k "$v46url" 2>/dev/null) || (command -v wget >/dev/null 2>&1 && timeout 3 wget -6 --tries=2 -qO- "$v46url" 2>/dev/null) )
@@ -818,27 +841,32 @@ nohup "$HOME/agsbx/sing-box" run -c "$HOME/agsbx/sb.json" >/dev/null 2>&1 &
 fi
 }
 ins(){
-if [ -z "$hypt" ] && [ -z "$tupt" ] && [ -z "$anpt" ] && [ -z "$arpt" ] && [ -z "$sspt" ]; then
-installxray
-xrsbvm
-xrsbso
-warpsx
-xrsbout
-elif [ -z "$xhpt" ] && [ -z "$vlpt" ] && [ -z "$vxpt" ] && [ -z "$vwpt" ]; then
-installsb
-xrsbvm
-xrsbso
-warpsx
-xrsbout
+if mieru_selected && ! legacy_requested; then
+  echo "Mieru-only：跳过 Xray 与 Sing-box 内核"
 else
-installsb
-installxray
-xrsbvm
-xrsbso
-warpsx
-xrsbout
+  if [ -z "$hypt" ] && [ -z "$tupt" ] && [ -z "$anpt" ] && [ -z "$arpt" ] && [ -z "$sspt" ]; then
+    installxray
+    xrsbvm
+    xrsbso
+    warpsx
+    xrsbout
+  elif [ -z "$xhpt" ] && [ -z "$vlpt" ] && [ -z "$vxpt" ] && [ -z "$vwpt" ]; then
+    installsb
+    xrsbvm
+    xrsbso
+    warpsx
+    xrsbout
+  else
+    installsb
+    installxray
+    xrsbvm
+    xrsbso
+    warpsx
+    xrsbout
+  fi
 fi
-if [ -n "$argo" ]; then
+container_install_mieru || exit 1
+if [ -n "$argo" ] && legacy_requested; then
 echo
 echo "=========启用Cloudflared-argo内核========="
 if [ ! -e "$HOME/agsbx/cloudflared" ]; then
@@ -870,30 +898,22 @@ else
 echo "Argo$argoname隧道申请失败，请稍后再试"
 fi
 sleep 5
-if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsbx/(s|x)' || pgrep -f 'agsbx/(s|x)' >/dev/null 2>&1 ; then
+fi
+if container_cores_running; then
 echo "Argosbx脚本进程启动成功，安装完毕" && sleep 2
 else
-echo "Argosbx脚本进程未启动，安装失败" && exit
-fi
+echo "Argosbx脚本进程未启动，安装失败" && exit 1
 fi
 }
 argosbxstatus(){
-echo "=========当前三大内核运行状态========="
-procs=$(find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null)
-if echo "$procs" | grep -Eq 'agsbx/s' || pgrep -f 'agsbx/s' >/dev/null 2>&1; then
-echo "Sing-box：运行中"
-else
-echo "Sing-box：未启用"
-fi
-if echo "$procs" | grep -Eq 'agsbx/x' || pgrep -f 'agsbx/x' >/dev/null 2>&1; then
-echo "Xray：运行中"
-else
-echo "Xray：未启用"
-fi
-if echo "$procs" | grep -Eq 'agsbx/c' || pgrep -f 'agsbx/c' >/dev/null 2>&1; then
-echo "Argo：运行中"
-else
-echo "Argo：未启用"
+echo "=========当前四大内核运行状态========="
+is_exact_exe_running "$HOME/agsbx/sing-box" && echo "Sing-box：运行中" || echo "Sing-box：未启用"
+is_exact_exe_running "$HOME/agsbx/xray" && echo "Xray：运行中" || echo "Xray：未启用"
+is_exact_exe_running "$HOME/agsbx/cloudflared" && echo "Argo：运行中" || echo "Argo：未启用"
+if mi_status; then echo "Mita (Mieru $MIERU_VERSION)：运行中"
+elif [ "${MIERU_UNSUPPORTED:-}" = yes ]; then echo "Mita：当前 Cloud Foundry/SAP HTTP-only 平台不支持"
+elif [ -f "$HOME/agsbx/mita.json" ]; then echo "Mita (Mieru $MIERU_VERSION)：异常或未运行"
+else echo "Mita：未启用"
 fi
 }
 cip(){
@@ -956,8 +976,8 @@ ipbest
 fi
 }
 ipchange
-rm -rf "$HOME/agsbx/jh.txt"
-uuid=$(cat "$HOME/agsbx/uuid")
+rm -f "$HOME/agsbx/jh.txt"
+uuid=$(cat "$HOME/agsbx/uuid" 2>/dev/null)
 server_ip=$(cat "$HOME/agsbx/server_ip.log")
 sxname=$(cat "$HOME/agsbx/name" 2>/dev/null)
 xvvmcdnym=$(cat "$HOME/agsbx/cdnym" 2>/dev/null)
@@ -969,6 +989,9 @@ case "$server_ip" in
 104.28*|\[2a09*) echo "检测到有WARP的IP作为客户端地址 (104.28或者2a09开头的IP)，请把客户端地址上的WARP的IP手动更换为VPS本地IPV4或者IPV6地址" && sleep 3 ;;
 esac
 echo
+if [ -f "$HOME/agsbx/mita.json" ]; then
+container_generate_mieru_links || echo "警告：Mieru 分享链接生成失败" >&2
+fi
 reym=$(cat "$HOME/agsbx/reym" 2>/dev/null)
 cfip() { echo $((RANDOM % 13 + 1)); }
 if [ -e "$HOME/agsbx/xray" ]; then
@@ -1153,16 +1176,20 @@ ${vma_link7}${vwa_link2}
 fi
 echo "---------------------------------------------------------"
 echo "$argoshow"
+if [ -n "$mieru_show" ]; then echo "$mieru_show"; fi
 echo
 echo "---------------------------------------------------------"
 echo "聚合节点信息，请进入 $HOME/agsbx/jh.txt 文件目录查看或者运行 cat $HOME/agsbx/jh.txt 查看"
+[ -s "$HOME/agsbx/mieru.txt" ] && echo "Mieru 标准/简单链接保存在 $HOME/agsbx/mieru.txt"
 echo "========================================================="
 echo "相关快捷方式如下：(首次安装成功后需重连SSH，agsbx快捷方式才可生效)"
 showmode
 }
-if ! find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsbx/(s|x)' && ! pgrep -f 'agsbx/(s|x)' >/dev/null 2>&1; then
-for P in /proc/[0-9]*; do if [ -L "$P/exe" ]; then TARGET=$(readlink -f "$P/exe" 2>/dev/null); if echo "$TARGET" | grep -qE '/agsbx/c|/agsbx/s|/agsbx/x'; then PID=$(basename "$P"); kill "$PID" 2>/dev/null && echo "Killed $PID ($TARGET)" || echo "Could not kill $PID ($TARGET)"; fi; fi; done
-kill -15 $(pgrep -f 'agsbx/s' 2>/dev/null) $(pgrep -f 'agsbx/c' 2>/dev/null) $(pgrep -f 'agsbx/x' 2>/dev/null) >/dev/null 2>&1
+if ! container_installed; then
+kill_exact_exe "$HOME/agsbx/sing-box"
+kill_exact_exe "$HOME/agsbx/xray"
+kill_exact_exe "$HOME/agsbx/cloudflared"
+kill_exact_exe "$HOME/agsbx/mita"
 v4orv6(){
 if [ -z "$( (command -v curl >/dev/null 2>&1 && curl -s4m5 -k "$v46url" 2>/dev/null) || (command -v wget >/dev/null 2>&1 && timeout 3 wget -4 -qO- --tries=2 "$v46url" 2>/dev/null) )" ]; then
 echo -e "nameserver 2a00:1098:2b::1\nnameserver 2a00:1098:2c::1" > /etc/resolv.conf
