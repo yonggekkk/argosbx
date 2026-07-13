@@ -355,6 +355,166 @@ n=$(od -An -N4 -tu4 /dev/urandom 2>/dev/null | tr -d ' ')
 echo $((n % 64511 + 1025))
 fi
 }
+subscription_token_is_valid(){
+printf '%s' "$1" | LC_ALL=C grep -Eq '^[A-Za-z0-9._~-]{1,128}$'
+}
+subscription_port_is_valid(){
+case "$1" in ''|*[!0-9]*) return 1 ;; esac
+[ "$1" -ge 1025 ] 2>/dev/null && [ "$1" -le 65535 ] 2>/dev/null
+}
+subscription_tcp_port_in_use(){
+subsrv_check_port=$1
+if command -v ss >/dev/null 2>&1; then
+subsrv_lines=$(ss -H -ltn 2>/dev/null)
+elif command -v netstat >/dev/null 2>&1; then
+subsrv_lines=$(netstat -lnt 2>/dev/null | sed '1,2d')
+else
+echo "警告：缺少 ss/netstat，无法检查订阅 TCP 端口冲突" >&2
+return 1
+fi
+while IFS= read -r subsrv_line; do
+set -- $subsrv_line
+subsrv_addr=${4:-}
+subsrv_found_port=${subsrv_addr##*:}
+subsrv_found_port=${subsrv_found_port%]}
+[ "$subsrv_found_port" = "$subsrv_check_port" ] && return 0
+done <<EOF
+$subsrv_lines
+EOF
+return 1
+}
+stop_subscription_server(){
+subsrv_pid=$(cat "$HOME/agsbx/sub-http.pid" 2>/dev/null)
+case "$subsrv_pid" in
+''|*[!0-9]*) ;;
+*)
+if [ -r "/proc/$subsrv_pid/cmdline" ] && grep -aFq "$HOME/websbx" "/proc/$subsrv_pid/cmdline" 2>/dev/null; then
+kill -15 "$subsrv_pid" 2>/dev/null || true
+fi
+;;
+esac
+pkill -f 'busybox.*httpd.*websbx' >/dev/null 2>&1 || true
+rm -f "$HOME/agsbx/sub-http.pid"
+}
+sync_subscription_files(){
+subsrv_token=$(cat "$HOME/agsbx/subtoken.log" 2>/dev/null)
+subscription_token_is_valid "$subsrv_token" || {
+echo "错误：订阅 token 必须是 1-128 位 URL-safe ASCII" >&2
+return 1
+}
+subsrv_dir="$HOME/websbx/$subsrv_token"
+mkdir -p "$subsrv_dir" || return 1
+chmod 0700 "$HOME/websbx" "$subsrv_dir" 2>/dev/null || true
+subsrv_count=0
+for subsrv_file in clmi.yaml sbox.json jhsub.txt mieru.txt; do
+if [ -s "$HOME/agsbx/$subsrv_file" ]; then
+ln -sfn "$HOME/agsbx/$subsrv_file" "$subsrv_dir/$subsrv_file" || return 1
+subsrv_count=$((subsrv_count+1))
+else
+rm -f "$subsrv_dir/$subsrv_file"
+fi
+done
+[ "$subsrv_count" -gt 0 ] || {
+echo "错误：没有可发布的订阅文件" >&2
+return 1
+}
+}
+subscription_probe(){
+subsrv_port=$(cat "$HOME/agsbx/subport.log" 2>/dev/null)
+subsrv_token=$(cat "$HOME/agsbx/subtoken.log" 2>/dev/null)
+subscription_port_is_valid "$subsrv_port" || return 1
+subscription_token_is_valid "$subsrv_token" || return 1
+subsrv_probe_file=''
+for subsrv_file in jhsub.txt clmi.yaml sbox.json mieru.txt; do
+if [ -s "$HOME/agsbx/$subsrv_file" ] && [ -e "$HOME/websbx/$subsrv_token/$subsrv_file" ]; then
+subsrv_probe_file=$subsrv_file
+break
+fi
+done
+[ -n "$subsrv_probe_file" ] || return 1
+subsrv_probe_url="http://127.0.0.1:$subsrv_port/$subsrv_token/$subsrv_probe_file"
+if command -v curl >/dev/null 2>&1; then
+curl -fsS --connect-timeout 2 --max-time 5 "$subsrv_probe_url" >/dev/null 2>&1
+elif command -v wget >/dev/null 2>&1; then
+wget -qO /dev/null --timeout=5 "$subsrv_probe_url" >/dev/null 2>&1
+else
+busybox wget -qO- "$subsrv_probe_url" >/dev/null 2>&1
+fi
+}
+start_subscription_server(){
+subsrv_port=$(cat "$HOME/agsbx/subport.log" 2>/dev/null)
+subsrv_token=$(cat "$HOME/agsbx/subtoken.log" 2>/dev/null)
+subscription_port_is_valid "$subsrv_port" || {
+echo "错误：订阅端口必须是 1025-65535 的单端口" >&2
+return 1
+}
+subscription_token_is_valid "$subsrv_token" || {
+echo "错误：订阅 token 必须是 1-128 位 URL-safe ASCII" >&2
+return 1
+}
+stop_subscription_server
+sleep 1
+if subscription_tcp_port_in_use "$subsrv_port"; then
+echo "错误：订阅 TCP 端口 $subsrv_port 已被其他进程占用" >&2
+return 1
+fi
+: > "$HOME/agsbx/sub-http.log"
+if command -v apk >/dev/null 2>&1; then
+nohup busybox-extras httpd -f -p "$subsrv_port" -h "$HOME/websbx" > "$HOME/agsbx/sub-http.log" 2>&1 &
+else
+nohup busybox httpd -f -p "$subsrv_port" -h "$HOME/websbx" > "$HOME/agsbx/sub-http.log" 2>&1 &
+fi
+subsrv_pid=$!
+printf '%s\n' "$subsrv_pid" > "$HOME/agsbx/sub-http.pid"
+chmod 0600 "$HOME/agsbx/sub-http.pid" "$HOME/agsbx/sub-http.log" 2>/dev/null || true
+sleep 1
+if ! kill -0 "$subsrv_pid" 2>/dev/null; then
+echo "错误：订阅 HTTP 服务启动失败：$(cat "$HOME/agsbx/sub-http.log" 2>/dev/null)" >&2
+rm -f "$HOME/agsbx/sub-http.pid"
+return 1
+fi
+}
+choose_subscription_port(){
+subsrv_requested=${subpt:-}
+subsrv_saved=$(cat "$HOME/agsbx/subport.log" 2>/dev/null)
+subsrv_candidate=''
+if [ -n "$subsrv_requested" ]; then
+subscription_port_is_valid "$subsrv_requested" || {
+echo "错误：subpt 必须是 1025-65535 的单端口" >&2
+return 1
+}
+subsrv_candidate=$subsrv_requested
+elif subscription_port_is_valid "$subsrv_saved"; then
+subsrv_candidate=$subsrv_saved
+fi
+if [ -n "$subsrv_candidate" ] && ! subscription_tcp_port_in_use "$subsrv_candidate"; then
+printf '%s\n' "$subsrv_candidate"
+return 0
+fi
+if [ -n "$subsrv_requested" ]; then
+echo "错误：指定的订阅 TCP 端口 $subsrv_candidate 已被占用" >&2
+return 1
+fi
+[ -n "$subsrv_candidate" ] && echo "警告：原订阅端口 $subsrv_candidate 已被占用，将生成新端口" >&2
+subsrv_i=0
+while [ "$subsrv_i" -lt 1000 ]; do
+subsrv_candidate=$(random_port_number)
+if [ "$subsrv_candidate" -ge 10000 ] 2>/dev/null && ! subscription_tcp_port_in_use "$subsrv_candidate"; then
+printf '%s\n' "$subsrv_candidate"
+return 0
+fi
+subsrv_i=$((subsrv_i+1))
+done
+echo "错误：未能找到可用的订阅 TCP 端口" >&2
+return 1
+}
+ensure_subscription_available(){
+sync_subscription_files || return 1
+subscription_probe && return 0
+start_subscription_server || return 1
+sync_subscription_files || return 1
+subscription_probe
+}
 choose_random_mieru_port(){
 protocol=$1
 avoid=${2:-}
@@ -2845,11 +3005,19 @@ if [ -n "$mierushow" ]; then
 echo "$mierushow"
 fi
 echo
-if [ -s $HOME/agsbx/subport.log ]; then
-showsubport=$(cat $HOME/agsbx/subport.log)
-if ps -ef 2>/dev/null | grep "$showsubport" | grep -v grep >/dev/null; then
-showsubtoken=$(cat $HOME/agsbx/subtoken.log 2>/dev/null)
-subip=$(cat $HOME/agsbx/server_ip.log 2>/dev/null)
+if [ -s "$HOME/agsbx/subport.log" ] && [ -s "$HOME/agsbx/subtoken.log" ]; then
+subsrv_enabled=no
+[ -f "$HOME/agsbx/subscription.enabled" ] && subsrv_enabled=yes
+if [ "$subsrv_enabled" = no ] && pgrep -f 'busybox.*httpd.*websbx' >/dev/null 2>&1; then
+: > "$HOME/agsbx/subscription.enabled"
+chmod 0600 "$HOME/agsbx/subscription.enabled" 2>/dev/null || true
+subsrv_enabled=yes
+fi
+if [ "$subsrv_enabled" = yes ]; then
+if ensure_subscription_available; then
+showsubport=$(cat "$HOME/agsbx/subport.log")
+showsubtoken=$(cat "$HOME/agsbx/subtoken.log")
+subip=$(cat "$HOME/agsbx/server_ip.log" 2>/dev/null)
 suburl="$subip:$showsubport/$showsubtoken"
 echo "**********************************************************"
 [ -s "$HOME/agsbx/clmi.yaml" ] && echo "Clash/Mihomo本地IP订阅地址：http://$suburl/clmi.yaml"
@@ -2857,6 +3025,9 @@ echo "**********************************************************"
 [ -s "$HOME/agsbx/jhsub.txt" ] && echo "聚合协议本地IP订阅地址：http://$suburl/jhsub.txt"
 [ -s "$HOME/agsbx/mieru.txt" ] && echo "Mieru本地IP订阅地址：http://$suburl/mieru.txt"
 echo "**********************************************************"
+else
+echo "错误：订阅 HTTP 服务或文件映射异常，请检查 $HOME/agsbx/sub-http.log" >&2
+fi
 fi
 fi
 echo
@@ -2872,7 +3043,8 @@ kill_exe "$HOME/agsbx/sing-box" TERM
 kill_exe "$HOME/agsbx/xray" TERM
 kill_exe "$HOME/agsbx/cloudflared" TERM
 remove_mita_service
-pkill -f 'busybox.*httpd.*websbx' >/dev/null 2>&1 || true
+stop_subscription_server
+rm -f "$HOME/agsbx/subscription.enabled" "$HOME/agsbx/sub-http.log"
 sed -i '/agsbx/d' ~/.bashrc 2>/dev/null || true
 sed -i '/export PATH="\$HOME\/bin:\$PATH"/d' ~/.bashrc 2>/dev/null || true
 . ~/.bashrc 2>/dev/null || true
@@ -3018,54 +3190,38 @@ echo "iptables执行开放所有端口"
 fi
 ins
 if [ -n "$sub" ]; then
-subtokenipsub(){
 if [ -z "$subid" ]; then
 subtoken="$(cat "$HOME/agsbx/uuid")"
 else
 subtoken="$subid"
 fi
-rm -rf $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"
-echo $subtoken > $HOME/agsbx/subtoken.log
-}
-subportipsub(){
-if [ -z "$subpt" ]; then
-if [ -n "$(cat "$HOME/agsbx/subport.log" 2>/dev/null)" ]; then
-subport=$(cat $HOME/agsbx/subport.log)
-else
-subport=$(shuf -i 10000-65535 -n 1)
+subscription_token_is_valid "$subtoken" || { echo "错误：subid 必须是 1-128 位 URL-safe ASCII" >&2; exit 1; }
+subsrv_old_token=$(cat "$HOME/agsbx/subtoken.log" 2>/dev/null)
+if subscription_token_is_valid "$subsrv_old_token" && [ "$subsrv_old_token" != "$subtoken" ]; then
+rm -rf "$HOME/websbx/$subsrv_old_token"
 fi
-else
-subport="$subpt"
-fi
-echo $subport > $HOME/agsbx/subport.log
-}
-subtokenipsub && subportipsub
+stop_subscription_server
+subport=$(choose_subscription_port) || exit 1
+umask 077
+printf '%s\n' "$subtoken" > "$HOME/agsbx/subtoken.log"
+printf '%s\n' "$subport" > "$HOME/agsbx/subport.log"
+: > "$HOME/agsbx/subscription.enabled"
+chmod 0600 "$HOME/agsbx/subtoken.log" "$HOME/agsbx/subport.log" "$HOME/agsbx/subscription.enabled"
 echo "请稍后…………"
-kill -15 $(pgrep -f 'websbx' 2>/dev/null) >/dev/null 2>&1
-mkdir -p $HOME/websbx/"$(cat $HOME/agsbx/subtoken.log 2>/dev/null)"
-subdir="$HOME/websbx/$(cat "$HOME/agsbx/subtoken.log" 2>/dev/null)"
-[ -s "$HOME/agsbx/clmi.yaml" ] && ln -sf "$HOME/agsbx/clmi.yaml" "$subdir/clmi.yaml"
-[ -s "$HOME/agsbx/sbox.json" ] && ln -sf "$HOME/agsbx/sbox.json" "$subdir/sbox.json"
-[ -s "$HOME/agsbx/jhsub.txt" ] && ln -sf "$HOME/agsbx/jhsub.txt" "$subdir/jhsub.txt"
-[ -s "$HOME/agsbx/mieru.txt" ] && ln -sf "$HOME/agsbx/mieru.txt" "$subdir/mieru.txt"
-if command -v apk >/dev/null 2>&1; then
-busybox-extras httpd -f -p "$(cat $HOME/agsbx/subport.log 2>/dev/null)" -h $HOME/websbx > /dev/null 2>&1 &
-else
-busybox httpd -f -p "$(cat $HOME/agsbx/subport.log 2>/dev/null)" -h $HOME/websbx > /dev/null 2>&1 &
-fi
-sleep 5
+mkdir -p "$HOME/websbx/$subtoken"
+start_subscription_server || { rm -f "$HOME/agsbx/subscription.enabled"; exit 1; }
 if command -v apk >/dev/null 2>&1; then
 cat > /etc/local.d/alpinesubsbx.start <<EOF
 #!/bin/bash
 sleep 10
-busybox-extras httpd -f -p \$(cat $HOME/agsbx/subport.log 2>/dev/null) -h $HOME/websbx > /dev/null 2>&1 &
+busybox-extras httpd -f -p \$(cat $HOME/agsbx/subport.log 2>/dev/null) -h $HOME/websbx > $HOME/agsbx/sub-http.log 2>&1 &
 EOF
 chmod +x /etc/local.d/alpinesubsbx.start
 rc-update add local default >/dev/null 2>&1
 else
 crontab -l 2>/dev/null > /tmp/crontab.tmp
 sed -i '/websbx/d' /tmp/crontab.tmp
-echo '@reboot sleep 10 && /bin/bash -c "busybox httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h $HOME/websbx > /dev/null 2>&1 &"' >> /tmp/crontab.tmp
+echo '@reboot sleep 10 && /bin/bash -c "busybox httpd -f -p $(cat $HOME/agsbx/subport.log 2>/dev/null) -h $HOME/websbx > $HOME/agsbx/sub-http.log 2>&1 &"' >> /tmp/crontab.tmp
 crontab /tmp/crontab.tmp >/dev/null 2>&1
 rm /tmp/crontab.tmp
 fi
@@ -3090,6 +3246,10 @@ rc-service ip6tables save >/dev/null 2>&1
 fi
 fi
 cip
+if [ -f "$HOME/agsbx/subscription.enabled" ] && ! subscription_probe; then
+echo "错误：订阅地址启动验收失败，请检查 $HOME/agsbx/sub-http.log" >&2
+exit 1
+fi
 echo
 else
 echo "Argosbx脚本已安装"

@@ -508,11 +508,11 @@
         </div>
         <div class="row">
           <label>订阅链接密码 <span class="pill">subid</span></label>
-          <input id="subid" type="text" placeholder="留空则默认uuid路径密码" disabled/>
+          <input id="subid" type="text" maxlength="128" pattern="[A-Za-z0-9._~-]{1,128}" placeholder="留空则默认 UUID；仅允许 URL-safe 字符" disabled/>
         </div>
         <div class="row">
           <label>订阅链接端口 <span class="pill">subpt</span></label>
-          <input id="subpt" type="text" placeholder="留空则随机端口" disabled/>
+          <input id="subpt" type="text" inputmode="numeric" maxlength="5" pattern="[0-9]{4,5}" placeholder="留空则复用/随机；范围 1025-65535" disabled/>
         </div>
       </section>
 
@@ -670,6 +670,29 @@
     const pass = (mipassInput.value || '').trim();
     setInputValidity(miuserInput, user === '' || /^[A-Za-z0-9._~-]{1,64}$/.test(user) ? '' : '用户名必须是 1-64 位 URL-safe ASCII');
     setInputValidity(mipassInput, pass === '' || /^[A-Za-z0-9._~-]{12,128}$/.test(pass) ? '' : '密码必须是 12-128 位 URL-safe ASCII');
+
+    const token = (subid.value || '').trim();
+    setInputValidity(subid, subid.disabled || token === '' || /^[A-Za-z0-9._~-]{1,128}$/.test(token) ? '' : '订阅密码必须是 1-128 位 URL-safe ASCII');
+
+    const subscriptionPort = (subpt.value || '').trim();
+    let subscriptionPortMessage = '';
+    if (!subpt.disabled && subscriptionPort !== '') {
+      if (!/^\d+$/.test(subscriptionPort) || Number(subscriptionPort) < 1025 || Number(subscriptionPort) > 65535) {
+        subscriptionPortMessage = '订阅端口必须位于 1025-65535';
+      } else {
+        const portNumber = Number(subscriptionPort);
+        for (const input of document.querySelectorAll('[data-port]')) {
+          const key = input.getAttribute('data-port');
+          const checkbox = document.querySelector(`[data-proto="${key}"]`);
+          const match = (input.value || '').trim().match(/^(\d+)(?:-(\d+))?$/);
+          if (checkbox?.checked && match && portNumber >= Number(match[1]) && portNumber <= Number(match[2] || match[1])) {
+            subscriptionPortMessage = '订阅 TCP 端口不能与已选协议端口或范围重叠';
+            break;
+          }
+        }
+      }
+    }
+    setInputValidity(subpt, subscriptionPortMessage);
   }
 
   function updateArgoState(argoValue) {

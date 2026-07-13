@@ -62,8 +62,8 @@
 | 23、切换ipv4或ipv6配置 | ippz | 填写4或者6 | 自动识别IP配置 | 自动识别IP配置 | 可选，4表示IPV4配置输出，6表示IPV6配置输出 |
 | 24、添加所有节点名称前缀 | name | 任意字符 | 默认协议名前缀 | 默认协议名前缀 | 可选 |
 | 25、开启IP订阅链接 | sub | 填写y | 关闭IP订阅链接 | 关闭IP订阅链接 | 可选 |
-| 26、IP订阅链接密码 | subid | 任意字符 | uuid | uuid | 可选 |
-| 27、IP订阅链接端口 | subpt | 端口指定 | 随机端口 | 随机端口 | 可选 |
+| 26、IP订阅链接密码 | subid | 1-128 位 URL-safe ASCII | uuid | uuid | 可选，仅允许字母、数字、点、下划线、波浪线、连字符 |
+| 27、IP订阅链接端口 | subpt | 1025-65535 单端口 | 复用已保存端口，否则随机 | 复用已保存端口，否则随机 | 可选，不能与协议监听端口冲突 |
 | 28、argo优选IP域名 | cfip | 填写IPV4或者[IPV6]或者域名 | 默认优选域名 | 默认优选域名 | 可选，IP域名之间留空格，仅限填写两个 |
 | 29、hysteria2端口跳跃 | hyjpt | 范围端口或者单端口或者一起混用 | 关闭端口跳跃 | 关闭端口跳跃 | 可选，范围端口格式为小数字:大数字，每组端口之间留空格 |
 | 30、【仅容器类docker】监听端口，网页查询 | PORT | 端口指定 | 3000 | 3000 | 可选 |
@@ -248,10 +248,13 @@ vwpt="80系端口、指定回源端口" cdnym="CF解析IP的域名" bash <(curl 
 | :--- | :--- | :--- |
 | 官方 Mieru | `$HOME/agsbx/mieru.txt` | 包含标准 `mieru://` 和简单 `mierus://`；TCP+UDP 时同时保存组合、TCP 独立、UDP 独立简单链接 |
 | Clash/Mihomo | `$HOME/agsbx/clmi.yaml` | TCP、UDP 分别生成 `type: mieru` 节点；单端口使用 `port`，范围使用 `port-range` |
+| v2rayN | 自定义配置 | 当前普通订阅不会自动显示 Mieru 节点；上游维护者要求使用自定义配置，聚合订阅中的其他协议不受影响 |
 | 原版 Sing-box | `$HOME/agsbx/sbox.json` | 不写入 Mieru outbound；需要兼容 Mieru 时请使用 `mbox` 等实现 |
 | 聚合单节点 | `$HOME/agsbx/jhsub.txt` | 仅追加 Mieru 组合简单链接，避免重复节点 |
 
 启用本地订阅 `sub=y` 后可访问 `http://服务器IP:订阅端口/<token>/mieru.txt`。Node 容器地址为 `http://容器地址:PORT/<uuid>/mieru.txt`。运行 `agsbx list` 会重新生成 Mieru 链接和 Mihomo YAML，因此 `ippz=4/6` 切换也会同步更新地址。
+
+主脚本会在每次 `list` 时同步 Web 目录、检查订阅端口冲突，并从 `127.0.0.1` 验证至少一个订阅文件返回 HTTP 200。若订阅客户端提示 404，请先运行 `agsbx list` 自动修复；仍失败时检查 `$HOME/agsbx/sub-http.log`，并确认使用的是本次 `list` 输出的新 URL，而非旧 token 链接。
 
 ### 3、Docker/GHCR 部署
 

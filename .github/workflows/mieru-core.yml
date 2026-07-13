@@ -7,6 +7,7 @@ on:
     paths:
       - versions.env
       - scripts/check-versions.sh
+      - scripts/test-subscription.sh
       - argosbx.sh
       - container/nodejs/start.sh
       - .github/workflows/mieru-core.yml
@@ -27,6 +28,14 @@ jobs:
 
       - name: Check shared version constants
         run: sh scripts/check-versions.sh
+
+      - name: Run shell and subscription regression checks
+        run: |
+          sh -n argosbx.sh
+          sh -n container/nodejs/start.sh
+          sh -n container/nodejs/mieru.sh
+          sh -n scripts/test-subscription.sh
+          sh scripts/test-subscription.sh
 
       - name: Load version metadata
         id: version
