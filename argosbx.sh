@@ -49,6 +49,67 @@ any_protocol_selected(){
 legacy_selected || mieru_selected
 }
 
+clean_agsbx_bashrc(){
+[ -f "$HOME/.bashrc" ] || return 0
+argosbx_bashrc_tmp="$HOME/.bashrc.argosbx.$$"
+if awk '
+function reset_block() {
+  block = ""
+  count = 0
+}
+function keep_block( i) {
+  for (i = 1; i <= count; i++) print saved[i]
+  reset_block()
+}
+block != "" {
+  saved[++count] = $0
+  if ((block == "path" && $0 == "# <<< ARGOSBX PATH <<<") ||
+      (block == "healthcheck" && $0 == "# <<< ARGOSBX HEALTHCHECK <<<") ||
+      (block == "legacy" && $0 ~ /^[[:space:]]*unset -f argosbx_healthcheck[[:space:]]*$/)) {
+    reset_block()
+  }
+  next
+}
+$0 == "# >>> ARGOSBX PATH >>>" {
+  block = "path"
+  count = 1
+  saved[count] = $0
+  next
+}
+$0 == "# >>> ARGOSBX HEALTHCHECK >>>" {
+  block = "healthcheck"
+  count = 1
+  saved[count] = $0
+  next
+}
+$0 ~ /^[[:space:]]*argosbx_healthcheck[[:space:]]*\(\)[[:space:]]*\{[[:space:]]*$/ {
+  block = "legacy"
+  count = 1
+  saved[count] = $0
+  next
+}
+index($0, "pgrep -f") && index($0, "$HOME/bin/agsbx") { next }
+$0 ~ /^[[:space:]]*export PATH="\$HOME\/bin:\$PATH"[[:space:]]*$/ { next }
+{ print }
+END {
+  if (block != "") keep_block()
+}
+' "$HOME/.bashrc" > "$argosbx_bashrc_tmp"; then
+cat "$argosbx_bashrc_tmp" > "$HOME/.bashrc"
+fi
+rm -f "$argosbx_bashrc_tmp"
+}
+ensure_agsbx_path(){
+argosbx_bashrc_tmp="$HOME/.bashrc.argosbx-path.$$"
+printf '%s\n' \
+'# >>> ARGOSBX PATH >>>' \
+'export PATH="$HOME/bin:$PATH"' \
+'# <<< ARGOSBX PATH <<<' > "$argosbx_bashrc_tmp" &&
+cat "$HOME/.bashrc" >> "$argosbx_bashrc_tmp" &&
+cat "$argosbx_bashrc_tmp" > "$HOME/.bashrc"
+rm -f "$argosbx_bashrc_tmp"
+}
+
 case "${argo:-}" in
 mitpt|miupt|mieru|mita)
 echo "错误：Mieru 使用原生 TCP/UDP，不能选作 Argo/CDN 协议" >&2
@@ -1938,14 +1999,16 @@ fi
 sleep 5
 echo
 if configured_cores_running; then
-[ -f ~/.bashrc ] || touch ~/.bashrc
-sed -i '/agsbx/d' ~/.bashrc
+[ -f "$HOME/.bashrc" ] || touch "$HOME/.bashrc"
+clean_agsbx_bashrc
+ensure_agsbx_path
 SCRIPT_PATH="$HOME/bin/agsbx"
 mkdir -p "$HOME/bin"
 (command -v curl >/dev/null 2>&1 && curl -sL "$agsbxurl" -o "$SCRIPT_PATH") || (command -v wget >/dev/null 2>&1 && wget -qO "$SCRIPT_PATH" "$agsbxurl")
 chmod +x "$SCRIPT_PATH"
 if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then
-cat >> ~/.bashrc <<'AGSHEALTH'
+cat >> "$HOME/.bashrc" <<'AGSHEALTH'
+# >>> ARGOSBX HEALTHCHECK >>>
 argosbx_healthcheck(){
 need_res=no
 for item in "xr.json:xray" "sb.json:sing-box"; do
@@ -1967,10 +2030,9 @@ fi
 }
 argosbx_healthcheck
 unset -f argosbx_healthcheck
+# <<< ARGOSBX HEALTHCHECK <<<
 AGSHEALTH
 fi
-sed -i '/export PATH="\$HOME\/bin:\$PATH"/d' ~/.bashrc
-echo 'export PATH="$HOME/bin:$PATH"' >> "$HOME/.bashrc"
 grep -qxF 'source ~/.bashrc' ~/.bash_profile 2>/dev/null || echo 'source ~/.bashrc' >> ~/.bash_profile
 . ~/.bashrc 2>/dev/null
 crontab -l > /tmp/crontab.tmp 2>/dev/null
@@ -3045,9 +3107,8 @@ kill_exe "$HOME/agsbx/cloudflared" TERM
 remove_mita_service
 stop_subscription_server
 rm -f "$HOME/agsbx/subscription.enabled" "$HOME/agsbx/sub-http.log"
-sed -i '/agsbx/d' ~/.bashrc 2>/dev/null || true
-sed -i '/export PATH="\$HOME\/bin:\$PATH"/d' ~/.bashrc 2>/dev/null || true
-. ~/.bashrc 2>/dev/null || true
+clean_agsbx_bashrc
+. "$HOME/.bashrc" 2>/dev/null || true
 crontab -l > /tmp/crontab.tmp 2>/dev/null || : > /tmp/crontab.tmp
 sed -i '/agsbx\/sing-box/d' /tmp/crontab.tmp
 sed -i '/agsbx\/xray/d' /tmp/crontab.tmp
