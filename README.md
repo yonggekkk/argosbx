@@ -95,9 +95,9 @@
 
 ### 脚本以 ```变量名称="变量值"的单个或多个组合 + 主脚本``` 的形式运行
 
-* 默认主脚本curl：```bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)```
+* 默认主脚本curl：```bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)```
 
-* 如报错curl not found 可换用主脚本wget：```bash <(wget -qO- https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)```
+* 如报错curl not found 可换用主脚本wget：```bash <(wget -qO- https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)```
 
 * 必选其一的协议端口变量：```vwpt=""```、```vmpt=""```、```vmpt="" argo="vmpt"```、```vwpt="" argo="vwpt"```、```vlpt=""```、```xhpt=""```、```anpt=""```、```arpt=""```、```hypt=""```、```tupt=""```、```sspt=""```、```vxpt=""```、```sopt=""```、```mitpt=""```、```miupt=""```
 
@@ -107,79 +107,79 @@
 
 * ### 模版1：多个任意协议组合运行
 ```
-sspt="" vlpt="" vmpt="" vwpt="" hypt="" tupt="" xhpt="" vxpt="" anpt="" arpt="" sopt="" mitpt="" miupt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+sspt="" vlpt="" vmpt="" vwpt="" hypt="" tupt="" xhpt="" vxpt="" anpt="" arpt="" sopt="" mitpt="" miupt="" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 * ### 模版2：主流TCP或UDP单个协议运行
 
 Vless-Tcp-Reality-vision协议节点
 ```
-vlpt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+vlpt="" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 Vless-Xhttp-Reality-vision-enc协议节点 (默认开启ENC加密)
 ```
-xhpt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+xhpt="" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 Vless-Xhttp-vision-enc协议节点 (默认开启ENC加密，IDX-Google-VPS容器支持)
 ```
-vxpt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+vxpt="" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 Vless-ws-vision-enc协议节点 (默认开启ENC加密)
 ```
-vwpt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+vwpt="" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 Shadowsocks-2022协议节点
 ```
-sspt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+sspt="" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 AnyTLS协议节点
 ```
-anpt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+anpt="" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 Any-Reality协议节点
 ```
-arpt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+arpt="" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 Vmess-ws协议节点
 ```
-vmpt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+vmpt="" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 Socks5协议节点 (配合其他应用内置代理使用，勿做节点直接使用)
 ```
-sopt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+sopt="" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 Hysteria2协议节点
 ```
-hypt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+hypt="" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 Tuic协议节点
 ```
-tupt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+tupt="" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 Mieru-only TCP 节点（不会下载或启动 Xray/Sing-box）
 ```
-mitpt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+mitpt="" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 Mieru-only UDP 节点
 ```
-miupt="" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+miupt="" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 Mieru TCP + UDP 范围节点（自定义凭据）
 ```
-mitpt="5000-5010" miupt="6000-6010" miuser="argosbx" mipass="change-this-password" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+mitpt="5000-5010" miupt="6000-6010" miuser="argosbx" mipass="change-this-password" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 * ### 模版3：开启CDN优选的节点运行
@@ -188,37 +188,37 @@ Argo临时/固定隧道运行优选节点，类似无公网的IDX-Google-VPS容�
 
 Vmess-ws-argo临时隧道CDN优选节点
 ```
-vmpt="" argo="vmpt" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+vmpt="" argo="vmpt" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 Vless-ws-vision-enc-argo临时隧道CDN优选节点
 ```
-vwpt="" argo="vwpt" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+vwpt="" argo="vwpt" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 Vmess-ws-argo-argo固定隧道CDN优选节点，必须填写端口(vmpt)、域名(agn)、token(agk)
 ```
-vmpt="CF设置的URL端口" argo="vmpt" agn="解析的CF域名" agk="CF获取的token" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+vmpt="CF设置的URL端口" argo="vmpt" agn="解析的CF域名" agk="CF获取的token" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 Vless-ws-vision-enc-argo固定隧道CDN优选节点，必须填写端口(vmpt)、域名(agn)、token(agk)
 ```
-vwpt="CF设置的URL端口" argo="vwpt" agn="解析的CF域名" agk="CF获取的token" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+vwpt="CF设置的URL端口" argo="vwpt" agn="解析的CF域名" agk="CF获取的token" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 Vmess-ws的80系端口、回源端口的CDN优选节点
 ```
-vmpt="80系端口、指定回源端口" cdnym="CF解析IP的域名" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+vmpt="80系端口、指定回源端口" cdnym="CF解析IP的域名" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 Vless-Xhttp-vision-enc的80系端口、回源端口的CDN优选节点
 ```
-vxpt="80系端口、指定回源端口" cdnym="CF解析IP的域名" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+vxpt="80系端口、指定回源端口" cdnym="CF解析IP的域名" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 Vless-ws-vision-enc的80系端口、回源端口的CDN优选节点
 ```
-vwpt="80系端口、指定回源端口" cdnym="CF解析IP的域名" bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)
+vwpt="80系端口、指定回源端口" cdnym="CF解析IP的域名" bash <(curl -Ls https://raw.githubusercontent.com/fool076/argosbx/main/argosbx.sh)
 ```
 
 * #### 如下图：节点IP、端口被封依旧可用！套CDN优选5大方案三步视频教程：
@@ -252,9 +252,9 @@ vwpt="80系端口、指定回源端口" cdnym="CF解析IP的域名" bash <(curl 
 | 原版 Sing-box | `$HOME/agsbx/sbox.json` | 不写入 Mieru outbound；需要兼容 Mieru 时请使用 `mbox` 等实现 |
 | 聚合单节点 | `$HOME/agsbx/jhsub.txt` | 仅追加 Mieru 组合简单链接，避免重复节点 |
 
-启用本地订阅 `sub=y` 后可访问 `http://服务器IP:订阅端口/<token>/mieru.txt`。Node 容器地址为 `http://容器地址:PORT/<uuid>/mieru.txt`。运行 `agsbx list` 会重新生成 Mieru 链接和 Mihomo YAML，因此 `ippz=4/6` 切换也会同步更新地址。
+启用本地订阅 `sub=y` 后可访问 `http://服务器IP:订阅端口/<token>/mieru.txt`。Node 容器地址为 `http://容器地址:PORT/<uuid>/mieru.txt`。运行 `agsbmx list` 会重新生成 Mieru 链接和 Mihomo YAML，因此 `ippz=4/6` 切换也会同步更新地址。
 
-主脚本会在每次 `list` 时同步 Web 目录、检查订阅端口冲突，并从 `127.0.0.1` 验证至少一个订阅文件返回 HTTP 200。若订阅客户端提示 404，请先运行 `agsbx list` 自动修复；仍失败时检查 `$HOME/agsbx/sub-http.log`，并确认使用的是本次 `list` 输出的新 URL，而非旧 token 链接。
+主脚本会在每次 `list` 时同步 Web 目录、检查订阅端口冲突，并从 `127.0.0.1` 验证至少一个订阅文件返回 HTTP 200。若订阅客户端提示 404，请先运行 `agsbmx list` 自动修复；仍失败时检查 `$HOME/agsbx/sub-http.log`，并确认使用的是本次 `list` 输出的新 URL，而非旧 token 链接。
 
 ### 3、Docker/GHCR 部署
 
@@ -287,33 +287,33 @@ docker run -d --name argosbx \
 ### 4、内核发布、升级与许可证
 
 - fork 的 Release 标签为 `mieru-core-v3.34.0`，包含 `mita-linux-amd64`、`mita-linux-arm64`、`mieru-linux-amd64`、`mieru-linux-arm64`、`SHA256SUMS`、`MIERU-LICENSE` 和 `mieru-v3.34.0-source.tar.gz`。
-- Actions 构建的容器和 fork 的 GitHub Pages 命令生成器默认使用当前 fork。直接通过 raw URL/process substitution 执行主脚本时无法自动获知来源，因此首次从 fork 安装请显式设置 `ARGOSBX_ASSET_REPO=<fork-owner>/argosbx`；该值会保存到 `$HOME/agsbx/asset_repo`，后续 `rep`、`upm` 和快捷脚本继续复用。Release 和 GHCR 应由同一 fork 发布。
-- `agsbx upm` 同时升级 `mita` 与 `mieru`：先下载到临时文件并校验 SHA-256，成功后原子替换、重启 Mita、重新生成链接；失败会保留旧二进制和正在运行的服务。
+- 本仓库的主脚本、Actions 容器和 GitHub Pages 命令生成器默认使用 `fool076/argosbx`。其他 fork 可显式设置 `ARGOSBX_ASSET_REPO=<fork-owner>/argosbx`；该值会保存到 `$HOME/agsbx/asset_repo`，后续 `rep`、`upm` 和快捷脚本继续复用。Release 和 GHCR 应由同一 fork 发布。
+- `agsbmx upm` 同时升级 `mita` 与 `mieru`：先下载到临时文件并校验 SHA-256，成功后原子替换、重启 Mita、重新生成链接；失败会保留旧二进制和正在运行的服务。
 - Argosbx 与 Mieru 均采用 GPL-3.0。再分发二进制时须保留 Mieru 原作者声明，并同时提供许可证、校验和及对应版本源码包。
 
 ---------------------------------------------------------
 
 ## 四、多功能SSH快捷方式命令组
 
-#### 说明：首次安装成功后需重连SSH，```agsbx 命令```的快捷方式才可生效；如未生效，请使用```主脚本 命令```的快捷方式
+#### 说明：首次安装成功后需重连SSH，```agsbmx 命令```的快捷方式才可生效；如未生效，请使用```主脚本 命令```的快捷方式
 
-1、查看Argo的固定域名、固定隧道的token、临时域名、当前已安装的节点信息命令：```agsbx list``` 或者 ```主脚本 list```
+1、查看Argo的固定域名、固定隧道的token、临时域名、当前已安装的节点信息命令：```agsbmx list``` 或者 ```主脚本 list```
 
-2、更换、增加、删除变量组命令：```自定义各种协议变量组 agsbx rep``` 或者 ```自定义各种协议变量组 主脚本 rep```
+2、更换、增加、删除变量组命令：```自定义各种协议变量组 agsbmx rep``` 或者 ```自定义各种协议变量组 主脚本 rep```
 
 3、更新脚本命令：```原已安装的自定义各种协议变量组 主脚本 rep``` 
 
-4、更新 Xray、Sing-box 或 Mieru 内核命令：```agsbx upx```、```agsbx ups```、```agsbx upm```【或者】主脚本加对应参数
+4、更新 Xray、Sing-box 或 Mieru 内核命令：```agsbmx upx```、```agsbmx ups```、```agsbmx upm```【或者】主脚本加对应参数
 
-5、重启脚本命令：```agsbx res``` 或者 ```主脚本 res```
+5、重启脚本命令：```agsbmx res``` 或者 ```主脚本 res```
 
-6、卸载脚本命令：```agsbx del``` 或者 ```主脚本 del```
+6、卸载脚本命令：```agsbmx del``` 或者 ```主脚本 del```
 
 7、临时切换IPV4/IPV6节点配置 (双栈VPS专享)：
 
-显示IPV4节点配置：```ippz=4 agsbx list```或者```ippz=4 主脚本 list```
+显示IPV4节点配置：```ippz=4 agsbmx list```或者```ippz=4 主脚本 list```
 
-显示IPV6节点配置：```ippz=6 agsbx list```或者```ippz=6 主脚本 list```
+显示IPV6节点配置：```ippz=6 agsbmx list```或者```ippz=6 主脚本 list```
 
 ----------------------------------------------------------
 

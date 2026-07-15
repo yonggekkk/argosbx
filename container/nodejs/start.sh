@@ -1182,7 +1182,7 @@ echo "---------------------------------------------------------"
 echo "聚合节点信息，请进入 $HOME/agsbx/jh.txt 文件目录查看或者运行 cat $HOME/agsbx/jh.txt 查看"
 [ -s "$HOME/agsbx/mieru.txt" ] && echo "Mieru 标准/简单链接保存在 $HOME/agsbx/mieru.txt"
 echo "========================================================="
-echo "相关快捷方式如下：(首次安装成功后需重连SSH，agsbx快捷方式才可生效)"
+echo "相关快捷方式如下：(首次安装成功后需重连SSH，agsbmx快捷方式才可生效)"
 showmode
 }
 if ! container_installed; then

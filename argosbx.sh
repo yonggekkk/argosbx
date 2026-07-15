@@ -2,7 +2,7 @@
 export LANG=en_US.UTF-8
 MIERU_VERSION=v3.34.0
 MIERU_RELEASE_TAG=mieru-core-v3.34.0
-ARGOSBX_DEFAULT_REPO=${GITHUB_REPOSITORY:-yonggekkk/argosbx}
+ARGOSBX_DEFAULT_REPO=${GITHUB_REPOSITORY:-fool076/argosbx}
 [ -z "${vlpt+x}" ] || vlp=yes
 [ -z "${vmpt+x}" ] || { vmp=yes; vmag=yes; }
 [ -z "${vwpt+x}" ] || { vwp=yes; vmag=yes; }
@@ -88,7 +88,7 @@ $0 ~ /^[[:space:]]*argosbx_healthcheck[[:space:]]*\(\)[[:space:]]*\{[[:space:]]*
   saved[count] = $0
   next
 }
-index($0, "pgrep -f") && index($0, "$HOME/bin/agsbx") { next }
+index($0, "pgrep -f") && (index($0, "$HOME/bin/agsbx") || index($0, "$HOME/bin/agsbmx")) { next }
 $0 ~ /^[[:space:]]*export PATH="\$HOME\/bin:\$PATH"[[:space:]]*$/ { next }
 { print }
 END {
@@ -157,15 +157,15 @@ ARGOSBX_ASSET_REPO=${ARGOSBX_ASSET_REPO:-$ARGOSBX_DEFAULT_REPO}
 agsbxurl="https://raw.githubusercontent.com/$ARGOSBX_ASSET_REPO/main/argosbx.sh"
 MIERU_RELEASE_BASE="https://github.com/$ARGOSBX_ASSET_REPO/releases/download/$MIERU_RELEASE_TAG"
 showmode(){
-echo "Argosbx脚本一键SSH命令生器在线网址：https://yonggekkk.github.io/argosbx/"
+echo "Argosbx脚本一键SSH命令生成器在线网址：https://fool076.github.io/argosbx/"
 echo "主脚本：ARGOSBX_ASSET_REPO=$ARGOSBX_ASSET_REPO bash <(curl -Ls $agsbxurl) 或 ARGOSBX_ASSET_REPO=$ARGOSBX_ASSET_REPO bash <(wget -qO- $agsbxurl)"
-echo "显示节点信息命令：agsbx list 【或者】 主脚本 list"
-echo "重置变量组命令：自定义各种协议变量组 agsbx rep 【或者】 自定义各种协议变量组 主脚本 rep"
+echo "显示节点信息命令：agsbmx list 【或者】 主脚本 list"
+echo "重置变量组命令：自定义各种协议变量组 agsbmx rep 【或者】 自定义各种协议变量组 主脚本 rep"
 echo "更新脚本命令：原已安装的自定义各种协议变量组 主脚本 rep"
-echo "更新Xray、Sing-box或Mieru内核命令：agsbx upx、ups或upm 【或者】 主脚本 upx、ups或upm"
-echo "重启脚本命令：agsbx res 【或者】 主脚本 res"
-echo "卸载脚本命令：agsbx del 【或者】 主脚本 del"
-echo "双栈VPS显示IPv4/IPv6节点配置命令：ippz=4或6 agsbx list 【或者】 ippz=4或6 主脚本 list"
+echo "更新Xray、Sing-box或Mieru内核命令：agsbmx upx、ups或upm 【或者】 主脚本 upx、ups或upm"
+echo "重启脚本命令：agsbmx res 【或者】 主脚本 res"
+echo "卸载脚本命令：agsbmx del 【或者】 主脚本 del"
+echo "双栈VPS显示IPv4/IPv6节点配置命令：ippz=4或6 agsbmx list 【或者】 ippz=4或6 主脚本 list"
 echo "---------------------------------------------------------"
 echo
 }
@@ -2002,10 +2002,20 @@ if configured_cores_running; then
 [ -f "$HOME/.bashrc" ] || touch "$HOME/.bashrc"
 clean_agsbx_bashrc
 ensure_agsbx_path
-SCRIPT_PATH="$HOME/bin/agsbx"
+SCRIPT_PATH="$HOME/bin/agsbmx"
+SCRIPT_TMP="$SCRIPT_PATH.tmp.$$"
 mkdir -p "$HOME/bin"
-(command -v curl >/dev/null 2>&1 && curl -sL "$agsbxurl" -o "$SCRIPT_PATH") || (command -v wget >/dev/null 2>&1 && wget -qO "$SCRIPT_PATH" "$agsbxurl")
-chmod +x "$SCRIPT_PATH"
+rm -f "$SCRIPT_TMP"
+(command -v curl >/dev/null 2>&1 && curl -fsSL "$agsbxurl" -o "$SCRIPT_TMP") || (command -v wget >/dev/null 2>&1 && wget -qO "$SCRIPT_TMP" "$agsbxurl")
+if [ -s "$SCRIPT_TMP" ] && sh -n "$SCRIPT_TMP"; then
+chmod +x "$SCRIPT_TMP"
+mv -f "$SCRIPT_TMP" "$SCRIPT_PATH"
+rm -f "$HOME/bin/agsbx"
+else
+rm -f "$SCRIPT_TMP"
+echo "错误：快捷命令 agsbmx 下载或校验失败" >&2
+exit 1
+fi
 if ! pidof systemd >/dev/null 2>&1 && ! command -v rc-service >/dev/null 2>&1; then
 cat >> "$HOME/.bashrc" <<'AGSHEALTH'
 # >>> ARGOSBX HEALTHCHECK >>>
@@ -2026,7 +2036,7 @@ done
 if [ -f "$HOME/agsbx/mita.json" ] && ! env MITA_CONFIG_JSON_FILE="$HOME/agsbx/mita.json" MITA_UDS_PATH="$HOME/agsbx/mita.sock" MITA_INSECURE_UDS=1 MITA_LOG_NO_TIMESTAMP=true "$HOME/agsbx/mita" status 2>/dev/null | grep -q 'status is "RUNNING"'; then
 need_res=yes
 fi
-[ "$need_res" = yes ] && "$HOME/bin/agsbx" res >/dev/null 2>&1 || true
+[ "$need_res" = yes ] && "$HOME/bin/agsbmx" res >/dev/null 2>&1 || true
 }
 argosbx_healthcheck
 unset -f argosbx_healthcheck
@@ -2062,12 +2072,12 @@ cat > /etc/local.d/alpineargosbx.start <<EOF
 sleep 10
 nohup $HOME/agsbx/cloudflared tunnel --url http://localhost:\$(cat $HOME/agsbx/argoport.log) --edge-ip-version auto --no-autoupdate --protocol http2 > $HOME/agsbx/argo.log 2>&1 &
 sleep 10
-HOME="$HOME" $HOME/bin/agsbx list >/dev/null 2>&1
+HOME="$HOME" $HOME/bin/agsbmx list >/dev/null 2>&1
 EOF
 chmod +x /etc/local.d/alpineargosbx.start
 rc-update add local default >/dev/null 2>&1
 else
-echo '@reboot sleep 10 && /bin/bash -c "nohup $HOME/agsbx/cloudflared tunnel --url http://localhost:$(cat $HOME/agsbx/argoport.log) --edge-ip-version auto --no-autoupdate --protocol http2 > $HOME/agsbx/argo.log 2>&1 & sleep 10 && bash $HOME/bin/agsbx list >/dev/null 2>&1"' >> /tmp/crontab.tmp
+echo '@reboot sleep 10 && /bin/bash -c "nohup $HOME/agsbx/cloudflared tunnel --url http://localhost:$(cat $HOME/agsbx/argoport.log) --edge-ip-version auto --no-autoupdate --protocol http2 > $HOME/agsbx/argo.log 2>&1 & sleep 10 && bash $HOME/bin/agsbmx list >/dev/null 2>&1"' >> /tmp/crontab.tmp
 fi
 fi
 fi
@@ -3097,7 +3107,7 @@ echo "---------------------------------------------------------"
 echo "聚合节点信息，请进入 $HOME/agsbx/jhsub.txt 文件目录查看或者运行 cat $HOME/agsbx/jhsub.txt 查看"
 [ -s "$HOME/agsbx/mieru.txt" ] && echo "Mieru 标准/简单链接保存在 $HOME/agsbx/mieru.txt"
 echo "========================================================="
-echo "相关快捷方式如下：(首次安装成功后需重连SSH，agsbx快捷方式才可生效；如未生效，请使用主脚本)"
+echo "相关快捷方式如下：(首次安装成功后需重连SSH，agsbmx快捷方式才可生效；如未生效，请使用主脚本)"
 showmode
 }
 cleandel(){
@@ -3116,7 +3126,7 @@ sed -i '/agsbx\/mita/d' /tmp/crontab.tmp
 sed -i '/agsbx\/cloudflared/d' /tmp/crontab.tmp
 sed -i '/websbx/d' /tmp/crontab.tmp
 crontab /tmp/crontab.tmp >/dev/null 2>&1 || true
-rm -f /tmp/crontab.tmp "$HOME/bin/agsbx"
+rm -f /tmp/crontab.tmp "$HOME/bin/agsbmx" "$HOME/bin/agsbx"
 if [ "$(id -u)" -eq 0 ] && pidof systemd >/dev/null 2>&1; then
 for svc in xr sb argo; do
 systemctl stop "$svc" >/dev/null 2>&1 || true
