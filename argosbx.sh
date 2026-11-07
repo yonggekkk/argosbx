@@ -1193,7 +1193,7 @@ url="https://github.com/cloudflare/cloudflared/releases/latest/download/cloudfla
 chmod +x "$HOME/agsbx/cloudflared"
 fi
 cftupr=$([ -n "$agqc" ] && echo 'quic' || echo 'http2'); echo "$cftupr" > "$HOME/agsbx/cftupr.log"
-if [ "$argo" = "vmpt" ]; then argoport=$(cat "$HOME/agsbx/port_vm_ws" 2>/dev/null); echo "Vmess" > "$HOME/agsbx/vlvm"; elif [ "$argo" = "vwpt" ]; then argoport=$(cat "$HOME/agsbx/port_vw" 2>/dev/null); echo "Vless" > "$HOME/agsbx/vlvm"; elif [ "$argo" = "vxpt" ]; then argoport=$(cat "$HOME/agsbx/port_vx" 2>/dev/null); echo "Vlessx" > "$HOME/agsbx/vlvm" fi; echo "$argoport" > "$HOME/agsbx/argoport.log"
+if [ "$argo" = "vmpt" ]; then argoport=$(cat "$HOME/agsbx/port_vm_ws" 2>/dev/null); echo "Vmess" > "$HOME/agsbx/vlvm"; elif [ "$argo" = "vwpt" ]; then argoport=$(cat "$HOME/agsbx/port_vw" 2>/dev/null); echo "Vless" > "$HOME/agsbx/vlvm"; elif [ "$argo" = "vxpt" ]; then argoport=$(cat "$HOME/agsbx/port_vx" 2>/dev/null); echo "Vlessx" > "$HOME/agsbx/vlvm"; fi; echo "$argoport" > "$HOME/agsbx/argoport.log"
 if [ -n "${ARGO_DOMAIN}" ] && [ -n "${ARGO_AUTH}" ]; then
 argoname='固定'
 if pidof systemd >/dev/null 2>&1 && [ "$EUID" -eq 0 ]; then
