@@ -2201,7 +2201,7 @@ $nametn
 1、💣443端口的$vlvmvx-tls-argo节点(优选IP与443系端口随便换)
 ${vmatls_link1}${vwatls_link1}
 
-2、💣80端口的$vlvmxv-argo节点(优选IP与80系端口随便换)
+2、💣80端口的$vlvmvx-argo节点(优选IP与80系端口随便换)
 ${vma_link7}${vwa_link2}
 "
 )
