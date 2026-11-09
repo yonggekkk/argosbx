@@ -1446,60 +1446,32 @@ vl_xh_link="vless://$uuid@$server_ip:$port_xh?encryption=$enkey&flow=xtls-rprx-v
 echo "$vl_xh_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$vl_xh_link"
 echo
-
-
-
-- name: vl-xhttp-reality-enc-instance-20230620-0906
-  type: vless
-  server: 168.138.11.48
-  port: 12648
-  uuid: 00ae8080-f597-4986-9842-d4528bf3d094
-  udp: true
-  network: xhttp
-  tls: true
-  servername: apple.com
-  client-fingerprint: chrome
-  flow: xtls-rprx-vision
-  encryption: "mlkem768x25519plus.native."
-  reality-opts:
-    public-key: kknvcBZ4P6tMYSnKc9OWy1UBh-HHHw-aWNSRtt9psAo
-    short-id: 398b5d95
-    support-x25519mlkem768: true
-  xhttp-opts:
-    path: /00ae8080-f597-4986-9842-d4528bf3d094-xh
-    mode: auto
-
-
-cludpxcpt(){
+clxhreaencpt(){
 cat <<EOF
-- name: ${sxname}Xhttp-UDP-$hostname
+- name: ${sxname}vless-xhttp-reality-enc-$hostname
   type: vless
-  server: $add
-  port: $port_xu
+  server: $server_ip
+  port: $port_xh
   uuid: $uuid
   udp: true
-  tls: true
   network: xhttp
-  alpn:
-    - h3
-  servername: $sni
+  tls: true
+  servername: $ym_vl_re
   client-fingerprint: chrome
-  skip-cert-verify: $msins
+  flow: xtls-rprx-vision
+  encryption: "$enkey"
+  reality-opts:
+    public-key: $public_key_x
+    short-id: $short_id_x
+    support-x25519mlkem768: true
   xhttp-opts:
-    path: "$uuid-xu"
+    path: $uuid-xh
     mode: auto
 EOF
 }
-cludpxcpt1(){
-echo "- ${sxname}Xhttp-UDP-$hostname"
+clxhreaencpt1(){
+echo "- ${sxname}vless-xhttp-reality-enc-$hostname"
 }
-
-
-
-
-
-
-
 fi
 if grep vless-xhttp "$HOME/agsbx/xr.json" >/dev/null 2>&1; then
 echo "💣【 Vless-xhttp-enc 】支持ENC加密，节点信息如下："
@@ -1508,58 +1480,33 @@ vl_vx_link="vless://$uuid@$server_ip:$port_vx?encryption=$enkey&flow=xtls-rprx-v
 echo "$vl_vx_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$vl_vx_link"
 echo
-if [ -f "$HOME/agsbx/cdnym" ]; then
-echo "💣【 Vless-xhttp-ecn-cdn 】支持ENC加密，节点信息如下："
-echo "可自行更换优选IP域名，如是回源端口需手动修改443或者80系端口"
-vl_vx_cdn_link="vless://$uuid@$cdnip1:$port_vx?encryption=$enkey&flow=xtls-rprx-vision&type=xhttp&host=$xvvmcdnym&path=$uuid-vx&mode=auto#${sxname}vl-xhttp-enc-cdn-$hostname"
-echo "$vl_vx_cdn_link" >> "$HOME/agsbx/jhsub.txt"
-echo "$vl_vx_cdn_link"
-echo
-
-
-
-cludpxcpt(){
+clxhencpt(){
 cat <<EOF
-- name: ${sxname}Xhttp-UDP-$hostname
+- name: ${sxname}vless-xhttp-enc-$hostname
   type: vless
-  server: $add
-  port: $port_xu
+  server: $server_ip
+  port: $port_vx
   uuid: $uuid
-  udp: true
-  tls: true
-  network: xhttp
-  alpn:
-    - h3
-  servername: $sni
-  client-fingerprint: chrome
-  skip-cert-verify: $msins
-  xhttp-opts:
-    path: "$uuid-xu"
-    mode: auto
-EOF
-}
-cludpxcpt1(){
-echo "- ${sxname}Xhttp-UDP-$hostname"
-}
-
-- name: vl-xhttp-enc-instance-20230620-0906
-  type: vless
-  server: 168.138.11.48
-  port: 39270
-  uuid: 00ae8080-f597-4986-9842-d4528bf3d094
   udp: true
   network: xhttp
   tls: false
   flow: xtls-rprx-vision
-  encryption: "mlkem768x25519plus.native"
+  encryption: "$enkey"
   xhttp-opts:
-    path: /00ae8080-f597-4986-9842-d4528bf3d094-vx
+    path: $uuid-vx
     mode: auto
-
-
-
-
-
+EOF
+}
+clxhencpt1(){
+echo "- ${sxname}vless-xhttp-enc-$hostname"
+}
+if [ -f "$HOME/agsbx/cdnym" ]; then
+echo "💣【 Vless-xhttp-ecn-cdn 】支持ENC加密，节点信息如下："
+echo "可自行更换优选IP域名，如是回源端口需手动修改443或者80系端口(无订阅节点)"
+vl_vx_cdn_link="vless://$uuid@$cdnip1:$port_vx?encryption=$enkey&flow=xtls-rprx-vision&type=xhttp&host=$xvvmcdnym&path=$uuid-vx&mode=auto#${sxname}vl-xhttp-enc-cdn-$hostname"
+echo "$vl_vx_cdn_link" >> "$HOME/agsbx/jhsub.txt"
+echo "$vl_vx_cdn_link"
+echo
 fi
 fi
 if grep vless-ws "$HOME/agsbx/xr.json" >/dev/null 2>&1; then
@@ -1569,62 +1516,34 @@ vl_vw_link="vless://$uuid@$server_ip:$port_vw?encryption=$enkey&flow=xtls-rprx-v
 echo "$vl_vw_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$vl_vw_link"
 echo
+clwsencpt(){
+cat <<EOF
+- name: ${sxname}vless-ws-enc-$hostname
+  type: vless
+  server: $server_ip
+  port: $port_vw
+  uuid: $uuid
+  udp: true
+  tls: false
+  network: ws
+  flow: xtls-rprx-vision
+  encryption: "$enkey"
+  ws-opts:
+    path: $uuid-vw
+EOF
+}
+clwsencpt1(){
+echo "- ${sxname}vless-ws-enc-$hostname"
+}
 if [ -f "$HOME/agsbx/cdnym" ]; then
 echo "💣【 Vless-ws-enc-cdn 】支持ENC加密，节点信息如下："
-echo "可自行更换优选IP域名，如是回源端口需手动修改443或者80系端口"
+echo "可自行更换优选IP域名，如是回源端口需手动修改443或者80系端口(无订阅节点)"
 vl_vw_cdn_link="vless://$uuid@$cdnip1:$port_vw?encryption=$enkey&flow=xtls-rprx-vision&type=ws&host=$xvvmcdnym&path=$uuid-vw#${sxname}vl-ws-enc-cdn-$hostname"
 echo "$vl_vw_cdn_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$vl_vw_cdn_link"
 echo
-
-
-
-
-
-cludpxcpt(){
-cat <<EOF
-- name: ${sxname}Xhttp-UDP-$hostname
-  type: vless
-  server: $add
-  port: $port_xu
-  uuid: $uuid
-  udp: true
-  tls: true
-  network: xhttp
-  alpn:
-    - h3
-  servername: $sni
-  client-fingerprint: chrome
-  skip-cert-verify: $msins
-  xhttp-opts:
-    path: "$uuid-xu"
-    mode: auto
-EOF
-}
-cludpxcpt1(){
-echo "- ${sxname}Xhttp-UDP-$hostname"
-}
-
-- name: vl-ws-enc-instance-20230620-0906
-  type: vless
-  server: 168.138.11.48
-  port: 44977
-  uuid: 00ae8080-f597-4986-9842-d4528bf3d094
-  udp: true
-  network: ws
-  tls: false
-  flow: xtls-rprx-vision
-  encryption: "mlkem768x25519plus.native.0rtt."
-  ws-opts:
-    path: /00ae8080-f597-4986-9842-d4528bf3d094-vw
-
-
-
-
-
 fi
 fi
-
 if grep xhttp-h23 "$HOME/agsbx/xr.json" >/dev/null 2>&1; then
 port_xc=$(cat "$HOME/agsbx/port_xc")
 xhttpclmh(){
@@ -2364,9 +2283,9 @@ out=$($f)
 fi
 }
 sbxy="$(get_func sbvlpt; get_func sbsspt; get_func sbanpt; get_func sbarpt; get_func sbvmpt; get_func sbhypt; get_func sbtupt; get_func sbnvpt; get_func sbvmargopt)"
-clxy="$(get_func cludpxcpt; get_func clxcpt; get_func clvlpt; get_func clsspt; get_func clanpt; get_func clvmpt; get_func clhypt; get_func cltupt; get_func clvmargopt)"
+clxy="$(get_func clwsencpt; get_func clxhencpt; get_func clxhreaencpt; get_func cludpxcpt; get_func clxcpt; get_func clvlpt; get_func clsspt; get_func clanpt; get_func clvmpt; get_func clhypt; get_func cltupt; get_func clvmargopt)"
 sbgz="$(get_func sbvlpt1; get_func sbsspt1; get_func sbanpt1; get_func sbarpt1; get_func sbvmpt1; get_func sbhypt1; get_func sbtupt1; get_func sbnvpt1; get_func sbvmargopt1)"
-clgz="$({ get_func cludpxcpt1; get_func clxcpt1; get_func clvlpt1; get_func clsspt1; get_func clanpt1; get_func clvmpt1; get_func clhypt1; get_func cltupt1; get_func clvmargopt1; } | sed '2,$s/^/    /')"
+clgz="$({ get_func clwsencpt1; get_func clxhencpt1; get_func clxhreaencpt1; get_func cludpxcpt1; get_func clxcpt1; get_func clvlpt1; get_func clsspt1; get_func clanpt1; get_func clvmpt1; get_func clhypt1; get_func cltupt1; get_func clvmargopt1; } | sed '2,$s/^/    /')"
 sbgz=$(printf "%s\n" "$sbgz" | sed '$ s/,$//')
 cat > $HOME/agsbx/sbox.json <<EOF
 {
