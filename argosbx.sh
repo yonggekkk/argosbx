@@ -1446,6 +1446,60 @@ vl_xh_link="vless://$uuid@$server_ip:$port_xh?encryption=$enkey&flow=xtls-rprx-v
 echo "$vl_xh_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$vl_xh_link"
 echo
+
+
+
+- name: vl-xhttp-reality-enc-instance-20230620-0906
+  type: vless
+  server: 168.138.11.48
+  port: 12648
+  uuid: 00ae8080-f597-4986-9842-d4528bf3d094
+  udp: true
+  network: xhttp
+  tls: true
+  servername: apple.com
+  client-fingerprint: chrome
+  flow: xtls-rprx-vision
+  encryption: "mlkem768x25519plus.native."
+  reality-opts:
+    public-key: kknvcBZ4P6tMYSnKc9OWy1UBh-HHHw-aWNSRtt9psAo
+    short-id: 398b5d95
+    support-x25519mlkem768: true
+  xhttp-opts:
+    path: /00ae8080-f597-4986-9842-d4528bf3d094-xh
+    mode: auto
+
+
+cludpxcpt(){
+cat <<EOF
+- name: ${sxname}Xhttp-UDP-$hostname
+  type: vless
+  server: $add
+  port: $port_xu
+  uuid: $uuid
+  udp: true
+  tls: true
+  network: xhttp
+  alpn:
+    - h3
+  servername: $sni
+  client-fingerprint: chrome
+  skip-cert-verify: $msins
+  xhttp-opts:
+    path: "$uuid-xu"
+    mode: auto
+EOF
+}
+cludpxcpt1(){
+echo "- ${sxname}Xhttp-UDP-$hostname"
+}
+
+
+
+
+
+
+
 fi
 if grep vless-xhttp "$HOME/agsbx/xr.json" >/dev/null 2>&1; then
 echo "💣【 Vless-xhttp-enc 】支持ENC加密，节点信息如下："
@@ -1461,6 +1515,51 @@ vl_vx_cdn_link="vless://$uuid@$cdnip1:$port_vx?encryption=$enkey&flow=xtls-rprx-
 echo "$vl_vx_cdn_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$vl_vx_cdn_link"
 echo
+
+
+
+cludpxcpt(){
+cat <<EOF
+- name: ${sxname}Xhttp-UDP-$hostname
+  type: vless
+  server: $add
+  port: $port_xu
+  uuid: $uuid
+  udp: true
+  tls: true
+  network: xhttp
+  alpn:
+    - h3
+  servername: $sni
+  client-fingerprint: chrome
+  skip-cert-verify: $msins
+  xhttp-opts:
+    path: "$uuid-xu"
+    mode: auto
+EOF
+}
+cludpxcpt1(){
+echo "- ${sxname}Xhttp-UDP-$hostname"
+}
+
+- name: vl-xhttp-enc-instance-20230620-0906
+  type: vless
+  server: 168.138.11.48
+  port: 39270
+  uuid: 00ae8080-f597-4986-9842-d4528bf3d094
+  udp: true
+  network: xhttp
+  tls: false
+  flow: xtls-rprx-vision
+  encryption: "mlkem768x25519plus.native"
+  xhttp-opts:
+    path: /00ae8080-f597-4986-9842-d4528bf3d094-vx
+    mode: auto
+
+
+
+
+
 fi
 fi
 if grep vless-ws "$HOME/agsbx/xr.json" >/dev/null 2>&1; then
@@ -1477,6 +1576,52 @@ vl_vw_cdn_link="vless://$uuid@$cdnip1:$port_vw?encryption=$enkey&flow=xtls-rprx-
 echo "$vl_vw_cdn_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$vl_vw_cdn_link"
 echo
+
+
+
+
+
+cludpxcpt(){
+cat <<EOF
+- name: ${sxname}Xhttp-UDP-$hostname
+  type: vless
+  server: $add
+  port: $port_xu
+  uuid: $uuid
+  udp: true
+  tls: true
+  network: xhttp
+  alpn:
+    - h3
+  servername: $sni
+  client-fingerprint: chrome
+  skip-cert-verify: $msins
+  xhttp-opts:
+    path: "$uuid-xu"
+    mode: auto
+EOF
+}
+cludpxcpt1(){
+echo "- ${sxname}Xhttp-UDP-$hostname"
+}
+
+- name: vl-ws-enc-instance-20230620-0906
+  type: vless
+  server: 168.138.11.48
+  port: 44977
+  uuid: 00ae8080-f597-4986-9842-d4528bf3d094
+  udp: true
+  network: ws
+  tls: false
+  flow: xtls-rprx-vision
+  encryption: "mlkem768x25519plus.native.0rtt."
+  ws-opts:
+    path: /00ae8080-f597-4986-9842-d4528bf3d094-vw
+
+
+
+
+
 fi
 fi
 
