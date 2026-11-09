@@ -1670,7 +1670,8 @@ cat <<EOF
   servername: $ym_vl_re                 
   reality-opts: 
     public-key: $public_key_x    
-    short-id: $short_id_x                      
+    short-id: $short_id_x
+	support-x25519mlkem768: true
   client-fingerprint: chrome
 EOF
 }
