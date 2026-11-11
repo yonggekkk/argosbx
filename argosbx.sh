@@ -2249,12 +2249,106 @@ vwatls_link1="vless://$uuid@$cdnip1:443?encryption=$enkey&flow=xtls-rprx-vision&
 echo "$vwatls_link1" >> "$HOME/agsbx/jhsub.txt"
 vwa_link2="vless://$uuid@$cdnip2:80?encryption=$enkey&flow=xtls-rprx-vision&type=ws&host=$argodomain&path=$uuid-vw&security=none#${sxname}vless-ws-argo-enc-vision-$hostname"
 echo "$vwa_link2" >> "$HOME/agsbx/jhsub.txt"
+
+
+
+
+clvmargopt(){
+cat <<EOF
+- name: ${sxname}vmess-ws-tls-argo-$hostname-443                         
+  type: vmess
+  server: "$cdnip1"                       
+  port: 443                                     
+  uuid: $uuid       
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: true
+  network: ws
+  servername: $argodomain                    
+  ws-opts:
+    path: "$uuid-vm"                             
+    headers:
+      Host: $argodomain
+- name: ${sxname}vmess-ws-argo-$hostname-80                         
+  type: vmess
+  server: "$cdnip2"                        
+  port: 80                                     
+  uuid: $uuid       
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  network: ws
+  servername: $argodomain                    
+  ws-opts:
+    path: "$uuid-vm"                             
+    headers:
+      Host: $argodomain
+EOF
+}
+clvmargopt1(){
+echo "- ${sxname}vmess-ws-tls-argo-$hostname-443"
+echo "- ${sxname}vmess-ws-argo-$hostname-80"
+}
+
+
+
+
+
 elif [ "$vlvm" = "Vlessx" ]; then
 vlvmvx='Vless-xhttp'
 vwatls_link1="vless://$uuid@$cdnip1:443?encryption=$enkey&flow=xtls-rprx-vision&type=xhttp&host=$argodomain&path=$uuid-vx&security=tls&sni=$argodomain&mode=auto&fp=chrome&insecure=0&allowInsecure=0#${sxname}vless-xhttp-tls-argo-enc-vision-$hostname"
 echo "$vwatls_link1" >> "$HOME/agsbx/jhsub.txt"
 vwa_link2="vless://$uuid@$cdnip2:80?encryption=$enkey&flow=xtls-rprx-vision&type=xhttp&host=$argodomain&mode=auto&path=$uuid-vx&security=none#${sxname}vless-xhttp-argo-enc-vision-$hostname"
 echo "$vwa_link2" >> "$HOME/agsbx/jhsub.txt"
+
+
+
+clvmargopt(){
+cat <<EOF
+- name: ${sxname}vmess-ws-tls-argo-$hostname-443                         
+  type: vmess
+  server: "$cdnip1"                       
+  port: 443                                     
+  uuid: $uuid       
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: true
+  network: ws
+  servername: $argodomain                    
+  ws-opts:
+    path: "$uuid-vm"                             
+    headers:
+      Host: $argodomain
+- name: ${sxname}vmess-ws-argo-$hostname-80                         
+  type: vmess
+  server: "$cdnip2"                        
+  port: 80                                     
+  uuid: $uuid       
+  alterId: 0
+  cipher: auto
+  udp: true
+  tls: false
+  network: ws
+  servername: $argodomain                    
+  ws-opts:
+    path: "$uuid-vm"                             
+    headers:
+      Host: $argodomain
+EOF
+}
+clvmargopt1(){
+echo "- ${sxname}vmess-ws-tls-argo-$hostname-443"
+echo "- ${sxname}vmess-ws-argo-$hostname-80"
+}
+
+
+
+
+
+
 fi
 sbtk=$(cat "$HOME/agsbx/sbargotoken.log" 2>/dev/null)
 if [ -n "$sbtk" ]; then
