@@ -2249,106 +2249,86 @@ vwatls_link1="vless://$uuid@$cdnip1:443?encryption=$enkey&flow=xtls-rprx-vision&
 echo "$vwatls_link1" >> "$HOME/agsbx/jhsub.txt"
 vwa_link2="vless://$uuid@$cdnip2:80?encryption=$enkey&flow=xtls-rprx-vision&type=ws&host=$argodomain&path=$uuid-vw&security=none#${sxname}vless-ws-argo-enc-vision-$hostname"
 echo "$vwa_link2" >> "$HOME/agsbx/jhsub.txt"
-
-
-
-
-clvmargopt(){
+clvlwsargoencpt(){
 cat <<EOF
-- name: ${sxname}vmess-ws-tls-argo-$hostname-443                         
-  type: vmess
-  server: "$cdnip1"                       
-  port: 443                                     
-  uuid: $uuid       
-  alterId: 0
-  cipher: auto
+- name: "${sxname}vless-ws-tls-argo-enc-vision-$hostname-443"
+  type: vless
+  server: "$cdnip1"
+  port: 443
+  uuid: "$uuid"
+  encryption: "$enkey"
+  flow: xtls-rprx-vision
   udp: true
   tls: true
+  servername: "$argodomain"
+  skip-cert-verify: false
   network: ws
-  servername: $argodomain                    
   ws-opts:
-    path: "$uuid-vm"                             
+    path: "$uuid-vw"
     headers:
-      Host: $argodomain
-- name: ${sxname}vmess-ws-argo-$hostname-80                         
-  type: vmess
-  server: "$cdnip2"                        
-  port: 80                                     
-  uuid: $uuid       
-  alterId: 0
-  cipher: auto
+      Host: "$argodomain"
+- name: "${sxname}vless-ws-argo-enc-vision-$hostname-80"
+  type: vless
+  server: "$cdnip2"
+  port: 80
+  uuid: "$uuid"
+  encryption: "$enkey"
+  flow: xtls-rprx-vision
   udp: true
-  tls: false
   network: ws
-  servername: $argodomain                    
   ws-opts:
-    path: "$uuid-vm"                             
+    path: "$uuid-vw"
     headers:
-      Host: $argodomain
+      Host: "$argodomain"
 EOF
 }
-clvmargopt1(){
-echo "- ${sxname}vmess-ws-tls-argo-$hostname-443"
-echo "- ${sxname}vmess-ws-argo-$hostname-80"
+clvlwsargoencpt1(){
+echo "- ${sxname}vless-ws-tls-argo-enc-vision-$hostname-443"
+echo "- ${sxname}vless-ws-argo-enc-vision-$hostname-80"
 }
-
-
-
-
-
 elif [ "$vlvm" = "Vlessx" ]; then
 vlvmvx='Vless-xhttp'
 vwatls_link1="vless://$uuid@$cdnip1:443?encryption=$enkey&flow=xtls-rprx-vision&type=xhttp&host=$argodomain&path=$uuid-vx&security=tls&sni=$argodomain&mode=auto&fp=chrome&insecure=0&allowInsecure=0#${sxname}vless-xhttp-tls-argo-enc-vision-$hostname"
 echo "$vwatls_link1" >> "$HOME/agsbx/jhsub.txt"
 vwa_link2="vless://$uuid@$cdnip2:80?encryption=$enkey&flow=xtls-rprx-vision&type=xhttp&host=$argodomain&mode=auto&path=$uuid-vx&security=none#${sxname}vless-xhttp-argo-enc-vision-$hostname"
 echo "$vwa_link2" >> "$HOME/agsbx/jhsub.txt"
-
-
-
-clvmargopt(){
+clvlxhargoencpt(){
 cat <<EOF
-- name: ${sxname}vmess-ws-tls-argo-$hostname-443                         
-  type: vmess
-  server: "$cdnip1"                       
-  port: 443                                     
-  uuid: $uuid       
-  alterId: 0
-  cipher: auto
+- name: "${sxname}vless-xhttp-tls-argo-enc-vision-$hostname-443"
+  type: vless
+  server: "$cdnip1"
+  port: 443
+  uuid: "$uuid"
+  encryption: "$enkey"
+  flow: xtls-rprx-vision
   udp: true
   tls: true
-  network: ws
-  servername: $argodomain                    
-  ws-opts:
-    path: "$uuid-vm"                             
-    headers:
-      Host: $argodomain
-- name: ${sxname}vmess-ws-argo-$hostname-80                         
-  type: vmess
-  server: "$cdnip2"                        
-  port: 80                                     
-  uuid: $uuid       
-  alterId: 0
-  cipher: auto
+  servername: "$argodomain"
+  skip-cert-verify: false
+  network: xhttp
+  xhttp-opts:
+    path: "$uuid-vx"
+    host: "$argodomain"
+    mode: auto
+- name: "${sxname}vless-xhttp-argo-enc-vision-$hostname-80"
+  type: vless
+  server: "$cdnip2"
+  port: 80
+  uuid: "$uuid"
+  encryption: "$enkey"
+  flow: xtls-rprx-vision
   udp: true
-  tls: false
-  network: ws
-  servername: $argodomain                    
-  ws-opts:
-    path: "$uuid-vm"                             
-    headers:
-      Host: $argodomain
+  network: xhttp
+  xhttp-opts:
+    path: "$uuid-vx"
+    host: "$argodomain"
+    mode: auto
 EOF
 }
-clvmargopt1(){
-echo "- ${sxname}vmess-ws-tls-argo-$hostname-443"
-echo "- ${sxname}vmess-ws-argo-$hostname-80"
+clvlxhargoencpt1(){
+echo "- ${sxname}vless-xhttp-tls-argo-enc-vision-$hostname-443"
+echo "- ${sxname}vless-xhttp-argo-enc-vision-$hostname-80"
 }
-
-
-
-
-
-
 fi
 sbtk=$(cat "$HOME/agsbx/sbargotoken.log" 2>/dev/null)
 if [ -n "$sbtk" ]; then
@@ -2367,7 +2347,6 @@ ${vma_link7}${vwa_link2}
 "
 )
 fi
-
 get_func() {
 local f=$1
 if type "$f" >/dev/null 2>&1; then
@@ -2377,9 +2356,9 @@ out=$($f)
 fi
 }
 sbxy="$(get_func sbvlpt; get_func sbsspt; get_func sbanpt; get_func sbarpt; get_func sbvmpt; get_func sbhypt; get_func sbtupt; get_func sbnvpt; get_func sbvmargopt)"
-clxy="$(get_func clwsencpt; get_func clxhencpt; get_func clxhreaencpt; get_func cludpxcpt; get_func clxcpt; get_func clvlpt; get_func clsspt; get_func clanpt; get_func clvmpt; get_func clhypt; get_func cltupt; get_func clvmargopt)"
+clxy="$(get_func clvlwsargoencpt; get_func clvlxhargoencpt; get_func clwsencpt; get_func clxhencpt; get_func clxhreaencpt; get_func cludpxcpt; get_func clxcpt; get_func clvlpt; get_func clsspt; get_func clanpt; get_func clvmpt; get_func clhypt; get_func cltupt; get_func clvmargopt)"
 sbgz="$(get_func sbvlpt1; get_func sbsspt1; get_func sbanpt1; get_func sbarpt1; get_func sbvmpt1; get_func sbhypt1; get_func sbtupt1; get_func sbnvpt1; get_func sbvmargopt1)"
-clgz="$({ get_func clwsencpt1; get_func clxhencpt1; get_func clxhreaencpt1; get_func cludpxcpt1; get_func clxcpt1; get_func clvlpt1; get_func clsspt1; get_func clanpt1; get_func clvmpt1; get_func clhypt1; get_func cltupt1; get_func clvmargopt1; } | sed '2,$s/^/    /')"
+clgz="$({ get_func clvlwsargoencpt1; get_func clvlxhargoencpt1; get_func clwsencpt1; get_func clxhencpt1; get_func clxhreaencpt1; get_func cludpxcpt1; get_func clxcpt1; get_func clvlpt1; get_func clsspt1; get_func clanpt1; get_func clvmpt1; get_func clhypt1; get_func cltupt1; get_func clvmargopt1; } | sed '2,$s/^/    /')"
 sbgz=$(printf "%s\n" "$sbgz" | sed '$ s/,$//')
 cat > $HOME/agsbx/sbox.json <<EOF
 {
