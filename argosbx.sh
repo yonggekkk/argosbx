@@ -1815,8 +1815,8 @@ fi
 if grep snellv "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 Snell-V6 】节点信息如下："
 port_sn=$(cat "$HOME/agsbx/port_sn")
-sn1_link="snell://$uuid@$server_ip:$port_sn?version=6&mode=default#${sxname}Snell-V6-$hostname"
-sn2_link="snell://$(echo -n "chacha20-ietf-poly1305:$uuid@$server_ip:$port_sn" | base64 -w0)?tfo=1&version=6&mode=default&udp=1#${sxname}Snell-V6-$hostname"
+sn1_link="snell://$uuid@$server_ip:$port_sn?version=6&reuse=true&mode=default#${sxname}Snell-V6-$hostname"
+sn2_link="snell://$(echo -n "chacha20-ietf-poly1305:$uuid@$server_ip:$port_sn" | base64 -w0)?tfo=1&version=6&reuse=1&mode=default&udp=1#${sxname}Snell-V6-$hostname"
 echo "$sn1_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$sn2_link" >> "$HOME/agsbx/jhsub.txt"
 echo "Snell必要参数仅三个，可手动填写至客户端"
