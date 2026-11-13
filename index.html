@@ -422,6 +422,7 @@
             <label><input type="checkbox" data-proto="nvpt" disabled> Naiveproxy <span class="pill">nvpt</span></label><input type="text" placeholder="启用域名IP证书TLS后可选，留空则随机端口" data-port="nvpt" disabled>
             <label><input type="checkbox" data-proto="arpt"> Any-reality <span class="pill">arpt</span></label><input type="text" placeholder="留空则随机端口" data-port="arpt">
             <label><input type="checkbox" data-proto="sspt"> Shadowsocks-2022 <span class="pill">sspt</span></label><input type="text" placeholder="留空则随机端口" data-port="sspt">
+            <label><input type="checkbox" data-proto="snpt"> Snell-v6 <span class="pill">snpt</span></label><input type="text" placeholder="留空则随机端口" data-port="snpt">
           </div>
         </div>
         <div class="protocol-group separator">
@@ -582,7 +583,7 @@ Acme-yg域名IP证书脚本：bash <(curl -Ls https://raw.githubusercontent.com/
 (function(){
   const CURL = 'bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)';
   const WGET = 'bash <(wget -qO- https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)';
-  const protoKeys = ['sopt','vmpt','vlpt','xhpt','vxpt','vwpt','xupt','xcpt','hypt','tupt','nvpt','anpt','arpt','sspt'];
+  const protoKeys = ['sopt','vmpt','vlpt','xhpt','vxpt','vwpt','xupt','xcpt','hypt','tupt','nvpt','anpt','arpt','sspt','snpt'];
   const optIds = ['warp','ippz','uuid','reym','cfip','alns','hyjpt','cdnym','name', 'oap', 'sub', 'subid', 'subpt'];
 
   const argoSelect = document.getElementById('argoSelect');
@@ -839,7 +840,7 @@ Acme-yg域名IP证书脚本：bash <(curl -Ls https://raw.githubusercontent.com/
       const val = m[k];
       if (val === '') return `${k}=""`;
       if (/[^\w\-\.:/]/.test(val)) {
-        return `${k}="${val.replace(/"/g, '\\"')}"`;
+        return `${k}="${val.replace(/"/g, '\\\\')}"`;
       }
       return `${k}="${val}"`;
     }).join(' ');
@@ -999,3 +1000,4 @@ Acme-yg域名IP证书脚本：bash <(curl -Ls https://raw.githubusercontent.com/
 </script>
 </body>
 </html>
+```[cite: 1]
