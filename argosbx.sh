@@ -1815,9 +1815,20 @@ fi
 if grep snellv "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 Snell-V6 】节点信息如下："
 port_sn=$(cat "$HOME/agsbx/port_sn")
-sn_link="ss://$(echo -n "2022-blake3-aes-128-gcm:$sskey@$server_ip:$port_ss" | base64 -w0)#${sxname}Shadowsocks-2022-$hostname"
-echo "$sn_link" >> "$HOME/agsbx/jhsub.txt"
-echo "$sn_link"
+sn1_link="snell://$uuid@$server_ip:$port_sn?version=6&mode=default#${sxname}Snell-V6-$hostname"
+sn2_link="snell://$(echo -n "chacha20-ietf-poly1305:$uuid@$server_ip:$port_sn" | base64 -w0)?tfo=1&version=6&mode=default&udp=1#${sxname}Snell-V6-$hostname"
+echo "$sn1_link" >> "$HOME/agsbx/jhsub.txt"
+echo "$sn2_link" >> "$HOME/agsbx/jhsub.txt"
+echo "Snell必要参数仅三个，可手动填写至客户端"
+echo "客户端地址：$server_ip"
+echo "客户端端口：$port_sn"
+echo "客户端密码：$uuid"
+echo
+echo "NekoboxF单节点分享："
+echo "$sn1_link"
+echo
+echo "Shadowrocket小火箭单节点分享："
+echo "$sn2_link"
 echo
 sbsnpt(){
 cat <<EOF
