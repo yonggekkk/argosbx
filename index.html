@@ -387,7 +387,7 @@
           </svg>
         </label>
       </div>
-      <h1>ArgoSBX小钢炮脚本💣一键SSH命令生成器 V26.7.16</h1>
+      <h1>ArgoSBX小钢炮脚本💣一键SSH命令生成器 V26.11.20</h1>
       <p>
         甬哥Github项目：
         <a href="https://github.com/yonggekkk" target="_blank">github.com/yonggekkk</a><br>
@@ -408,7 +408,7 @@
           <div class="protocol-grid">
             <label><input type="checkbox" data-proto="vlpt"> Vless-tcp-reality-vision <span class="pill">vlpt</span></label><input type="text" placeholder="留空则随机端口" data-port="vlpt">
             <label><input type="checkbox" data-proto="xhpt"> Vless-xhttp-reality-enc <span class="pill">xhpt</span></label><input type="text" placeholder="留空则随机端口" data-port="xhpt">
-            <label><input type="checkbox" data-proto="vxpt"> Vless-xhttp-enc <span class="pill">vxpt</span></label><input type="text" placeholder="留空则随机端口" data-port="vxpt">
+            <label><input type="checkbox" data-proto="vxpt"> Vless-xhttp-enc <span class="pill">vxpt</span></label><input type="text" placeholder="留空则随机端口（Argo固定隧道的URL端口相同）" data-port="vxpt">
             <label><input type="checkbox" data-proto="vwpt"> Vless-ws-enc <span class="pill">vwpt</span></label><input type="text" placeholder="留空则随机端口（Argo固定隧道的URL端口相同）" data-port="vwpt">
             <label><input type="checkbox" data-proto="xupt"> Vless-xhttp-tls-UDP <span class="pill">xupt</span></label><input type="text" placeholder="留空则随机端口" data-port="xupt">
             <label><input type="checkbox" data-proto="xcpt"> Vless-xhttp-tls-TCP/UDP <span class="pill">xcpt</span></label><input type="text" placeholder="留空则随机端口，(443系端口+域名证书,UDP-CDN可用)" data-port="xcpt">
@@ -422,6 +422,7 @@
             <label><input type="checkbox" data-proto="nvpt" disabled> Naiveproxy <span class="pill">nvpt</span></label><input type="text" placeholder="启用域名IP证书TLS后可选，留空则随机端口" data-port="nvpt" disabled>
             <label><input type="checkbox" data-proto="arpt"> Any-reality <span class="pill">arpt</span></label><input type="text" placeholder="留空则随机端口" data-port="arpt">
             <label><input type="checkbox" data-proto="sspt"> Shadowsocks-2022 <span class="pill">sspt</span></label><input type="text" placeholder="留空则随机端口" data-port="sspt">
+            <label><input type="checkbox" data-proto="snpt"> Snell-v6 <span class="pill">snpt</span></label><input type="text" placeholder="留空则随机端口" data-port="snpt">
           </div>
         </div>
         <div class="protocol-group separator">
@@ -444,7 +445,7 @@
           </div>
         </div>
         <div class="row"><label>Reality 域名 <span class="pill">reym</span></label><input id="reym" type="text" placeholder="选择Reality相关协议后可用，留空默认apple.com" disabled/></div>
-        <div class="row"><label>CDN优选IP域名 <span class="pill">cfip</span></label><input id="cfip" type="text" placeholder="支持2个优选IP域名(空格间隔)，留空默认优选域名" disabled></div>
+        <div class="row"><label>CDN优选IP域名 <span class="pill">cfip</span></label><input id="cfip" type="text" placeholder="支持2个优选IP域名(空格间隔), 留空默认优选域名" disabled></div>
         <div class="row"><label>启用域名IP证书TLS <span class="pill">alns</span></label>
           <select id="alns">
             <option value="">默认 关闭 (HY2/TUIC/Anytls/Xhttp-tls为自签证书TLS)</option>
@@ -511,17 +512,27 @@
       </section>
 
       <section class="card argo-tunnel">
-        <h2>Argo临时/固定隧道CDN：</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+          <h2 style="margin: 0;">Argo临时/固定隧道CDN：</h2>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 14px; color: var(--sub);">模式 <span class="pill">agqc</span></span>
+            <select id="agqc" style="width: auto; padding: 6px 10px;" disabled>
+              <option value="">TCP模式(默认)</option>
+              <option value="y">UDP模式</option>
+            </select>
+          </div>
+        </div>
         <div class="row">
           <label>启用Argo隧道开关 <span class="pill">argo</span></label>
           <select id="argoSelect">
             <option value="">默认 关闭</option>
+            <option value="vmpt">启用主协议Vmess-ws的Argo隧道 </option>        
             <option value="vwpt">启用主协议Vless-ws-enc的Argo隧道 </option>
-            <option value="vmpt">启用主协议Vmess-ws的Argo隧道 </option>
+            <option value="vxpt">启用主协议Vless-xhttp-enc的Argo隧道(仅支持固定隧道)</option>
           </select>
         </div>
-        <div class="row"><label>固定隧道CF域名 <span class="pill">agn</span></label><input id="agn" type="text" placeholder="Zero Trust已设置有子域名称的CF域名，留空则临时隧道" disabled></div>
-        <div class="row"><label>固定隧道Token <span class="pill">agk</span></label><input id="agk" type="text" placeholder="Zero Trust已提取ey开头的秘钥，留空则临时隧道" disabled></div>
+        <div class="row"><label>固定隧道CF域名 <span class="pill">agn</span></label><input id="agn" type="text" placeholder="联网-Tunnels已设置有子域名称的CF域名，留空则临时隧道" disabled></div>
+        <div class="row"><label>固定隧道Token <span class="pill">agk</span></label><input id="agk" type="text" placeholder="联网-Tunnels已提取ey开头的秘钥，留空则临时隧道" disabled></div>
       </section>
 
       <section class="card shortcut-commands-card">
@@ -572,10 +583,11 @@ Acme-yg域名IP证书脚本：bash <(curl -Ls https://raw.githubusercontent.com/
 (function(){
   const CURL = 'bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)';
   const WGET = 'bash <(wget -qO- https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh)';
-  const protoKeys = ['sopt','vmpt','vlpt','xhpt','vxpt','vwpt','xupt','xcpt','hypt','tupt','nvpt','anpt','arpt','sspt'];
+  const protoKeys = ['sopt','vmpt','vlpt','xhpt','vxpt','vwpt','xupt','xcpt','hypt','tupt','nvpt','anpt','arpt','sspt','snpt'];
   const optIds = ['warp','ippz','uuid','reym','cfip','alns','hyjpt','cdnym','name', 'oap', 'sub', 'subid', 'subpt'];
 
   const argoSelect = document.getElementById('argoSelect');
+  const agqc = document.getElementById('agqc');
   const agn = document.getElementById('agn');
   const agk = document.getElementById('agk');
   const cfip = document.getElementById('cfip');
@@ -631,10 +643,11 @@ Acme-yg域名IP证书脚本：bash <(curl -Ls https://raw.githubusercontent.com/
   function updateArgoState(argoValue) {
     const isEnabled = argoValue !== '';
     if (!isEnabled) {
+      agqc.value = '';
       agn.value = '';
       agk.value = '';
     }
-    [agn, agk].forEach(i => i.disabled = !isEnabled);
+    [agqc, agn, agk].forEach(i => i.disabled = !isEnabled);
   }
 
   function updateSubState() {
@@ -708,13 +721,16 @@ Acme-yg域名IP证书脚本：bash <(curl -Ls https://raw.githubusercontent.com/
   argoSelect.addEventListener('change', () => {
     const argoValue = argoSelect.value;
     const isEnabled = argoValue !== '';
-    [agn, agk].forEach(i => i.disabled = !isEnabled);
+    [agqc, agn, agk].forEach(i => i.disabled = !isEnabled);
     if (argoValue === 'vwpt') {
         vlessWsVCheckbox.checked = true;
+    } else if (argoValue === 'vxpt') {
+        vlessXhttpCheckbox.checked = true;
     } else if (argoValue === 'vmpt') {
         vmessWsCheckbox.checked = true;
     } 
     if (!isEnabled) {
+        agqc.value = '';
         agn.value = '';
         agk.value = '';
     }
@@ -725,6 +741,10 @@ Acme-yg域名IP证书脚本：bash <(curl -Ls https://raw.githubusercontent.com/
   [vmessWsCheckbox, vlessWsVCheckbox, vlessXhttpCheckbox, vlessTcpRealityCheckbox, vlessXhttpRealityCheckbox, vlessXhttpTlsCheckbox, anyRealityCheckbox, hy2Checkbox].forEach(ck => {
     ck.addEventListener('change', () => {
       if (!vlessWsVCheckbox.checked && argoSelect.value === 'vwpt') { 
+         argoSelect.value = '';
+         updateArgoState('');
+      }
+      if (!vlessXhttpCheckbox.checked && argoSelect.value === 'vxpt') { 
          argoSelect.value = '';
          updateArgoState('');
       }
@@ -793,6 +813,9 @@ Acme-yg域名IP证书脚本：bash <(curl -Ls https://raw.githubusercontent.com/
     const argoValue = argoSelect.value;
     if (argoValue !== '') {
       m['argo'] = argoValue; 
+      if (!agqc.disabled) {
+        m['agqc'] = agqc.value; // 确保 TCP模式("") 或 UDP模式("y") 都能正确导出
+      }
       const _agn = (agn.value || '').trim();
       const _agk = (agk.value || '').trim();
       if (!agn.disabled && _agn) m['agn'] = _agn;
@@ -807,6 +830,7 @@ Acme-yg域名IP证书脚本：bash <(curl -Ls https://raw.githubusercontent.com/
     protoKeys.forEach(k => { if (keys.includes(k)) ordered.push(k); });
     ['warp', 'uuid', 'reym', 'cfip', 'alns', 'hyjpt', 'cdnym', 'name', 'ippz', 'sub', 'subid', 'subpt'].forEach(k => { if (keys.includes(k)) ordered.push(k); });
     if (keys.includes('argo')) ordered.push('argo');
+    if (keys.includes('agqc')) ordered.push('agqc');
     if (keys.includes('agn')) ordered.push('agn');
     if (keys.includes('agk')) ordered.push('agk');
     if (keys.includes('oap')) ordered.push('oap');
@@ -816,7 +840,7 @@ Acme-yg域名IP证书脚本：bash <(curl -Ls https://raw.githubusercontent.com/
       const val = m[k];
       if (val === '') return `${k}=""`;
       if (/[^\w\-\.:/]/.test(val)) {
-        return `${k}="${val.replace(/"/g, '\\"')}"`;
+        return `${k}="${val.replace(/"/g, '\\\\')}"`;
       }
       return `${k}="${val}"`;
     }).join(' ');
@@ -881,7 +905,12 @@ Acme-yg域名IP证书脚本：bash <(curl -Ls https://raw.githubusercontent.com/
     } else {
       argoSelect.value = '';
     }
-    [agn, agk].forEach(i => i.disabled = (argoSelect.value === ''));
+    if ('agqc' in params) {
+      agqc.value = params['agqc'];
+    } else {
+      agqc.value = '';
+    }
+    [agqc, agn, agk].forEach(i => i.disabled = (argoSelect.value === ''));
 
     const isCdnEnabled = params['vmpt'] !== undefined || params['vxpt'] !== undefined || params['vwpt'] !== undefined;
     cdnymInput.disabled = !isCdnEnabled;
@@ -971,3 +1000,4 @@ Acme-yg域名IP证书脚本：bash <(curl -Ls https://raw.githubusercontent.com/
 </script>
 </body>
 </html>
+```[cite: 1]
