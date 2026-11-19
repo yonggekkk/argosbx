@@ -1342,7 +1342,7 @@ echo "$cdnip1" > "$HOME/agsbx/cdnip1"
 echo "$cdnip2" > "$HOME/agsbx/cdnip2"
 else
 cdnip1="www.shopify.com"
-cdnip2="www.wto.org"
+cdnip2="icook.tw"
 echo "$cdnip1" > "$HOME/agsbx/cdnip1"
 echo "$cdnip2" > "$HOME/agsbx/cdnip2"
 fi
