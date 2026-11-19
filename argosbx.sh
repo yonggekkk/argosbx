@@ -1850,15 +1850,15 @@ echo "\"${sxname}Snell-V6-$hostname\","
 }
 clsnpt(){
 cat <<EOF
-  - name: "${sxname}Snell-V6-$hostname"
-    type: snell
-    server: $server_ip
-    port: $port_sn
-    psk: "$uuid"
-    version: 6
-    mode: default
-    udp: true
-    reuse: true
+- name: "${sxname}Snell-V6-$hostname"
+  type: snell
+  server: $server_ip
+  port: $port_sn
+  psk: "$uuid"
+  version: 6
+  mode: default
+  udp: true
+  reuse: true
 EOF
 }
 clsnpt1(){
