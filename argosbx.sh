@@ -1729,6 +1729,7 @@ cat <<EOF
   udp: true
   tls: true
   flow: xtls-rprx-vision
+  encryption: "$enkey"
   servername: $ym_vl_re                 
   reality-opts: 
     public-key: $public_key_x    
