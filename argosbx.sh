@@ -1797,7 +1797,7 @@ echo "\"${sxname}Shadowsocks-2022-$hostname\","
 }
 clsspt(){
 cat <<EOF
-- name: "${sxname}Shadowsocks-2022-$hostname"
+- name: ${sxname}Shadowsocks-2022-$hostname
   type: ss
   server: $server_ip
   port: $port_ss
@@ -1850,7 +1850,7 @@ echo "\"${sxname}Snell-V6-$hostname\","
 }
 clsnpt(){
 cat <<EOF
-- name: "${sxname}Snell-V6-$hostname"
+- name: ${sxname}Snell-V6-$hostname
   type: snell
   server: $server_ip
   port: $port_sn
@@ -2330,7 +2330,7 @@ vwa_link2="vless://$uuid@$cdnip2:80?encryption=$enkey&flow=xtls-rprx-vision&type
 echo "$vwa_link2" >> "$HOME/agsbx/jhsub.txt"
 clvlwsargoencpt(){
 cat <<EOF
-- name: "${sxname}vless-ws-tls-argo-enc-vision-$hostname-443"
+- name: ${sxname}vless-ws-tls-argo-enc-vision-$hostname-443
   type: vless
   server: "$cdnip1"
   port: 443
@@ -2346,7 +2346,7 @@ cat <<EOF
     path: "$uuid-vw"
     headers:
       Host: "$argodomain"
-- name: "${sxname}vless-ws-argo-enc-vision-$hostname-80"
+- name: ${sxname}vless-ws-argo-enc-vision-$hostname-80
   type: vless
   server: "$cdnip2"
   port: 80
@@ -2373,7 +2373,7 @@ vwa_link2="vless://$uuid@$cdnip2:80?encryption=$enkey&flow=xtls-rprx-vision&type
 echo "$vwa_link2" >> "$HOME/agsbx/jhsub.txt"
 clvlxhargoencpt(){
 cat <<EOF
-- name: "${sxname}vless-xhttp-tls-argo-enc-vision-$hostname-443"
+- name: ${sxname}vless-xhttp-tls-argo-enc-vision-$hostname-443
   type: vless
   server: "$cdnip1"
   port: 443
@@ -2389,7 +2389,7 @@ cat <<EOF
     path: "$uuid-vx"
     host: "$argodomain"
     mode: auto
-- name: "${sxname}vless-xhttp-argo-enc-vision-$hostname-80"
+- name: ${sxname}vless-xhttp-argo-enc-vision-$hostname-80
   type: vless
   server: "$cdnip2"
   port: 80
