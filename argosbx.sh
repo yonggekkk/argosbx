@@ -2191,18 +2191,19 @@ argodomain=$(cat "$HOME/agsbx/sbargoym.log" 2>/dev/null)
 [ -z "$argodomain" ] && argodomain=$(grep -a trycloudflare.com "$HOME/agsbx/argo.log" 2>/dev/null | awk 'NR==2{print}' | awk -F// '{print $2}' | awk '{print $1}')
 if [ -n "$argodomain" ]; then
 vlvm=$(cat $HOME/agsbx/vlvm 2>/dev/null)
+if grep -q "quic" "$HOME/agsbx/cftupr.log"; then tu="(UDP)"; else tu="(TCP)"; fi
 if [ "$vlvm" = "Vmess" ]; then
 vlvmvx='Vmess-ws'
-vmatls_link1="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${sxname}vmess-ws-tls-argo-$hostname-443\", \"add\": \"$cdnip1\", \"port\": \"443\", \"id\": \"$uuid\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$uuid-vm\", \"tls\": \"tls\", \"sni\": \"$argodomain\", \"alpn\": \"\", \"fp\": \"chrome\"}" | base64 -w0)"
+vmatls_link1="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${sxname}vmess-ws-tls-argo${tu}-$hostname-443\", \"add\": \"$cdnip1\", \"port\": \"443\", \"id\": \"$uuid\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$uuid-vm\", \"tls\": \"tls\", \"sni\": \"$argodomain\", \"alpn\": \"\", \"fp\": \"chrome\"}" | base64 -w0)"
 echo "$vmatls_link1" >> "$HOME/agsbx/jhsub.txt"
-vma_link7="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${sxname}vmess-ws-argo-$hostname-80\", \"add\": \"$cdnip2\", \"port\": \"80\", \"id\": \"$uuid\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$uuid-vm\", \"tls\": \"\"}" | base64 -w0)"
+vma_link7="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${sxname}vmess-ws-argo${tu}-$hostname-80\", \"add\": \"$cdnip2\", \"port\": \"80\", \"id\": \"$uuid\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"$argodomain\", \"path\": \"/$uuid-vm\", \"tls\": \"\"}" | base64 -w0)"
 echo "$vma_link7" >> "$HOME/agsbx/jhsub.txt"
 sbvmargopt(){
 cat <<EOF
 {
             "server": "$cdnip1",
             "server_port": 443,
-            "tag": "${sxname}vmess-ws-tls-argo-$hostname-443",
+            "tag": "${sxname}vmess-ws-tls-argo${tu}-$hostname-443",
             "tls": {
                 "enabled": true,
                 "server_name": "$argodomain",
@@ -2228,7 +2229,7 @@ cat <<EOF
 {
             "server": "$cdnip2",
             "server_port": 80,
-            "tag": "${sxname}vmess-ws-argo-$hostname-80",
+            "tag": "${sxname}vmess-ws-argo${tu}-$hostname-80",
             "tls": {
                 "enabled": false,
                 "server_name": "$argodomain",
@@ -2254,12 +2255,12 @@ cat <<EOF
 EOF
 }
 sbvmargopt1(){
-echo "\"${sxname}vmess-ws-tls-argo-$hostname-443\","
-echo "\"${sxname}vmess-ws-argo-$hostname-80\","
+echo "\"${sxname}vmess-ws-tls-argo${tu}-$hostname-443\","
+echo "\"${sxname}vmess-ws-argo${tu}-$hostname-80\","
 }
 clvmargopt(){
 cat <<EOF
-- name: ${sxname}vmess-ws-tls-argo-$hostname-443                         
+- name: ${sxname}vmess-ws-tls-argo${tu}-$hostname-443                         
   type: vmess
   server: "$cdnip1"                       
   port: 443                                     
@@ -2274,7 +2275,7 @@ cat <<EOF
     path: "$uuid-vm"                             
     headers:
       Host: $argodomain
-- name: ${sxname}vmess-ws-argo-$hostname-80                         
+- name: ${sxname}vmess-ws-argo${tu}-$hostname-80                         
   type: vmess
   server: "$cdnip2"                        
   port: 80                                     
@@ -2292,18 +2293,18 @@ cat <<EOF
 EOF
 }
 clvmargopt1(){
-echo "- ${sxname}vmess-ws-tls-argo-$hostname-443"
-echo "- ${sxname}vmess-ws-argo-$hostname-80"
+echo "- ${sxname}vmess-ws-tls-argo${tu}-$hostname-443"
+echo "- ${sxname}vmess-ws-argo${tu}-$hostname-80"
 }
 elif [ "$vlvm" = "Vless" ]; then
 vlvmvx='Vless-ws'
-vwatls_link1="vless://$uuid@$cdnip1:443?encryption=$enkey&flow=xtls-rprx-vision&type=ws&host=$argodomain&path=$uuid-vw&security=tls&sni=$argodomain&fp=chrome&insecure=0&allowInsecure=0#${sxname}vless-ws-tls-argo-enc-vision-$hostname"
+vwatls_link1="vless://$uuid@$cdnip1:443?encryption=$enkey&flow=xtls-rprx-vision&type=ws&host=$argodomain&path=$uuid-vw&security=tls&sni=$argodomain&fp=chrome&insecure=0&allowInsecure=0#${sxname}vless-ws-tls-argo${tu}-enc-vision-$hostname"
 echo "$vwatls_link1" >> "$HOME/agsbx/jhsub.txt"
-vwa_link2="vless://$uuid@$cdnip2:80?encryption=$enkey&flow=xtls-rprx-vision&type=ws&host=$argodomain&path=$uuid-vw&security=none#${sxname}vless-ws-argo-enc-vision-$hostname"
+vwa_link2="vless://$uuid@$cdnip2:80?encryption=$enkey&flow=xtls-rprx-vision&type=ws&host=$argodomain&path=$uuid-vw&security=none#${sxname}vless-ws-argo${tu}-enc-vision-$hostname"
 echo "$vwa_link2" >> "$HOME/agsbx/jhsub.txt"
 clvlwsargoencpt(){
 cat <<EOF
-- name: ${sxname}vless-ws-tls-argo-enc-vision-$hostname-443
+- name: ${sxname}vless-ws-tls-argo${tu}-enc-vision-$hostname-443
   type: vless
   server: "$cdnip1"
   port: 443
@@ -2319,7 +2320,7 @@ cat <<EOF
     path: "$uuid-vw"
     headers:
       Host: "$argodomain"
-- name: ${sxname}vless-ws-argo-enc-vision-$hostname-80
+- name: ${sxname}vless-ws-argo${tu}-enc-vision-$hostname-80
   type: vless
   server: "$cdnip2"
   port: 80
@@ -2335,18 +2336,18 @@ cat <<EOF
 EOF
 }
 clvlwsargoencpt1(){
-echo "- ${sxname}vless-ws-tls-argo-enc-vision-$hostname-443"
-echo "- ${sxname}vless-ws-argo-enc-vision-$hostname-80"
+echo "- ${sxname}vless-ws-tls-argo${tu}-enc-vision-$hostname-443"
+echo "- ${sxname}vless-ws-argo${tu}-enc-vision-$hostname-80"
 }
 elif [ "$vlvm" = "Vlessx" ]; then
 vlvmvx='Vless-xhttp'
-vwatls_link1="vless://$uuid@$cdnip1:443?encryption=$enkey&flow=xtls-rprx-vision&type=xhttp&host=$argodomain&path=$uuid-vx&security=tls&sni=$argodomain&mode=auto&fp=chrome&insecure=0&allowInsecure=0#${sxname}vless-xhttp-tls-argo-enc-vision-$hostname"
+vwatls_link1="vless://$uuid@$cdnip1:443?encryption=$enkey&flow=xtls-rprx-vision&type=xhttp&host=$argodomain&path=$uuid-vx&security=tls&sni=$argodomain&mode=auto&fp=chrome&insecure=0&allowInsecure=0#${sxname}vless-xhttp-tls-argo${tu}-enc-vision-$hostname"
 echo "$vwatls_link1" >> "$HOME/agsbx/jhsub.txt"
-vwa_link2="vless://$uuid@$cdnip2:80?encryption=$enkey&flow=xtls-rprx-vision&type=xhttp&host=$argodomain&mode=auto&path=$uuid-vx&security=none#${sxname}vless-xhttp-argo-enc-vision-$hostname"
+vwa_link2="vless://$uuid@$cdnip2:80?encryption=$enkey&flow=xtls-rprx-vision&type=xhttp&host=$argodomain&mode=auto&path=$uuid-vx&security=none#${sxname}vless-xhttp-argo${tu}-enc-vision-$hostname"
 echo "$vwa_link2" >> "$HOME/agsbx/jhsub.txt"
 clvlxhargoencpt(){
 cat <<EOF
-- name: ${sxname}vless-xhttp-tls-argo-enc-vision-$hostname-443
+- name: ${sxname}vless-xhttp-tls-argo${tu}-enc-vision-$hostname-443
   type: vless
   server: "$cdnip1"
   port: 443
@@ -2362,7 +2363,7 @@ cat <<EOF
     path: "$uuid-vx"
     host: "$argodomain"
     mode: auto
-- name: ${sxname}vless-xhttp-argo-enc-vision-$hostname-80
+- name: ${sxname}vless-xhttp-argo${tu}-enc-vision-$hostname-80
   type: vless
   server: "$cdnip2"
   port: 80
@@ -2378,8 +2379,8 @@ cat <<EOF
 EOF
 }
 clvlxhargoencpt1(){
-echo "- ${sxname}vless-xhttp-tls-argo-enc-vision-$hostname-443"
-echo "- ${sxname}vless-xhttp-argo-enc-vision-$hostname-80"
+echo "- ${sxname}vless-xhttp-tls-argo${tu}-enc-vision-$hostname-443"
+echo "- ${sxname}vless-xhttp-argo${tu}-enc-vision-$hostname-80"
 }
 fi
 sbtk=$(cat "$HOME/agsbx/sbargotoken.log" 2>/dev/null)
