@@ -17,7 +17,7 @@
 #### 5、客户端支持方面，各类单协议分享、clash/mihomo/singbox聚合订阅分享都可支持
 
 #### 6、所有代理协议都无需域名（除了argo固定隧道、IP端口CDN），支持单个或多个代理协议任意组合并快速重置更换
-【 已支持：Naiveproxy、Vless-xhttp-tls、AnyTLS、Any-reality、Vless-xhttp-reality-vison-enc、Vless-tcp-reality-vision、Vless-xhttp-vison-enc、Vless-ws-vision-enc、Shadowsocks-2022、Vmess-ws、Socks5、Hysteria2、Tuic、Argo临时/固定隧道支持Vless-ws-vision-enc或Vmess-ws 】
+【 已支持：Naiveproxy、Vless-xhttp-tls、AnyTLS、Any-reality、Vless-xhttp-reality-vison-enc、Vless-tcp-reality-vision-enc、Vless-xhttp-vison-enc、Vless-ws-vision-enc、Shadowsocks-2022、Vmess-ws、Socks5、Hysteria2、Tuic、Argo临时/固定隧道支持Vless-ws-vision-enc、Vless-xhttp-vison-enc、Vmess-ws 】
 
 #### 7、建议配合SSH一键脚本命令生成器网页使用：https://yonggekkk.github.io/argosbx/
 
@@ -29,7 +29,7 @@
 
 电脑win客户端：[V2rayN官方版(全协议支持)](https://github.com/2dust/v2rayN/releases)、[Singbox官方版](https://github.com/SagerNet/sing-box/releases)、Clash/Mihomo客户端随意
 
-苹果IOS客户端：小火箭Shadowrocket、Onexray、Sing-bos MT、Clash mi
+苹果IOS客户端：小火箭Shadowrocket、Sing-bos MT、Clash
 
 注：个别协议仅支持某些客户端
 
@@ -63,6 +63,8 @@
 
 #### 相关教程可参考[甬哥博客](https://ygkkk.blogspot.com/2025/08/argosb.html)，视频教程如下：
 
+[ArgoSBX小钢炮脚本最新教程：新增Snell-V6协议，CF Argo隧道支持XHTTP、UDP/TCP模式自由切换！](https://youtu.be/GdXM_Wq5p2I)
+
 [Argosbx小钢炮脚本重大更新：加入NaiveProxy与XHTTP-TLS一键部署；XHTTP的UDP模式支持CDN优选IP](https://youtu.be/NMJIG_2N2a8)
 
 [Argosbx一键生成SSH命令；解决IP限制、IP质量太差问题；Argo固定隧道设置要点](https://youtu.be/xHzZFP_ywLs)
@@ -89,11 +91,8 @@
 
 ----------------------------------------------------------
 ### 感谢支持！微信打赏甬哥侃侃侃ygkkk
-![41440820a366deeb8109db5610313a1](https://github.com/user-attachments/assets/e5b1f2c0-bd2c-4b8f-8cda-034d3c8ef73f)
 
-----------------------------------------------------------
-### 感谢你右上角的star🌟
-[![Stargazers over time](https://starchart.cc/yonggekkk/ArgoSB.svg)](https://starchart.cc/yonggekkk/ArgoSB)
+![41440820a366deeb8109db5610313a1](https://github.com/user-attachments/assets/e5b1f2c0-bd2c-4b8f-8cda-034d3c8ef73f)
 
 ----------------------------------------------------------
 ### 声明：所有代码来源于Github社区与ChatGPT的整合
