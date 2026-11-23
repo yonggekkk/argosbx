@@ -1021,6 +1021,7 @@ cat >> "$HOME/agsbx/xr.json" <<EOF
             "endpoint": "${xendip}:2408"
           }
         ],
+        "noKernelTun": true,
         "reserved": ${res}
         }
     },
