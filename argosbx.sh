@@ -1,7 +1,7 @@
 #!/bin/bash
 export LANG=en_US.UTF-8
 mkdir -p "$HOME/agsbx"
-url='https://raw.githubusercontent.com/yonggekkk/argosbx/beta/argosbx.sh'
+url='https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh'
 case "${*##* }" in list|del|upx|ups|upa|res) ;; *)
 cmd=""
 for v in agqc sub subid subpt snpt uuid vlpt vmpt vwpt hypt tupt xhpt vxpt anpt arpt sspt sopt nvpt xupt xcpt reym cdnym argo agn agk warp name oap cfip alns hyjpt; do
@@ -61,7 +61,7 @@ export warp=${warp:-''}
 export name=${name:-''}
 export oap=${oap:-''}
 v46url="https://icanhazip.com"
-agsbxurl="https://raw.githubusercontent.com/yonggekkk/argosbx/beta/argosbx.sh"
+agsbxurl="https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh"
 showmode(){
 [ -s "$HOME/agsbx/sh.txt" ] && echo "上次输入的完整脚本：$(cat "$HOME/agsbx/sh.txt")"
 echo "Argosbx脚本一键SSH命令生器在线网址：https://yonggekkk.github.io/argosbx/"
@@ -1687,10 +1687,10 @@ echo "客户端端口：$port_sn"
 echo "客户端密码：$uuid"
 echo "版本号选择：6"
 echo
-echo "NekoboxF单节点分享："
+echo "安卓Throne客户端单节点分享："
 echo "$sn1_link"
 echo
-echo "Shadowrocket小火箭单节点分享："
+echo "苹果Shadowrocket小火箭单节点分享："
 echo "$sn2_link"
 echo
 sbsnpt(){
@@ -1809,7 +1809,7 @@ echo "$nv1_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$nv2_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$nv3_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$nv4_link" >> "$HOME/agsbx/jhsub.txt"
-echo "V2rayN/Karing/Nekobox单节点分享："
+echo "V2rayN/Karing/Throne单节点分享："
 echo "$nv1_link" 
 echo "$nv2_link"
 echo
