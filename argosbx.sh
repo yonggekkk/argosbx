@@ -1948,7 +1948,7 @@ echo "💣【 Hysteria2 】节点信息如下："
 if ! grep -A 14 'hy2-sb' "$HOME/agsbx/sb.json" | grep -q 'ygkkkca'; then
 sha=$(cat "$HOME/agsbx/SHA256.txt")
 shamy="&pinSHA256=$sha"
-ains="&insecure=1&allowInsecure=1"
+#ains="&insecure=1&allowInsecure=1"
 fi
 port_hy2=$(cat "$HOME/agsbx/port_hy2")
 hy2_ports=$(iptables -t nat -nL --line 2>/dev/null | grep -w "$port_hy2" | awk '{print $8}' | sed 's/dpts://; s/dpt://' | tr '\n' ',' | sed 's/,$//')
