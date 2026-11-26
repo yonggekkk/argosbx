@@ -783,9 +783,6 @@ EOF
 else
 snp=snptargo
 fi
-}
-
-xrsbhy2(){
 if [ -n "$hyp" ]; then
 hyp=hypt
 if [ -z "$port_hy2" ] && [ ! -e "$HOME/agsbx/port_hy2" ]; then
@@ -796,43 +793,6 @@ echo "$port_hy2" > "$HOME/agsbx/port_hy2"
 fi
 port_hy2=$(cat "$HOME/agsbx/port_hy2")
 echo "Hysteria2端口：$port_hy2"
-if [ -e "$HOME/agsbx/xr.json" ]; then
-cat >> "$HOME/agsbx/xr.json" <<EOF
-    {
-      "tag": "hy2-xr",
-      "protocol": "hysteria",
-      "port": ${port_hy2},
-      "settings": {
-        "version": 2,
-        "clients": [
-          {
-            "auth": "${uuid}"
-          }
-        ]
-      },
-      "streamSettings": {
-        "network": "hysteria",
-        "security": "tls",
-        "tlsSettings": {
-		  "alpn": [
-             "h3"
-            ],
-          "certificates": [
-            {
-              "certificateFile": "$certificateHTA",
-              "keyFile": "$keyHTA"
-            }
-          ]
-        }
-      },
-	   "sniffing": {
-       "enabled": true,
-       "destOverride": ["http", "tls", "quic"],
-       "metadataOnly": false
-       }
-    },
-EOF
-else
 cat >> "$HOME/agsbx/sb.json" <<EOF
     {
         "type": "hysteria2",
@@ -855,13 +815,9 @@ cat >> "$HOME/agsbx/sb.json" <<EOF
         }
     },
 EOF
-fi
 else
 hyp=hyptargo
 fi
-}
-
-xrsbvm(){
 if [ -n "$vmp" ]; then
 vmp=vmpt
 if [ -z "$port_vm_ws" ] && [ ! -e "$HOME/agsbx/port_vm_ws" ]; then
@@ -876,35 +832,6 @@ if [ -n "$cdnym" ]; then
 echo "$cdnym" > "$HOME/agsbx/cdnym"
 echo "80系CDN或者回源CDN的host域名 (确保IP已解析在CF域名)：$cdnym"
 fi
-if [ -e "$HOME/agsbx/xr.json" ]; then
-cat >> "$HOME/agsbx/xr.json" <<EOF
-        {
-            "tag": "vmess-xr",
-            "listen": "::",
-            "port": ${port_vm_ws},
-            "protocol": "vmess",
-            "settings": {
-                "clients": [
-                    {
-                        "id": "${uuid}"
-                    }
-                ]
-            },
-            "streamSettings": {
-                "network": "ws",
-                "security": "none",
-                "wsSettings": {
-                  "path": "${uuid}-vm"
-            }
-        },
-            "sniffing": {
-            "enabled": true,
-            "destOverride": ["http", "tls", "quic"],
-            "metadataOnly": false
-            }
-         }, 
-EOF
-else
 cat >> "$HOME/agsbx/sb.json" <<EOF
 {
         "type": "vmess",
@@ -925,13 +852,9 @@ cat >> "$HOME/agsbx/sb.json" <<EOF
         }
     },
 EOF
-fi
 else
 vmp=vmptargo
 fi
-}
-
-xrsbso(){
 if [ -n "$sop" ]; then
 sop=sopt
 if [ -z "$port_so" ] && [ ! -e "$HOME/agsbx/port_so" ]; then
@@ -942,31 +865,6 @@ echo "$port_so" > "$HOME/agsbx/port_so"
 fi
 port_so=$(cat "$HOME/agsbx/port_so")
 echo "Socks5端口：$port_so"
-if [ -e "$HOME/agsbx/xr.json" ]; then
-cat >> "$HOME/agsbx/xr.json" <<EOF
-        {
-         "tag": "socks5-xr",
-         "port": ${port_so},
-         "listen": "::",
-         "protocol": "socks",
-         "settings": {
-            "auth": "password",
-             "accounts": [
-               {
-               "user": "${uuid}",
-               "pass": "${uuid}"
-               }
-            ],
-            "udp": true
-          },
-            "sniffing": {
-            "enabled": true,
-            "destOverride": ["http", "tls", "quic"],
-            "metadataOnly": false
-            }
-         }, 
-EOF
-else
 cat >> "$HOME/agsbx/sb.json" <<EOF
     {
       "tag": "socks5-sb",
@@ -981,7 +879,6 @@ cat >> "$HOME/agsbx/sb.json" <<EOF
      ]
     },
 EOF
-fi
 else
 sop=soptargo
 fi
@@ -1187,28 +1084,19 @@ fi
 fi
 }
 ins(){
-if [ "$nvp" != yes ] && [ "$tup" != yes ] && [ "$anp" != yes ] && [ "$arp" != yes ] && [ "$ssp" != yes ] && [ "$snp" != yes ]; then
+if [ "$nvp" != yes ] && [ "$tup" != yes ] && [ "$anp" != yes ] && [ "$arp" != yes ] && [ "$ssp" != yes ] && [ "$snp" != yes ] && [ "$sop" != yes ] && [ "$vmp" != yes ] && [ "$hyp" != yes ]; then
 installxray
-xrsbhy2
-xrsbvm
-xrsbso
 warpsx
 xrsbout
-tup="tuptargo"; anp="anptargo"; arp="arptargo"; ssp="ssptargo"; nvp="nvptargo"; snp="snptargo"
+tup="tuptargo"; anp="anptargo"; arp="arptargo"; ssp="ssptargo"; nvp="nvptargo"; snp="snptargo"; sop="soptargo"; vmp="vmptargo"; hyp="hyptargo"
 elif [ "$xhp" != yes ] && [ "$vlp" != yes ] && [ "$vxp" != yes ] && [ "$vwp" != yes ] && [ "$xup" != yes ] && [ "$xcp" != yes ]; then
 installsb
-xrsbhy2
-xrsbvm
-xrsbso
 warpsx
 xrsbout
 xhp="xhptargo"; vlp="vlptargo"; vxp="vxptargo"; vwp="vwptargo"; xup="xuptargo"; xcp="xcptargo"
 else
 installsb
 installxray
-xrsbhy2
-xrsbvm
-xrsbso
 warpsx
 xrsbout
 fi
@@ -1799,10 +1687,10 @@ echo "客户端端口：$port_sn"
 echo "客户端密码：$uuid"
 echo "版本号选择：6"
 echo
-echo "NekoboxF单节点分享："
+echo "安卓Throne客户端单节点分享："
 echo "$sn1_link"
 echo
-echo "Shadowrocket小火箭单节点分享："
+echo "苹果Shadowrocket小火箭单节点分享："
 echo "$sn2_link"
 echo
 sbsnpt(){
@@ -1839,7 +1727,7 @@ clsnpt1(){
 echo "- ${sxname}Snell-V6-$hostname"
 }
 fi
-if grep vmess-xr "$HOME/agsbx/xr.json" >/dev/null 2>&1 || grep vmess-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
+if grep vmess-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 Vmess-ws 】节点信息如下："
 port_vm_ws=$(cat "$HOME/agsbx/port_vm_ws")
 vm_link="vmess://$(echo "{ \"v\": \"2\", \"ps\": \"${sxname}vm-ws-$hostname\", \"add\": \"$server_ip\", \"port\": \"$port_vm_ws\", \"id\": \"$uuid\", \"aid\": \"0\", \"scy\": \"auto\", \"net\": \"ws\", \"type\": \"none\", \"host\": \"www.bing.com\", \"path\": \"/$uuid-vm\", \"tls\": \"\"}" | base64 -w0)"
@@ -1921,7 +1809,7 @@ echo "$nv1_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$nv2_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$nv3_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$nv4_link" >> "$HOME/agsbx/jhsub.txt"
-echo "V2rayN/Karing/Nekobox单节点分享："
+echo "V2rayN/Karing/Throne单节点分享："
 echo "$nv1_link" 
 echo "$nv2_link"
 echo
@@ -2055,10 +1943,12 @@ sbarpt1(){
 echo "\"${sxname}any-reality-$hostname\","
 }
 fi
-if grep -q 'hy2-sb' "$HOME/agsbx/sb.json" >/dev/null 2>&1 || grep -q 'hy2-xr' "$HOME/agsbx/xr.json" >/dev/null 2>&1; then
+if grep -q 'hy2-sb' "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 Hysteria2 】节点信息如下："
-if { [ -f "$HOME/agsbx/sb.json" ] && grep -q 'hy2-sb' "$HOME/agsbx/sb.json" && ! grep -A 14 'hy2-sb' "$HOME/agsbx/sb.json" | grep -q 'ygkkkca'; } || { [ -f "$HOME/agsbx/xr.json" ] && grep -q 'hy2-xr' "$HOME/agsbx/xr.json" && ! grep -A 20 'hy2-xr' "$HOME/agsbx/xr.json" | grep -q 'ygkkkca'; }; then
+if ! grep -A 14 'hy2-sb' "$HOME/agsbx/sb.json" | grep -q 'ygkkkca'; then
 sha=$(cat "$HOME/agsbx/SHA256.txt")
+shamy="&pinSHA256=$sha"
+ains="&insecure=1&allowInsecure=1"
 fi
 port_hy2=$(cat "$HOME/agsbx/port_hy2")
 hy2_ports=$(iptables -t nat -nL --line 2>/dev/null | grep -w "$port_hy2" | awk '{print $8}' | sed 's/dpts://; s/dpt://' | tr '\n' ',' | sed 's/,$//')
@@ -2076,7 +1966,7 @@ else
 hyps=
 fi
 #hy2_link="hysteria2://$uuid@$server_ip:$port_hy2?security=tls&alpn=h3&insecure=1&allowInsecure=1$hyps&sni=www.bing.com#${sxname}hy2-$hostname"
-hy2_link="hysteria2://$uuid@$add:$port_hy2?security=tls&alpn=h3&insecure=0&allowInsecure=0$hyps&sni=$sni&pinSHA256=$sha#${sxname}hy2-$hostname"
+hy2_link="hysteria2://$uuid@$add:$port_hy2?security=tls&alpn=h3$ains$hyps&sni=$sni$shamy#${sxname}hy2-$hostname"
 echo "$hy2_link" >> "$HOME/agsbx/jhsub.txt"
 echo "$hy2_link"
 echo
@@ -2178,7 +2068,7 @@ cltupt1(){
 echo "- ${sxname}tuic5-$hostname"
 }
 fi
-if grep socks5-xr "$HOME/agsbx/xr.json" >/dev/null 2>&1 || grep socks5-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
+if grep socks5-sb "$HOME/agsbx/sb.json" >/dev/null 2>&1; then
 echo "💣【 Socks5 】客户端信息如下："
 port_so=$(cat "$HOME/agsbx/port_so")
 echo "请配合其他应用内置代理使用，勿做节点直接使用"
