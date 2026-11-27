@@ -899,29 +899,32 @@ cat >> "$HOME/agsbx/xr.json" <<EOF
      }
   }
     },
-    {
-      "tag": "x-warp-out",
-      "protocol": "wireguard",
-      "settings": {
-        "secretKey": "${pvk}",
+{
+  "tag": "x-warp-out",
+  "protocol": "masque",
+  "settings": {
+    "address": "162.159.198.2",
+    "port": 443
+  },
+  "streamSettings": {
+    "method": "masque",
+    "masqueSettings": {
+      "warp": {
+        "privateKey": "j8A0nPVDQirkUP9Az4Nj5iT9Ctj5u2GmPY5VfQM2eQjimIqEGPYiLQUw",
+        "publicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEIaU7MToJm9NKp8YfGxR6r+/h4mcG7SxI8tsW8OR1A5tv/zCzVbCRRh2t87/kxnP6lAy0lkr7qYwu+ox+k3dr6w==",
         "address": [
           "172.16.0.2/32",
-          "${wpv6}/128"
-        ],
-        "peers": [
-          {
-            "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
-            "allowedIPs": [
-              "0.0.0.0/0",
-              "::/0"
-            ],
-            "endpoint": "${xendip}:2408"
-          }
-        ],
-        "noKernelTun": true,
-        "reserved": ${res}
-        }
+          "2606:4700:110:8d5a:85dc:bfc6:e523:22db/128"
+        ]
+      }
     },
+    "security": "tls",
+    "tlsSettings": {
+      "serverName": "consumer-masque.cloudflareclient.com",
+      "alpn": ["h2"]
+    }
+  }
+},
     {
       "tag":"warp-out",
       "protocol":"freedom",
