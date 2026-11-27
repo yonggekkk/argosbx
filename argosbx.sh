@@ -910,11 +910,11 @@ cat >> "$HOME/agsbx/xr.json" <<EOF
     "method": "masque",
     "masqueSettings": {
       "warp": {
-        "privateKey": "j8A0nPVDQirkUP9Az4Nj5iT9Ctj5u2GmPY5VfQM2eQjimIqEGPYiLQUw",
+        "privateKey": "MHcCAQEEIFr2bSv4wITZwm7ujxZjlciTHZ7AgjYDMlrbdOYc00g9oAoGCCqGSM49AwEHoUQDQgAEIWfs0JJa3fvK0EFiL3nENSOpMf/f4z+nfFdENHuyYLPIo6w2K8kBfODsNE/wkviSPWfphZGPHgKP2ptQpSp3KQ==",
         "publicKey": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEIaU7MToJm9NKp8YfGxR6r+/h4mcG7SxI8tsW8OR1A5tv/zCzVbCRRh2t87/kxnP6lAy0lkr7qYwu+ox+k3dr6w==",
         "address": [
           "172.16.0.2/32",
-          "2606:4700:110:8d5a:85dc:bfc6:e523:22db/128"
+          "2606:4700:110:8375:f13d:79ff:cad1:74a0/128"
         ]
       }
     },
